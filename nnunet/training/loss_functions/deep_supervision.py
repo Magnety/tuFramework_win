@@ -35,9 +35,9 @@ class MultipleOutputLoss2(nn.Module):
             weights = [1] * len(x)
         else:
             weights = self.weight_factors
-        print("-1-1-1-1-1-1-1-1-1-1-1-")
-        print("x[0]", x[0].shape)
-        print("y[0]", y[0].shape)
+        #print("-1-1-1-1-1-1-1-1-1-1-1-")
+        #print("x[0]", x[0].shape)
+        #print("y[0]", y[0].shape)
         l = weights[0] * self.loss(x[0], y[0])
         for i in range(1, len(x)):
             if weights[i] != 0:
