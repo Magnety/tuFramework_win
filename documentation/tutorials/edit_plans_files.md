@@ -6,7 +6,7 @@ in the [supplementary information](https://static-content.springer.com/esm/art%3
     
 The goal of this tutorial is to demonstrate how to read and modify plans files and how to use them in your 
 experiments. The file used here works with Task120 and requires you to have downloaded the dataset, run 
-nnunet.dataset_conversion.Task120_Massachusetts_RoadSegm.py and then run nnUNet_plan_and_preprocess for it.
+tuframework.dataset_conversion.Task120_Massachusetts_RoadSegm.py and then run nnUNet_plan_and_preprocess for it.
 
 Note that this task is 2D only, but the same principles we use here can be easily extended to 3D and other tasks as well.
 
@@ -41,7 +41,7 @@ The following snippet makes the necessary adaptations to the plans file
 ```python
 from batchgenerators.utilities.file_and_folder_operations import *
 import numpy as np
-from nnunet.paths import preprocessing_output_dir
+from tuframework.paths import preprocessing_output_dir
 task_name = 'Task120_MassRoadsSeg'
 
 # if it breaks upon loading the plans file, make sure to run the Task120 dataset conversion and
@@ -69,7 +69,7 @@ Variant 2: patch size 256x256, batch size 60
 ```python
 from batchgenerators.utilities.file_and_folder_operations import *
 import numpy as np
-from nnunet.paths import preprocessing_output_dir
+from tuframework.paths import preprocessing_output_dir
 task_name = 'Task120_MassRoadsSeg'
 plans_fname = join(preprocessing_output_dir, task_name, 'nnUNetPlansv2.1_plans_2D.pkl')
 plans = load_pickle(plans_fname)

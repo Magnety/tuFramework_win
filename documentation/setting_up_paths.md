@@ -3,14 +3,14 @@
 nnU-Net relies on environment variables to know where raw data, preprocessed data and trained model weights are stored. 
 To use the full functionality of nnU-Net, the following three environment variables must be set:
 
-1) nnUNet_raw_data_base: This is where nnU-Net finds the raw data and stored the cropped data. The folder located at 
-nnUNet_raw_data_base must have at least the subfolder nnUNet_raw_data, which in turn contains one subfolder for each Task. 
+1) tuFramework_raw_data_base: This is where nnU-Net finds the raw data and stored the cropped data. The folder located at
+tuFramework_raw_data_base must have at least the subfolder tuFramework_raw_data, which in turn contains one subfolder for each Task.
 It is the responsibility of the user to bring the raw data into the appropriate format - nnU-Net will then take care of 
 the rest ;-) For more information on the required raw data format, see [here](dataset_conversion.md).
 
     Example tree structure:
     ```
-    nnUNet_raw_data_base/nnUNet_raw_data/Task002_Heart
+    tuFramework_raw_data_base/tuFramework_raw_data/Task002_Heart
     ├── dataset.json
     ├── imagesTr
     │   ├── la_003_0000.nii.gz
@@ -24,7 +24,7 @@ the rest ;-) For more information on the required raw data format, see [here](da
         ├── la_003.nii.gz
         ├── la_004.nii.gz
         ├── ...
-    nnUNet_raw_data_base/nnUNet_raw_data/Task005_Prostate/
+    tuFramework_raw_data_base/tuFramework_raw_data/Task005_Prostate/
     ├── dataset.json
     ├── imagesTr
     │   ├── prostate_00_0000.nii.gz
@@ -58,7 +58,7 @@ ensure that you see it. In rare cases it may not be present and you can simply c
 
 Once the file is open in a text editor, add the following lines to the bottom:
 ```
-export nnUNet_raw_data_base="/media/fabian/nnUNet_raw"
+export tuFramework_raw_data_base="/media/fabian/nnUNet_raw"
 export nnUNet_preprocessed="/media/fabian/nnUNet_preprocessed"
 export RESULTS_FOLDER="/media/fabian/nnUNet_trained_models"
 ```
@@ -75,7 +75,7 @@ The method above sets the paths permanently (until you delete the lines from you
 to set them only temporarily, you can run the export commands in your terminal:
 
 ```
-export nnUNet_raw_data_base="/media/fabian/nnUNet_raw"
+export tuFramework_raw_data_base="/media/fabian/nnUNet_raw"
 export nnUNet_preprocessed="/media/fabian/nnUNet_preprocessed"
 export RESULTS_FOLDER="/media/fabian/nnUNet_trained_models"
 ```

@@ -19,7 +19,7 @@ the correct format.
     ```
     
     Note that `Task05_Prostate` must be the folder that has the three 'imagesTr', 'labelsTr', 'imagesTs' subfolders!
-    The converted dataset can be found in `$nnUNet_raw_data_base/nnUNet_raw_data` ($nnUNet_raw_data_base is the folder for 
+    The converted dataset can be found in `$tuFramework_raw_data_base/tuFramework_raw_data` ($tuFramework_raw_data_base is the folder for
     raw data that you specified during installation)
 4) Download the pretrained model using this command:
     ```bash
@@ -39,12 +39,12 @@ always contain the T2 image and 0001.nii.gz the ADC image. Whenever you are usin
         input modalities are 0: T2, 1: ADC. 
         Also see Medical Segmentation Decathlon, http://medicaldecathlon.com/
 6) The script we ran in 3) automatically converted the test data for us and stored them in
-`$nnUNet_raw_data_base/nnUNet_raw_data/Task005_Prostate/imagesTs`. Note that you need to do this conversion youself when 
+`$tuFramework_raw_data_base/tuFramework_raw_data/Task005_Prostate/imagesTs`. Note that you need to do this conversion youself when
 using other than Medcial Segmentation Decathlon datasets. No worries. Doing this is easy (often as simple as appending 
 a _0000 to the file name if only one input modality is required). Instructions can be found here [here](data_format_inference.md).
 7) You can now predict the Prostate test cases with the pretrained model. We exemplarily use the 3D full resoltion U-Net here:
     ```bash
-    nnUNet_predict -i $nnUNet_raw_data_base/nnUNet_raw_data/Task005_Prostate/imagesTs/ -o OUTPUT_DIRECTORY -t 5 -m 3d_fullres
+    nnUNet_predict -i $tuFramework_raw_data_base/tuFramework_raw_data/Task005_Prostate/imagesTs/ -o OUTPUT_DIRECTORY -t 5 -m 3d_fullres
     ``` 
     Note that `-t 5` specifies the task with id 5 (which corresponds to the Prostate dataset). You can also give the full 
     task name `Task005_Prostate`. `OUTPUT_DIRECTORY` is where the resulting segmentations are saved.
@@ -58,12 +58,12 @@ a _0000 to the file name if only one input modality is required). Instructions c
 
     Prediction with 3d full resolution U-Net (this command is a little different than the one above). 
     ```bash
-    nnUNet_predict -i $nnUNet_raw_data_base/nnUNet_raw_data/Task005_Prostate/imagesTs/ -o OUTPUT_DIRECTORY_3D -t 5 --save_npz -m 3d_fullres
+    nnUNet_predict -i $tuFramework_raw_data_base/tuFramework_raw_data/Task005_Prostate/imagesTs/ -o OUTPUT_DIRECTORY_3D -t 5 --save_npz -m 3d_fullres
     ```
     
     Prediction with 2D U-Net
     ```bash
-    nnUNet_predict -i $nnUNet_raw_data_base/nnUNet_raw_data/Task005_Prostate/imagesTs/ -o OUTPUT_DIRECTORY_2D -t 5 --save_npz -m 2d
+    nnUNet_predict -i $tuFramework_raw_data_base/tuFramework_raw_data/Task005_Prostate/imagesTs/ -o OUTPUT_DIRECTORY_2D -t 5 --save_npz -m 2d
     ```
     `--save_npz` will tell nnU-Net to also store the softmax probabilities for ensembling. 
     

@@ -60,7 +60,7 @@ the most recent software (pytorch, cuDNN, etc.) in them. When starting Docker co
 Nvidia website, the docker will crash with errors like this when running nnU-Net: `RuntimeError: unable to write to 
 file </torch_781_2606105346>`. Please start the docker with the `--ipc=host` flag to solve this.
 
-## Downloading pretrained models: unzip: cannot find zipfile directory in one of /home/isensee/.nnunetdownload_16031094034174126
+## Downloading pretrained models: unzip: cannot find zipfile directory in one of /home/isensee/.tuframeworkdownload_16031094034174126
 
 Sometimes downloading the large zip files containing our pretrained models can fail and cause the error above. Please 
 make sure to use the most recent nnU-Net version (we constantly try to improve the downloading). If that does not fix it

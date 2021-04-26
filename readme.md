@@ -102,7 +102,7 @@ Python 2 is deprecated and not supported. Please make sure you are using Python 
 2) Install nnU-Net depending on your use case:
     1) For use as **standardized baseline**, **out-of-the-box segmentation algorithm** or for running **inference with pretrained models**:
       
-        ```pip install nnunet```
+        ```pip install tuframework```
     
     2) For use as integrative **framework** (this will create a copy of the nnU-Net code on your computer so that you can modify it as needed):
           ```bash
@@ -151,7 +151,7 @@ image sizes, voxel spacings, intensity information etc). This information is use
 a 2D U-Net, a 3D U-Net that operated on full resolution images as well as a 3D U-Net cascade where the first U-Net 
 creates a coarse segmentation map in downsampled images which is then refined by the second U-Net.
 
-Provided that the requested raw dataset is located in the correct folder (`nnUNet_raw_data_base/nnUNet_raw_data/TaskXXX_MYTASK`, 
+Provided that the requested raw dataset is located in the correct folder (`tuFramework_raw_data_base/tuFramework_raw_data/TaskXXX_MYTASK`,
 also see [here](documentation/dataset_conversion.md)), you can run this step with the following command:
 
 ```bash
@@ -325,7 +325,7 @@ this GPU (and pytorch compiled with cuDNN 8.0.2), all network trainings take les
 
 nnU-Net supports two different multi-GPU implementation: DataParallel (DP) and Distributed Data Parallel (DDP)
 (but currently only on one host!). DDP is faster than DP and should be preferred if possible. However, if you did not 
-install nnunet as a framework (meaning you used the `pip install nnunet` variant), DDP is not available. It requires a 
+install tuframework as a framework (meaning you used the `pip install tuframework` variant), DDP is not available. It requires a
 different way of calling the correct python script (see below) which we cannot support from our terminal commands.
 
 Distributed training currently only works for the basic trainers (2D, 3D full resolution and 3D low resolution) and not 
@@ -348,7 +348,7 @@ CUDA_VISIBLE_DEVICES envorinment variable to specify the GPU ids (specify as man
 in this example for a total of batch size 4).
 
 To run the DDP training you must have nnU-Net installed as a framework. Your current working directory must be the 
-nnunet folder (the one that has the dataset_conversion, evaluation, experiment_planning, ... subfolders!). You can then run
+tuframework folder (the one that has the dataset_conversion, evaluation, experiment_planning, ... subfolders!). You can then run
 the DDP training with the following command:
 
 ```bash
@@ -450,7 +450,7 @@ To get you started we compiled two simple to follow examples:
 Usability not good enough? Let us know!
 
 # Extending or Changing nnU-Net
-Please refer to [this](documentation/extending_nnunet.md) guide.
+Please refer to [this](documentation/extending_tuframework.md) guide.
 
 # Information on run time and potential performance bottlenecks.
 

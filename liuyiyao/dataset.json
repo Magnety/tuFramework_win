@@ -12,7 +12,7 @@
     "name": "KiTS",
     "numTest": 90,
     "numTraining": 210,
-    "reference": "KiTS data for nnunet",
+    "reference": "KiTS data for tuframework",
     "release": "0.0",
     "tensorImageSize": "4D",
     "test": [

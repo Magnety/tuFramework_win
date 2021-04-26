@@ -3,13 +3,13 @@ nnU-Net requires the raw data to be brought into a specific format so that it kn
 format closely, but not entirely, follows the format used by the 
 [Medical Segmentation Decathlon](http://medicaldecathlon.com/) (MSD).
 
-The entry point to nnU-Net is the nnUNet_raw_data_base folder (which the user needs to specify when installing nnU-Net!). 
+The entry point to nnU-Net is the tuFramework_raw_data_base folder (which the user needs to specify when installing nnU-Net!).
 Each segmentation dataset is stored as a separate 'Task'. Tasks are associated with a task ID, a three digit integer 
 (this is different from the MSD!) and 
 a task name (which you can freely choose): Task005_Prostate has 'Prostate' as task name and the task id is 5. Tasks are stored in the 
-nnUNet_raw_data_base/nnUNet_raw_data folder like this:
+tuFramework_raw_data_base/tuFramework_raw_data folder like this:
 
-    nnUNet_raw_data_base/nnUNet_raw_data/
+    tuFramework_raw_data_base/tuFramework_raw_data/
     ├── Task001_BrainTumour
     ├── Task002_Heart
     ├── Task003_Liver
@@ -52,7 +52,7 @@ data into this format!
 Here is an example for the first Task of the MSD: BrainTumour. Each image has four modalities: FLAIR (0000), 
 T1w (0001), T1gd (0002) and T2w (0003). Note that the imagesTs folder is optional and does not have to be present.
 
-    nnUNet_raw_data_base/nnUNet_raw_data/Task001_BrainTumour/
+    tuFramework_raw_data_base/tuFramework_raw_data/Task001_BrainTumour/
     ├── dataset.json
     ├── imagesTr
     │   ├── BRATS_001_0000.nii.gz
@@ -103,7 +103,7 @@ T1w (0001), T1gd (0002) and T2w (0003). Note that the imagesTs folder is optiona
 
 Here is another example of the second task of the MSD, which has only one modality:
 
-    nnUNet_raw_data_base/nnUNet_raw_data/Task002_Heart/
+    tuFramework_raw_data_base/tuFramework_raw_data/Task002_Heart/
     ├── dataset.json
     ├── imagesTr
     │   ├── la_003_0000.nii.gz
@@ -126,8 +126,8 @@ them as well and thereby exactly follow the same structure. [This](https://drive
 is where you can download the MSD data for reference. 
 
 **NEW:** There now is a utility with which you can generate the dataset.json automatically. You can find it 
-[here](../nnunet/dataset_conversion/utils.py) (look for the function `generate_dataset_json`). 
-See [Task120](../nnunet/dataset_conversion/Task120_Massachusetts_RoadSegm.py) for an example on how to use it. And read 
+[here](../tuframework/dataset_conversion/utils.py) (look for the function `generate_dataset_json`).
+See [Task120](../tuframework/dataset_conversion/Task120_Massachusetts_RoadSegm.py) for an example on how to use it. And read
 its documentation!
 
 Here is the content of the dataset.json from the Prostate task:
@@ -157,7 +157,7 @@ Here is the content of the dataset.json from the Prostate task:
 Note that we truncated the "training" and "test" lists for clarity. You need to specify all the cases in there. If you 
 don't have test images (imagesTs does not exist) you can leave "test" blank: `"test": []`.
 
-Please also have a look at the python files located [here](../nnunet/dataset_conversion). They show how we created our 
+Please also have a look at the python files located [here](../tuframework/dataset_conversion). They show how we created our
 custom dataset.jsons for a range of public datasets.
 
 ## How to use decathlon datasets
@@ -170,7 +170,7 @@ nnUNet_convert_decathlon_task -i FOLDER_TO_TASK_AS_DOWNLOADED_FROM_MSD -p NUM_PR
 ```
 
 FOLDER_TO_TASK_AS_DOWNLOADED_FROM_MSD needs to point to the downloaded task folder (such as Task05_Prostate, note the 
-2-digit task id!). The converted Task will be saved under the same name in nnUNet_raw_data_base/nnUNet_raw_data 
+2-digit task id!). The converted Task will be saved under the same name in tuFramework_raw_data_base/tuFramework_raw_data
 (but with a 3 digit identifier). You can overwrite the task id of the converted task by using the `-output_task_id` option.
 
 
@@ -191,12 +191,12 @@ doing this should be easy for you. This example here is intended for demonstrati
 'regular' 2D images. We selected the massachusetts road segmentation dataset for this because it can be obtained 
 easily, it comes with a good amount of training cases but is still not too large to be difficult to handle.
     
-See [here](../nnunet/dataset_conversion/Task120_Massachusetts_RoadSegm.py) for an example. 
+See [here](../tuframework/dataset_conversion/Task120_Massachusetts_RoadSegm.py) for an example.
 This script contains a lot of comments and useful information. Also have a look 
-[here](../nnunet/dataset_conversion/Task089_Fluo-N2DH-SIM.py).
+[here](../tuframework/dataset_conversion/Task089_Fluo-N2DH-SIM.py).
 
 ## How to convert other image formats to nifti
 Please have a look at the following tasks:
-- [Task120](../nnunet/dataset_conversion/Task120_Massachusetts_RoadSegm.py): 2D png images
-- [Task075](../nnunet/dataset_conversion/Task075_Fluo_C3DH_A549_ManAndSim.py) and [Task076](../nnunet/dataset_conversion/Task076_Fluo_N3DH_SIM.py): 3D tiff
-- [Task089](../nnunet/dataset_conversion/Task089_Fluo-N2DH-SIM.py) 2D tiff
+- [Task120](../tuframework/dataset_conversion/Task120_Massachusetts_RoadSegm.py): 2D png images
+- [Task075](../tuframework/dataset_conversion/Task075_Fluo_C3DH_A549_ManAndSim.py) and [Task076](../tuframework/dataset_conversion/Task076_Fluo_N3DH_SIM.py): 3D tiff
+- [Task089](../tuframework/dataset_conversion/Task089_Fluo-N2DH-SIM.py) 2D tiff
