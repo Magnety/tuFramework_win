@@ -81,11 +81,11 @@ def main():
     #                     help="force_separate_z resampling. Can be None, True or False. Testing purpose only. Hands off")
 
 
-    sys.argv=['run_training.py','3d_fullres','nnUNetTrainerV2','6','all']
+    sys.argv=['run_training.py','3d_fullres','nnUNetTrainerV2','6','all','-c']
 
     args = parser.parse_args()
 
-    os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+    os.environ["CUDA_VISIBLE_DEVICES"] = "3"
     task = args.task
 
     fold = args.fold

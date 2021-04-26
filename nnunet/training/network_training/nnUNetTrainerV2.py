@@ -25,6 +25,8 @@ from nnunet.network_architecture.generic_UNet import Generic_UNet
 from nnunet.network_architecture.generic_MedT import ResAxialAttentionUNet
 from nnunet.network_architecture.generic_MedT import medt_net
 from nnunet.network_architecture.generic_MedT import TUNet
+from nnunet.network_architecture.generic_VNet import VNet_recons
+
 
 from nnunet.network_architecture.initialization import InitWeights_He
 from nnunet.network_architecture.neural_network import SegmentationNetwork
@@ -156,19 +158,19 @@ class nnUNetTrainerV2(nnUNetTrainer):
         net_nonlin = nn.LeakyReLU
         net_nonlin_kwargs = {'negative_slope': 1e-2, 'inplace': True}
 
-        self.network = TUNet([1, 2, 4, 1], self.num_input_channels,
+        """self.network = TUNet([1, 2, 4, 1], self.num_input_channels,
                                 self.num_classes, len(self.net_num_pool_op_kernel_sizes),
                                 self.conv_per_stage, 2, conv_op, norm_op, norm_op_kwargs, dropout_op,
                                 dropout_op_kwargs,
                                 net_nonlin, net_nonlin_kwargs, False, lambda x: x, InitWeights_He(1e-2),
                                 self.net_num_pool_op_kernel_sizes, self.net_conv_kernel_sizes, False, True,
-                                True, s=0.125, img_size=self.patch_size)
-        """self.network = VisionTransformer(self.patch_size,self.num_input_channels, self.base_num_features, self.num_classes,
-                                    len(self.net_num_pool_op_kernel_sizes),
-                                    self.conv_per_stage, 2, conv_op, norm_op, norm_op_kwargs, dropout_op,
-                                    dropout_op_kwargs,
-                                    net_nonlin, net_nonlin_kwargs, True, False, lambda x: x, InitWeights_He(1e-2),
-                                    self.net_num_pool_op_kernel_sizes, self.net_conv_kernel_sizes, False, True, True)"""
+                                True, s=0.125, img_size=self.patch_size)"""
+        self.network = VNet_recons(self.num_input_channels, self.base_num_features, self.num_classes,
+                                   len(self.net_num_pool_op_kernel_sizes),
+                                   self.conv_per_stage, 2, conv_op, norm_op, norm_op_kwargs, dropout_op,
+                                   dropout_op_kwargs,
+                                   net_nonlin, net_nonlin_kwargs, True, False, lambda x: x, InitWeights_He(1e-2),
+                                   self.net_num_pool_op_kernel_sizes, self.net_conv_kernel_sizes, False, True, True)
 
         if torch.cuda.is_available():
             self.network.cuda()
