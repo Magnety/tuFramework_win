@@ -16,7 +16,7 @@ from batchgenerators.utilities.file_and_folder_operations import *
 from tuframework.paths import preprocessing_output_dir
 
 
-# This file is intended to double check nnUNets design choices. It is intended to be used for developent purposes only
+# This file is intended to double check tuframeworks design choices. It is intended to be used for developent purposes only
 def summarize_plans(file):
     plans = load_pickle(file)
     print("num_classes: ", plans['num_classes'])

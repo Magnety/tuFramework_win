@@ -15,10 +15,10 @@
 
 import torch
 
-from tuframework.training.network_training.tuTrainerV2 import nnUNetTrainerV2
+from tuframework.training.network_training.tuTrainerV2 import tuframeworkTrainerV2
 
 
-class nnUNetTrainerV2_momentum09(nnUNetTrainerV2):
+class tuframeworkTrainerV2_momentum09(tuframeworkTrainerV2):
     def initialize_optimizer_and_scheduler(self):
         assert self.network is not None, "self.initialize_network must be called first"
         self.optimizer = torch.optim.SGD(self.network.parameters(), self.initial_lr, weight_decay=self.weight_decay,

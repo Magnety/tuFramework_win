@@ -24,9 +24,9 @@ from tuframework.paths import *
 class ExperimentPlannerPoolBasedOnSpacing(ExperimentPlanner):
     def __init__(self, folder_with_cropped_data, preprocessed_output_folder):
         super(ExperimentPlannerPoolBasedOnSpacing, self).__init__(folder_with_cropped_data, preprocessed_output_folder)
-        self.data_identifier = "nnUNetData_poolBasedOnSpacing"
+        self.data_identifier = "tuframeworkData_poolBasedOnSpacing"
         self.plans_fname = join(self.preprocessed_output_folder,
-                                "nnUNetPlans" +  "poolBasedOnSpacing_plans_3D.pkl")
+                                "tuframeworkPlans" +  "poolBasedOnSpacing_plans_3D.pkl")
 
     def get_properties_for_stage(self, current_spacing, original_spacing, original_shape, num_cases,
                                  num_modalities, num_classes):

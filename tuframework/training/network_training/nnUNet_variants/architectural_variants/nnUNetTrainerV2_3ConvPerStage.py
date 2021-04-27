@@ -14,12 +14,12 @@
 import torch
 from tuframework.network_architecture.generic_UNet import Generic_UNet
 from tuframework.network_architecture.initialization import InitWeights_He
-from tuframework.training.network_training.tuTrainerV2 import nnUNetTrainerV2
+from tuframework.training.network_training.tuTrainerV2 import tuframeworkTrainerV2
 from tuframework.utilities.nd_softmax import softmax_helper
 from torch import nn
 
 
-class nnUNetTrainerV2_3ConvPerStage(nnUNetTrainerV2):
+class tuframeworkTrainerV2_3ConvPerStage(tuframeworkTrainerV2):
     def initialize_network(self):
         self.base_num_features = 24  # otherwise we run out of VRAM
         if self.threeD:

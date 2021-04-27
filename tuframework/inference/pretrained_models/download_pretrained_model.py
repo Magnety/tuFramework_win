@@ -166,7 +166,7 @@ def get_available_models():
                            "input modalities are 0: fluorescence_microscopy\n"
                            "Also see http://celltrackingchallenge.net/\n",
                            "Note that the segmentation output of the models are cell center and cell border. These outputs mus tbe converted to an instance segmentation for the challenge. \n"
-                           "See https://github.com/MIC-DKFZ/nnUNet/blob/master/tuframework/dataset_conversion/Task076_Fluo_N3DH_SIM.py"
+                           "See https://github.com/MIC-DKFZ/tuframework/blob/master/tuframework/dataset_conversion/Task076_Fluo_N3DH_SIM.py"
             'url': "https://zenodo.org/record/4003545/files/Task076_Fluo_N3DH_SIM.zip?download=1"
         },
         "Task089_Fluo-N2DH-SIM_thickborder_time": {
@@ -174,7 +174,7 @@ def get_available_models():
                            "input modalities are 0: t minus 4, 0: t minus 3, 0: t minus 2, 0: t minus 1, 0: frame of interest\n"
                            "Note that the input channels are different time steps from a time series acquisition\n"
                            "Note that the segmentation output of the models are cell center and cell border. These outputs mus tbe converted to an instance segmentation for the challenge. \n"
-                           "See https://github.com/MIC-DKFZ/nnUNet/blob/master/tuframework/dataset_conversion/Task089_Fluo-N2DH-SIM.py"
+                           "See https://github.com/MIC-DKFZ/tuframework/blob/master/tuframework/dataset_conversion/Task089_Fluo-N2DH-SIM.py"
                            "Also see http://celltrackingchallenge.net/",
             'url': "https://zenodo.org/record/4003545/files/Task089_Fluo-N2DH-SIM_thickborder_time.zip?download=1"
         },
@@ -183,7 +183,7 @@ def get_available_models():
                             "input modalities are 0: MRI \n"
                             "See also https://www.ub.edu/mnms/ \n"
                             "Note: Labels of the M&Ms Challenge are not in the same order as for the ACDC challenge. \n"
-                            "See https://github.com/MIC-DKFZ/nnUNet/blob/master/tuframework/dataset_conversion/Task114_heart_mnms.py",
+                            "See https://github.com/MIC-DKFZ/tuframework/blob/master/tuframework/dataset_conversion/Task114_heart_mnms.py",
             'url': "https://zenodo.org/record/4288464/files/Task114_heart_MNMs.zip?download=1"
         },
 
@@ -268,7 +268,7 @@ def print_license_warning():
     print('######################################################')
     print("Using the pretrained model weights is subject to the license of the dataset they were trained on. Some "
           "allow commercial use, others don't. It is your responsibility to make sure you use them appropriately! Use "
-          "nnUNet_print_pretrained_model_info(task_name) to see a summary of the dataset and where to find its license!")
+          "tuframework_print_pretrained_model_info(task_name) to see a summary of the dataset and where to find its license!")
     print('######################################################')
     print('')
 
@@ -280,7 +280,7 @@ def download_by_name():
                                                  "existing models (if they share the same trainer class and plans as "
                                                  "the pretrained model")
     parser.add_argument("task_name", type=str, help='Task name of the pretrained model. To see '
-                                                                   'available task names, run nnUNet_print_available_'
+                                                                   'available task names, run tuframework_print_available_'
                                                                    'pretrained_models')
     args = parser.parse_args()
     taskname = args.task_name
@@ -292,7 +292,7 @@ def download_by_url():
     import argparse
     parser = argparse.ArgumentParser(
         description="Use this to download pretrained models. This script is intended to download models via url only. "
-                    "If you want to download one of our pretrained models, please use nnUNet_download_pretrained_model. "
+                    "If you want to download one of our pretrained models, please use tuframework_download_pretrained_model. "
                     "CAREFUL: This script will overwrite "
                     "existing models (if they share the same trainer class and plans as "
                     "the pretrained model.")
@@ -317,14 +317,14 @@ def print_pretrained_model_requirements():
     parser = argparse.ArgumentParser(description="Use this to see the properties of a pretrained model, especially "
                                                  "what input modalities it requires")
     parser.add_argument("task_name", type=str, help='Task name of the pretrained model. To see '
-                                                                   'available task names, run nnUNet_print_available_'
+                                                                   'available task names, run tuframework_print_available_'
                                                                    'pretrained_models')
     args = parser.parse_args()
     taskname = args.task_name
     av = get_available_models()
     if taskname not in av.keys():
         raise RuntimeError("Invalid task name. This pretrained model does not exist. To see available task names, "
-                           "run nnUNet_print_available_pretrained_models")
+                           "run tuframework_print_available_pretrained_models")
     print(av[taskname]['description'])
 
 

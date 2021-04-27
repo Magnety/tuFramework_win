@@ -13,10 +13,10 @@
 #    limitations under the License.
 
 
-from tuframework.training.network_training.nnUNet_variants.optimizer_and_lr.nnUNetTrainerV2_Adam import nnUNetTrainerV2_Adam
+from tuframework.training.network_training.tuframework_variants.optimizer_and_lr.tuframeworkTrainerV2_Adam import tuframeworkTrainerV2_Adam
 
 
-class nnUNetTrainerV2_Adam_nnUNetTrainerlr(nnUNetTrainerV2_Adam):
+class tuframeworkTrainerV2_Adam_tuframeworkTrainerlr(tuframeworkTrainerV2_Adam):
     def __init__(self, plans_file, fold, output_folder=None, dataset_directory=None, batch_dice=True, stage=None,
                  unpack_data=True, deterministic=True, fp16=False):
         super().__init__(plans_file, fold, output_folder, dataset_directory, batch_dice, stage, unpack_data,

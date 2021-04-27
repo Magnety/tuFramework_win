@@ -13,7 +13,7 @@ destination of your choice.
 [here](dataset_conversion.md)). Convert the Hippocampus dataset into the correct format with
 
     ```bash
-    nnUNet_convert_decathlon_task -i /xxx/Task04_Hippocampus
+    tuframework_convert_decathlon_task -i /xxx/Task04_Hippocampus
     ```
     
     Note that `Task04_Hippocampus` must be the folder that has the three 'imagesTr', 'labelsTr', 'imagesTs' subfolders!
@@ -21,12 +21,12 @@ destination of your choice.
     raw data that you specified during installation)
 4) You can now run nnU-Nets pipeline configuration (and the preprocessing) with the following line:
     ```bash
-    nnUNet_plan_and_preprocess -t 4
+    tuframework_plan_and_preprocess -t 4
     ```
    Where 4 refers to the task ID of the Hippocampus dataset.
 5) Now you can already start network training. This is how you train a 3d full resoltion U-Net on the Hippocampus dataset:
     ```bash
-    nnUNet_train 3d_fullres nnUNetTrainerV2 4 0
+    tuframework_train 3d_fullres tuframeworkTrainerV2 4 0
     ```
    nnU-Net per default requires all trainings as 5-fold cross validation. The command above will run only the training for the 
    first fold (fold 0). 4 is the task identifier of the hippocampus dataset. Training one fold should take about 9 

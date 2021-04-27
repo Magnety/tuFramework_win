@@ -40,7 +40,7 @@ the rest ;-) For more information on the required raw data format, see [here](da
         ├── ...
     ```
 
-2) nnUNet_preprocessed: This is the folder where the preprocessed data will be saved. The data will also be read from 
+2) tuframework_preprocessed: This is the folder where the preprocessed data will be saved. The data will also be read from
 this folder during training. Therefore it is important that it is located on a drive with low access latency and high 
 throughput (a regular sata or nvme SSD is sufficient).
 
@@ -58,12 +58,12 @@ ensure that you see it. In rare cases it may not be present and you can simply c
 
 Once the file is open in a text editor, add the following lines to the bottom:
 ```
-export tuFramework_raw_data_base="/media/fabian/nnUNet_raw"
-export nnUNet_preprocessed="/media/fabian/nnUNet_preprocessed"
-export RESULTS_FOLDER="/media/fabian/nnUNet_trained_models"
+export tuFramework_raw_data_base="/media/fabian/tuframework_raw"
+export tuframework_preprocessed="/media/fabian/tuframework_preprocessed"
+export RESULTS_FOLDER="/media/fabian/tuframework_trained_models"
 ```
 
-(of course adapt the paths to your system and remember that nnUNet_preprocessed should be located on an SSD!)
+(of course adapt the paths to your system and remember that tuframework_preprocessed should be located on an SSD!)
 
 Then save and exit. To be save, make sure to reload the .bashrc by running `source /home/fabian/.bashrc`. Reloading 
 needs only be done on terminal sessions that were already open before you saved the changes. Any new terminal you open 
@@ -75,9 +75,9 @@ The method above sets the paths permanently (until you delete the lines from you
 to set them only temporarily, you can run the export commands in your terminal:
 
 ```
-export tuFramework_raw_data_base="/media/fabian/nnUNet_raw"
-export nnUNet_preprocessed="/media/fabian/nnUNet_preprocessed"
-export RESULTS_FOLDER="/media/fabian/nnUNet_trained_models"
+export tuFramework_raw_data_base="/media/fabian/tuframework_raw"
+export tuframework_preprocessed="/media/fabian/tuframework_preprocessed"
+export RESULTS_FOLDER="/media/fabian/tuframework_trained_models"
 ```
 
 This will set the paths for the current terminal session only (the variables will be lost if you close the terminal 

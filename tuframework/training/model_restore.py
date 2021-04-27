@@ -17,7 +17,7 @@ import torch
 from batchgenerators.utilities.file_and_folder_operations import *
 import importlib
 import pkgutil
-from tuframework.training.network_training.tuTrainer import nnUNetTrainer
+from tuframework.training.network_training.tuTrainer import tuframeworkTrainer
 
 
 def recursive_find_python_class(folder, trainer_name, current_module):
@@ -43,10 +43,10 @@ def recursive_find_python_class(folder, trainer_name, current_module):
 
 def restore_model(pkl_file, checkpoint=None, train=False, fp16=None):
     """
-    This is a utility function to load any nnUNet trainer from a pkl. It will recursively search
+    This is a utility function to load any tuframework trainer from a pkl. It will recursively search
     tuframework.trainig.network_training for the file that contains the trainer and instantiate it with the arguments saved in the pkl file. If checkpoint
     is specified, it will furthermore load the checkpoint file in train/test mode (as specified by train).
-    The pkl file required here is the one that will be saved automatically when calling nnUNetTrainer.save_checkpoint.
+    The pkl file required here is the one that will be saved automatically when calling tuframeworkTrainer.save_checkpoint.
     :param pkl_file:
     :param checkpoint:
     :param train:
@@ -75,12 +75,12 @@ def restore_model(pkl_file, checkpoint=None, train=False, fp16=None):
                            "is not located there, please move it or change the code of restore_model. Your model "
                            "trainer can be located in any directory within tuframework.trainig.network_training (search is recursive)."
                            "\nDebug info: \ncheckpoint file: %s\nName of trainer: %s " % (checkpoint, name))
-    assert issubclass(tr, nnUNetTrainer), "The network trainer was found but is not a subclass of nnUNetTrainer. " \
+    assert issubclass(tr, tuframeworkTrainer), "The network trainer was found but is not a subclass of tuframeworkTrainer. " \
                                           "Please make it so!"
 
     # this is now deprecated
     """if len(init) == 7:
-        print("warning: this model seems to have been saved with a previous version of nnUNet. Attempting to load it "
+        print("warning: this model seems to have been saved with a previous version of tuframework. Attempting to load it "
               "anyways. Expect the unexpected.")
         print("manually editing init args...")
         init = [init[i] for i in range(len(init)) if i != 2]"""
@@ -149,7 +149,7 @@ def load_model_and_checkpoint_files(folder, folds=None, mixed_precision=None, ch
 
 
 if __name__ == "__main__":
-    pkl = "/home/fabian/PhD/results/nnUNetV2/nnUNetV2_3D_fullres/Task004_Hippocampus/fold0/model_best.model.pkl"
+    pkl = "/home/fabian/PhD/results/tuframeworkV2/tuframeworkV2_3D_fullres/Task004_Hippocampus/fold0/model_best.model.pkl"
     checkpoint = pkl[:-4]
     train = False
     trainer = restore_model(pkl, checkpoint, train)

@@ -166,7 +166,7 @@ however, because some users would not know where they should save their data. We
 niftis used by the MSD. Instead, we provide a utility that converts the MSD datasets into the format specified above:
 
 ```bash
-nnUNet_convert_decathlon_task -i FOLDER_TO_TASK_AS_DOWNLOADED_FROM_MSD -p NUM_PROCESSES
+tuframework_convert_decathlon_task -i FOLDER_TO_TASK_AS_DOWNLOADED_FROM_MSD -p NUM_PROCESSES
 ```
 
 FOLDER_TO_TASK_AS_DOWNLOADED_FROM_MSD needs to point to the downloaded task folder (such as Task05_Prostate, note the 

@@ -62,7 +62,7 @@ def get_default_configuration(network, task, network_trainer, plans_identifier=d
     output_folder_name = join(network_training_output_dir, network, task, network_trainer + "__" + plans_identifier)
 
     print("###############################################")
-    print("I am running the following nnUNet: %s" % network)
+    print("I am running the following tuframework: %s" % network)
     print("My trainer class is: ", trainer_class)
     print("For that I will be using the following configuration:")
     summarize_plans(plans_file)

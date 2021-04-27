@@ -13,11 +13,11 @@
 #    limitations under the License.
 
 
-from tuframework.training.network_training.nnUNet_variants.architectural_variants.nnUNetTrainerV2_NoNormalization import \
-    nnUNetTrainerV2_NoNormalization
+from tuframework.training.network_training.tuframework_variants.architectural_variants.tuframeworkTrainerV2_NoNormalization import \
+    tuframeworkTrainerV2_NoNormalization
 
 
-class nnUNetTrainerV2_NoNormalization_lr1en3(nnUNetTrainerV2_NoNormalization):
+class tuframeworkTrainerV2_NoNormalization_lr1en3(tuframeworkTrainerV2_NoNormalization):
     def __init__(self, plans_file, fold, output_folder=None, dataset_directory=None, batch_dice=True, stage=None,
                  unpack_data=True, deterministic=True, fp16=False):
         super().__init__(plans_file, fold, output_folder, dataset_directory, batch_dice, stage, unpack_data,

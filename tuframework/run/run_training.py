@@ -18,9 +18,9 @@ from batchgenerators.utilities.file_and_folder_operations import *
 from tuframework.run.default_configuration import get_default_configuration
 from tuframework.paths import default_plans_identifier
 from tuframework.training.cascade_stuff.predict_next_stage import predict_next_stage
-from tuframework.training.network_training.tuTrainer import nnUNetTrainer
-from tuframework.training.network_training.tuTrainerCascadeFullRes import nnUNetTrainerCascadeFullRes
-from tuframework.training.network_training.tuTrainerV2_CascadeFullRes import nnUNetTrainerV2CascadeFullRes
+from tuframework.training.network_training.tuTrainer import tuframeworkTrainer
+from tuframework.training.network_training.tuTrainerCascadeFullRes import tuframeworkTrainerCascadeFullRes
+from tuframework.training.network_training.tuTrainerV2_CascadeFullRes import tuframeworkTrainerV2CascadeFullRes
 from tuframework.utilities.task_name_id_conversion import convert_id_to_task_name
 import sys
 
@@ -45,13 +45,13 @@ def main():
                              "this is not necessary. Deterministic training will make you overfit to some random seed. "
                              "Don't use that.",
                         required=False, default=False, action="store_true")
-    parser.add_argument("--npz", required=False, default=False, action="store_true", help="if set then nnUNet will "
+    parser.add_argument("--npz", required=False, default=False, action="store_true", help="if set then tuframework will "
                                                                                           "export npz files of "
                                                                                           "predicted segmentations "
                                                                                           "in the validation as well. "
                                                                                           "This is needed to run the "
                                                                                           "ensembling step so unless "
-                                                                                          "you are developing nnUNet "
+                                                                                          "you are developing tuframework "
                                                                                           "you should enable this")
     parser.add_argument("--find_lr", required=False, default=False, action="store_true",
                         help="not used here, just for fun")
@@ -68,7 +68,7 @@ def main():
                         help="Running postprocessing on each fold only makes sense when developing with nnU-Net and "
                              "closely observing the model performance on specific configurations. You do not need it "
                              "when applying nnU-Net because the postprocessing for this will be determined only once "
-                             "all five folds have been trained and nnUNet_find_best_configuration is called. Usually "
+                             "all five folds have been trained and tuframework_find_best_configuration is called. Usually "
                              "running postprocessing on each fold is computationally cheap, but some users have "
                              "reported issues with very large images. If your images are large (>600x600x600 voxels) "
                              "you should consider setting this flag.")
@@ -81,11 +81,11 @@ def main():
     #                     help="force_separate_z resampling. Can be None, True or False. Testing purpose only. Hands off")
 
 
-    sys.argv=['run_training.py','3d_fullres','nnUNetTrainerV2','6','all','-c']
+    sys.argv=['run_training.py','3d_fullres','tuframeworkTrainerV2','6','all']
 
     args = parser.parse_args()
 
-    os.environ["CUDA_VISIBLE_DEVICES"] = "3"
+    os.environ["CUDA_VISIBLE_DEVICES"] = "2"
     task = args.task
 
     fold = args.fold
@@ -135,13 +135,13 @@ def main():
         raise RuntimeError("Could not find trainer class in tuframework.training.network_training")
 
     if network == "3d_cascade_fullres":
-        assert issubclass(trainer_class, (nnUNetTrainerCascadeFullRes, nnUNetTrainerV2CascadeFullRes)), \
+        assert issubclass(trainer_class, (tuframeworkTrainerCascadeFullRes, tuframeworkTrainerV2CascadeFullRes)), \
             "If running 3d_cascade_fullres then your " \
             "trainer class must be derived from " \
-            "nnUNetTrainerCascadeFullRes"
+            "tuframeworkTrainerCascadeFullRes"
     else:
         assert issubclass(trainer_class,
-                          nnUNetTrainer), "network_trainer was found but is not derived from nnUNetTrainer"
+                          tuframeworkTrainer), "network_trainer was found but is not derived from tuframeworkTrainer"
 
     trainer = trainer_class(plans_file, fold, output_folder=output_folder_name, dataset_directory=dataset_directory,
                             batch_dice=batch_dice, stage=stage, unpack_data=decompress_data,

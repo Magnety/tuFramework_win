@@ -18,12 +18,12 @@ import torch
 from batchgenerators.utilities.file_and_folder_operations import *
 from tuframework.network_architecture.generic_UNet_DP import Generic_UNet_DP
 from tuframework.training.data_augmentation.data_augmentation_moreDA import get_moreDA_augmentation
-from tuframework.training.network_training.tuTrainerV2 import nnUNetTrainerV2
+from tuframework.training.network_training.tuTrainerV2 import tuframeworkTrainerV2
 from tuframework.utilities.to_torch import maybe_to_torch, to_cuda
 from tuframework.network_architecture.initialization import InitWeights_He
 from tuframework.network_architecture.neural_network import SegmentationNetwork
 from tuframework.training.dataloading.dataset_loading import unpack_dataset
-from tuframework.training.network_training.tuTrainer import nnUNetTrainer
+from tuframework.training.network_training.tuTrainer import tuframeworkTrainer
 from tuframework.utilities.nd_softmax import softmax_helper
 from torch import nn
 from torch.cuda.amp import autocast
@@ -31,10 +31,10 @@ from torch.nn.parallel.data_parallel import DataParallel
 from torch.nn.utils import clip_grad_norm_
 
 
-class nnUNetTrainerV2_DP(nnUNetTrainerV2):
+class tuframeworkTrainerV2_DP(tuframeworkTrainerV2):
     def __init__(self, plans_file, fold, output_folder=None, dataset_directory=None, batch_dice=True, stage=None,
                  unpack_data=True, deterministic=True, num_gpus=1, distribute_batch_size=False, fp16=False):
-        super(nnUNetTrainerV2_DP, self).__init__(plans_file, fold, output_folder, dataset_directory, batch_dice, stage,
+        super(tuframeworkTrainerV2_DP, self).__init__(plans_file, fold, output_folder, dataset_directory, batch_dice, stage,
                                                 unpack_data, deterministic, fp16)
         self.init_args = (plans_file, fold, output_folder, dataset_directory, batch_dice, stage, unpack_data,
                           deterministic, num_gpus, distribute_batch_size, fp16)
@@ -46,11 +46,11 @@ class nnUNetTrainerV2_DP(nnUNetTrainerV2):
         self.loss_weights = None
 
     def setup_DA_params(self):
-        super(nnUNetTrainerV2_DP, self).setup_DA_params()
+        super(tuframeworkTrainerV2_DP, self).setup_DA_params()
         self.data_aug_params['num_threads'] = 8 * self.num_gpus
 
     def process_plans(self, plans):
-        super(nnUNetTrainerV2_DP, self).process_plans(plans)
+        super(tuframeworkTrainerV2_DP, self).process_plans(plans)
         if not self.distribute_batch_size:
             self.batch_size = self.num_gpus * self.plans['plans_per_stage'][self.stage]['batch_size']
         else:
@@ -163,7 +163,7 @@ class nnUNetTrainerV2_DP(nnUNetTrainerV2):
         ds = self.network.do_ds
         self.network.do_ds = True
         self.network = DataParallel(self.network, tuple(range(self.num_gpus)), )
-        ret = nnUNetTrainer.run_training(self)
+        ret = tuframeworkTrainer.run_training(self)
         self.network = self.network.module
         self.network.do_ds = ds
         return ret

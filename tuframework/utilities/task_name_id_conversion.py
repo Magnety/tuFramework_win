@@ -50,11 +50,11 @@ def convert_id_to_task_name(task_id: int):
     if len(unique_candidates) == 0:
         raise RuntimeError("Could not find a task with the ID %d. Make sure the requested task ID exists and that "
                            "nnU-Net knows where raw and preprocessed data are located (see Documentation - "
-                           "Installation). Here are your currently defined folders:\nnnUNet_preprocessed=%s\nRESULTS_"
+                           "Installation). Here are your currently defined folders:\ntuframework_preprocessed=%s\nRESULTS_"
                            "FOLDER=%s\ntuFramework_raw_data_base=%s\nIf something is not right, adapt your environemnt "
                            "variables." %
                            (task_id,
-                            os.environ.get('nnUNet_preprocessed') if os.environ.get('nnUNet_preprocessed') is not None else 'None',
+                            os.environ.get('tuframework_preprocessed') if os.environ.get('tuframework_preprocessed') is not None else 'None',
                             os.environ.get('RESULTS_FOLDER') if os.environ.get('RESULTS_FOLDER') is not None else 'None',
                             os.environ.get('tuFramework_raw_data_base') if os.environ.get('tuFramework_raw_data_base') is not None else 'None',
                             ))

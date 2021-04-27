@@ -17,12 +17,12 @@ import numpy as np
 import torch
 from tuframework.network_architecture.generic_modular_residual_UNet import FabiansUNet, get_default_network_config
 from tuframework.network_architecture.initialization import InitWeights_He
-from tuframework.training.network_training.tuTrainer import nnUNetTrainer
-from tuframework.training.network_training.tuTrainerV2 import nnUNetTrainerV2
+from tuframework.training.network_training.tuTrainer import tuframeworkTrainer
+from tuframework.training.network_training.tuTrainerV2 import tuframeworkTrainerV2
 from tuframework.utilities.nd_softmax import softmax_helper
 
 
-class nnUNetTrainerV2_ResencUNet(nnUNetTrainerV2):
+class tuframeworkTrainerV2_ResencUNet(tuframeworkTrainerV2):
     def initialize_network(self):
         if self.threeD:
             cfg = get_default_network_config(3, None, norm_type="in")
@@ -59,7 +59,7 @@ class nnUNetTrainerV2_ResencUNet(nnUNetTrainerV2):
                  segmentation_export_kwargs: dict = None, run_postprocessing_on_folds: bool = True):
         ds = self.network.decoder.deep_supervision
         self.network.decoder.deep_supervision = False
-        ret = nnUNetTrainer.validate(self, do_mirroring=do_mirroring, use_sliding_window=use_sliding_window,
+        ret = tuframeworkTrainer.validate(self, do_mirroring=do_mirroring, use_sliding_window=use_sliding_window,
                                      step_size=step_size, save_softmax=save_softmax, use_gaussian=use_gaussian,
                                      overwrite=overwrite, validation_folder_name=validation_folder_name,
                                      debug=debug, all_in_gpu=all_in_gpu,
@@ -76,7 +76,7 @@ class nnUNetTrainerV2_ResencUNet(nnUNetTrainerV2):
                                                          verbose: bool = True, mixed_precision=True) -> Tuple[np.ndarray, np.ndarray]:
         ds = self.network.decoder.deep_supervision
         self.network.decoder.deep_supervision = False
-        ret = nnUNetTrainer.predict_preprocessed_data_return_seg_and_softmax(self, data, do_mirroring=do_mirroring,
+        ret = tuframeworkTrainer.predict_preprocessed_data_return_seg_and_softmax(self, data, do_mirroring=do_mirroring,
                                                                              mirror_axes=mirror_axes,
                                                                              use_sliding_window=use_sliding_window,
                                                                              step_size=step_size,
@@ -94,12 +94,12 @@ class nnUNetTrainerV2_ResencUNet(nnUNetTrainerV2):
         # want at the start of the training
         ds = self.network.decoder.deep_supervision
         self.network.decoder.deep_supervision = True
-        ret = nnUNetTrainer.run_training(self)
+        ret = tuframeworkTrainer.run_training(self)
         self.network.decoder.deep_supervision = ds
         return ret
 
 
-nnUNetTrainerV2_ResencUNet_copy1 = nnUNetTrainerV2_ResencUNet
-nnUNetTrainerV2_ResencUNet_copy2 = nnUNetTrainerV2_ResencUNet
-nnUNetTrainerV2_ResencUNet_copy3 = nnUNetTrainerV2_ResencUNet
-nnUNetTrainerV2_ResencUNet_copy4 = nnUNetTrainerV2_ResencUNet
+tuframeworkTrainerV2_ResencUNet_copy1 = tuframeworkTrainerV2_ResencUNet
+tuframeworkTrainerV2_ResencUNet_copy2 = tuframeworkTrainerV2_ResencUNet
+tuframeworkTrainerV2_ResencUNet_copy3 = tuframeworkTrainerV2_ResencUNet
+tuframeworkTrainerV2_ResencUNet_copy4 = tuframeworkTrainerV2_ResencUNet

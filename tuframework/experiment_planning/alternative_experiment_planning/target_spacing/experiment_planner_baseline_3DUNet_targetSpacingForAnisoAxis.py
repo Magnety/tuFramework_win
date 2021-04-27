@@ -20,9 +20,9 @@ from tuframework.paths import *
 class ExperimentPlannerTargetSpacingForAnisoAxis(ExperimentPlanner):
     def __init__(self, folder_with_cropped_data, preprocessed_output_folder):
         super().__init__(folder_with_cropped_data, preprocessed_output_folder)
-        self.data_identifier = "nnUNetData_targetSpacingForAnisoAxis"
+        self.data_identifier = "tuframeworkData_targetSpacingForAnisoAxis"
         self.plans_fname = join(self.preprocessed_output_folder,
-                                "nnUNetPlans" + "targetSpacingForAnisoAxis_plans_3D.pkl")
+                                "tuframeworkPlans" + "targetSpacingForAnisoAxis_plans_3D.pkl")
 
     def get_target_spacing(self):
         """

@@ -1,13 +1,13 @@
 import torch
 from tuframework.network_architecture.generic_UNet import Generic_UNet
 from tuframework.network_architecture.initialization import InitWeights_He
-from tuframework.training.network_training.nnUNet_variants.data_augmentation.nnUNetTrainerV2_insaneDA import \
-    nnUNetTrainerV2_insaneDA
+from tuframework.training.network_training.tuframework_variants.data_augmentation.tuframeworkTrainerV2_insaneDA import \
+    tuframeworkTrainerV2_insaneDA
 from tuframework.utilities.nd_softmax import softmax_helper
 from torch import nn
 
 
-class nnUNetTrainerV2_MMS(nnUNetTrainerV2_insaneDA):
+class tuframeworkTrainerV2_MMS(tuframeworkTrainerV2_insaneDA):
     def setup_DA_params(self):
         super().setup_DA_params()
         self.data_aug_params["p_rot"] = 0.7

@@ -21,7 +21,7 @@ from tuframework.postprocessing.connected_components import determine_postproces
 from tuframework.training.data_augmentation.default_data_augmentation import get_default_augmentation
 from tuframework.training.dataloading.dataset_loading import DataLoader3D, unpack_dataset
 from tuframework.evaluation.evaluator import aggregate_scores
-from tuframework.training.network_training.tuTrainer import nnUNetTrainer
+from tuframework.training.network_training.tuTrainer import tuframeworkTrainer
 from tuframework.network_architecture.neural_network import SegmentationNetwork
 from tuframework.paths import network_training_output_dir
 from tuframework.inference.segmentation_export import save_segmentation_nifti_from_softmax
@@ -33,10 +33,10 @@ import shutil
 matplotlib.use("agg")
 
 
-class nnUNetTrainerCascadeFullRes(nnUNetTrainer):
+class tuframeworkTrainerCascadeFullRes(tuframeworkTrainer):
     def __init__(self, plans_file, fold, output_folder=None, dataset_directory=None, batch_dice=True, stage=None,
-                 unpack_data=True, deterministic=True, previous_trainer="nnUNetTrainer", fp16=False):
-        super(nnUNetTrainerCascadeFullRes, self).__init__(plans_file, fold, output_folder, dataset_directory,
+                 unpack_data=True, deterministic=True, previous_trainer="tuframeworkTrainer", fp16=False):
+        super(tuframeworkTrainerCascadeFullRes, self).__init__(plans_file, fold, output_folder, dataset_directory,
                                                           batch_dice, stage, unpack_data, deterministic, fp16)
         self.init_args = (plans_file, fold, output_folder, dataset_directory, batch_dice, stage, unpack_data,
                           deterministic, previous_trainer, fp16)
@@ -58,7 +58,7 @@ class nnUNetTrainerCascadeFullRes(nnUNetTrainer):
             self.folder_with_segs_from_prev_stage = None
 
     def do_split(self):
-        super(nnUNetTrainerCascadeFullRes, self).do_split()
+        super(tuframeworkTrainerCascadeFullRes, self).do_split()
         for k in self.dataset:
             self.dataset[k]['seg_from_prev_stage_file'] = join(self.folder_with_segs_from_prev_stage,
                                                                k + "_segFromPrevStage.npz")
@@ -84,7 +84,7 @@ class nnUNetTrainerCascadeFullRes(nnUNetTrainer):
         return dl_tr, dl_val
 
     def process_plans(self, plans):
-        super(nnUNetTrainerCascadeFullRes, self).process_plans(plans)
+        super(tuframeworkTrainerCascadeFullRes, self).process_plans(plans)
         self.num_input_channels += (self.num_classes - 1)  # for seg from prev stage
 
     def setup_DA_params(self):

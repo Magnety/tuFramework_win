@@ -26,14 +26,14 @@ from tuframework.network_architecture.generic_MedT import ResAxialAttentionUNet
 from tuframework.network_architecture.generic_MedT import medt_net
 from tuframework.network_architecture.generic_MedT import TUNet
 from tuframework.network_architecture.generic_VNet import VNet_recons
-
+from tuframework.network_architecture.cotr.ResTranUnet import ResTranUnet
 
 from tuframework.network_architecture.initialization import InitWeights_He
 from tuframework.network_architecture.neural_network import SegmentationNetwork
 from tuframework.training.data_augmentation.default_data_augmentation import default_2D_augmentation_params, \
     get_patch_size, default_3D_augmentation_params
 from tuframework.training.dataloading.dataset_loading import unpack_dataset
-from tuframework.training.network_training.tuTrainer import nnUNetTrainer
+from tuframework.training.network_training.tuTrainer import tuframeworkTrainer
 from tuframework.utilities.nd_softmax import softmax_helper
 from sklearn.model_selection import KFold
 from torch import nn
@@ -42,9 +42,9 @@ from tuframework.training.learning_rate.poly_lr import poly_lr
 from batchgenerators.utilities.file_and_folder_operations import *
 from tuframework.network_architecture.vit_seg_modeling import VisionTransformer
 
-class nnUNetTrainerV2(nnUNetTrainer):
+class tuframeworkTrainerV2(tuframeworkTrainer):
     """
-    Info for Fabian: same as internal nnUNetTrainerV2_2
+    Info for Fabian: same as internal tuframeworkTrainerV2_2
     """
 
     def __init__(self, plans_file, fold, output_folder=None, dataset_directory=None, batch_dice=True, stage=None,
@@ -171,6 +171,7 @@ class nnUNetTrainerV2(nnUNetTrainer):
                                    dropout_op_kwargs,
                                    net_nonlin, net_nonlin_kwargs, True, False, lambda x: x, InitWeights_He(1e-2),
                                    self.net_num_pool_op_kernel_sizes, self.net_conv_kernel_sizes, False, True, True)
+        """self.network = ResTranUnet(img_size=self.patch_size,num_classes=self.num_classes, weight_std=False, deep_supervision=True)"""
 
         if torch.cuda.is_available():
             self.network.cuda()
@@ -430,7 +431,7 @@ class nnUNetTrainerV2(nnUNetTrainer):
         super().on_epoch_end()
         continue_training = self.epoch < self.max_num_epochs
 
-        # it can rarely happen that the momentum of nnUNetTrainerV2 is too high for some dataset. If at epoch 100 the
+        # it can rarely happen that the momentum of tuframeworkTrainerV2 is too high for some dataset. If at epoch 100 the
         # estimated validation Dice is still 0 then we reduce the momentum from 0.99 to 0.95
         if self.epoch == 100:
             if self.all_val_eval_metrics[-1] == 0:

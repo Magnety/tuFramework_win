@@ -15,9 +15,9 @@ we will help you as much as we can.
 This section gives guidance on how to implement changes to loss function, training schedule, learning rates, optimizer, 
 some architecture parameters, data augmentation etc. All these parameters are part of the **nnU-Net trainer class**, 
 which we have already seen in the sections above. The default trainer class for 2D, 3D low resolution and 3D full 
-resolution U-Net is nnUNetTrainerV2, the default for the 3D full resolution U-Net from the cascade is 
-nnUNetTrainerV2CascadeFullRes. Trainer classes in nnU-Net inherit form each other, nnUNetTrainerV2CascadeFullRes for 
-example has nnUNetTrainerV2 as parent class and only overrides cascade-specific code.
+resolution U-Net is tuframeworkTrainerV2, the default for the 3D full resolution U-Net from the cascade is
+tuframeworkTrainerV2CascadeFullRes. Trainer classes in nnU-Net inherit form each other, tuframeworkTrainerV2CascadeFullRes for
+example has tuframeworkTrainerV2 as parent class and only overrides cascade-specific code.
 
 Due to the inheritance of trainer classes, changes can be integrated into nnU-Net quite easily and with minimal effort. 
 Simply create a new trainer class (with some custom name), change the functionality you need to change and then specify 
@@ -39,29 +39,29 @@ blueprint variations which should give a good indication of where to start:
 | loss function           | tuframework.training.network_training.loss_function.*                                                                                                                                                                                                                                                                                                      |
 | data augmentation       | tuframework.training.network_training.data_augmentation.*                                                                                                                                                                                                                                                                                                  |
 | Optimizer, lr, momentum | tuframework.training.network_training.optimizer_and_lr.*                                                                                                                                                                                                                                                                                                   |
-| (Batch)Normalization    | tuframework.training.network_training.architectural_variants.nnUNetTrainerV2_BN.py<br>tuframework.training.network_training.architectural_variants.nnUNetTrainerV2_FRN.py<br>tuframework.training.network_training.architectural_variants.nnUNetTrainerV2_GN.py<br>tuframework.training.network_training.architectural_variants.nnUNetTrainerV2_NoNormalization_lr1en3.py |
-| Nonlinearity            | tuframework.training.network_training.architectural_variants.nnUNetTrainerV2_ReLU.py<br>tuframework.training.network_training.architectural_variants.nnUNetTrainerV2_Mish.py                                                                                                                                                                                    |
-| Architecture            | tuframework.training.network_training.architectural_variants.nnUNetTrainerV2_3ConvPerStage.py<br>tuframework.training.network_training.architectural_variants.nnUNetTrainerV2_ResencUNet                                                                                                                                                                        |
+| (Batch)Normalization    | tuframework.training.network_training.architectural_variants.tuframeworkTrainerV2_BN.py<br>tuframework.training.network_training.architectural_variants.tuframeworkTrainerV2_FRN.py<br>tuframework.training.network_training.architectural_variants.tuframeworkTrainerV2_GN.py<br>tuframework.training.network_training.architectural_variants.tuframeworkTrainerV2_NoNormalization_lr1en3.py |
+| Nonlinearity            | tuframework.training.network_training.architectural_variants.tuframeworkTrainerV2_ReLU.py<br>tuframework.training.network_training.architectural_variants.tuframeworkTrainerV2_Mish.py                                                                                                                                                                                    |
+| Architecture            | tuframework.training.network_training.architectural_variants.tuframeworkTrainerV2_3ConvPerStage.py<br>tuframework.training.network_training.architectural_variants.tuframeworkTrainerV2_ResencUNet                                                                                                                                                                        |
 | ...                     | (see tuframework.training.network_training and subfolders)                                                                                                                                                                                                                                                                                                 |
 
 ## Changes to Inferred Parameters
 The inferred parameters are determined based on the dataset fingerprint, a low dimensional representation of the properties 
 of the training cases. It captures, for example, the image shapes, voxel spacings and intensity information from 
 the training cases. The datset fingerprint is created by the DatasetAnalyzer (which is located in tuframework.preprocessing)
-while running `nnUNet_plan_and_preprocess`. 
+while running `tuframework_plan_and_preprocess`.
 
-`nnUNet_plan_and_preprocess` uses so called ExperimentPlanners for running the adaptation process. Default ExperimentPlanner 
+`tuframework_plan_and_preprocess` uses so called ExperimentPlanners for running the adaptation process. Default ExperimentPlanner
 classes are ExperimentPlanner2D_v21 for the 2D U-Net and ExperimentPlanner3D_v21 for the 3D full resolution U-Net and the 
-U-Net cascade. Just like nnUNetTrainers, the ExperimentPlanners inherit from each other, resulting in minimal programming 
+U-Net cascade. Just like tuframeworkTrainers, the ExperimentPlanners inherit from each other, resulting in minimal programming
 effort to incorporate changes. Just like with the trainers, simply give your custom ExperimentPlanners a unique name and 
 save them in some subfolder of tuframework.experiment_planning. You can then specify your class names when running
-`nnUNet_plan_and_preprocess` and nnU-Net will find them automatically. When inheriting form ExperimentPlanners, you **MUST** 
+`tuframework_plan_and_preprocess` and nnU-Net will find them automatically. When inheriting form ExperimentPlanners, you **MUST**
 overwrite the class variables `self.data_identifier` and `self.plans_fname` (just like for example 
 [here](../tuframework/experiment_planning/alternative_experiment_planning/normalization/experiment_planner_3DUNet_CT2.py)).
 If you omit this step the planner will overwrite the plans file and the preprocessed data of the planner it inherits from.
 
 To train with your custom configuration, simply specify the correct plans identifier with `-p` when you call the 
-`nnUNet_train` command. The plans file also contains the data_identifier specified in your ExperimentPlanner, so the 
+`tuframework_train` command. The plans file also contains the data_identifier specified in your ExperimentPlanner, so the
 trainer class will automatically know what data should be used.
 
 Possible adaptations to the inferred parameters could include a different way of prioritizing batch size vs patch size 
@@ -78,7 +78,7 @@ default is `self.preprocessor_name = "GenericPreprocessor"` for 3D and `Preproce
 ignores the target spacing for the first axis to ensure that images are only resampled in the axes that will make up the training samples). 
 GenericPreprocessor (and all custom Preprocessors you implement) must be located in tuframework.preprocessing. The
 preprocessor_name is saved in the plans file (by ExperimentPlanner), so that the 
-nnUNetTrainer knows which preprocessor must be used during inference to match the preprocessing of the training data. 
+tuframeworkTrainer knows which preprocessor must be used during inference to match the preprocessing of the training data.
 
 Modifications to the preprocessing pipeline could be the addition of bias field correction to MRI images, a different CT
 preprocessing scheme or a different way of resampling segmentations and image data for anisotropic cases. 

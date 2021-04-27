@@ -14,10 +14,10 @@
 
 
 import torch
-from tuframework.training.network_training.tuTrainerV2 import nnUNetTrainerV2
+from tuframework.training.network_training.tuTrainerV2 import tuframeworkTrainerV2
 
 
-class nnUNetTrainerV2_momentum09in2D(nnUNetTrainerV2):
+class tuframeworkTrainerV2_momentum09in2D(tuframeworkTrainerV2):
     def initialize_optimizer_and_scheduler(self):
         if self.threeD:
             momentum = 0.99

@@ -30,13 +30,13 @@ from tuframework.network_architecture.neural_network import SegmentationNetwork
 from tuframework.training.dataloading.dataset_loading import unpack_dataset
 from tuframework.training.loss_functions.deep_supervision import MultipleOutputLoss2
 from tuframework.training.loss_functions.dice_loss import DC_and_BCE_loss, get_tp_fp_fn_tn, SoftDiceLoss
-from tuframework.training.network_training.tuTrainerV2 import nnUNetTrainerV2
-from tuframework.training.network_training.tuTrainerV2_DDP import nnUNetTrainerV2_DDP
+from tuframework.training.network_training.tuTrainerV2 import tuframeworkTrainerV2
+from tuframework.training.network_training.tuTrainerV2_DDP import tuframeworkTrainerV2_DDP
 from tuframework.utilities.distributed import awesome_allgather_function
 from tuframework.utilities.to_torch import maybe_to_torch, to_cuda
 
 
-class nnUNetTrainerV2BraTSRegions_BN(nnUNetTrainerV2):
+class tuframeworkTrainerV2BraTSRegions_BN(tuframeworkTrainerV2):
     def initialize_network(self):
         if self.threeD:
             conv_op = nn.Conv3d
@@ -63,7 +63,7 @@ class nnUNetTrainerV2BraTSRegions_BN(nnUNetTrainerV2):
         self.network.inference_apply_nonlin = torch.nn.Softmax(1)
 
 
-class nnUNetTrainerV2BraTSRegions(nnUNetTrainerV2):
+class tuframeworkTrainerV2BraTSRegions(tuframeworkTrainerV2):
     def __init__(self, plans_file, fold, output_folder=None, dataset_directory=None, batch_dice=True, stage=None,
                  unpack_data=True, deterministic=True, fp16=False):
         super().__init__(plans_file, fold, output_folder, dataset_directory, batch_dice, stage, unpack_data,
@@ -86,7 +86,7 @@ class nnUNetTrainerV2BraTSRegions(nnUNetTrainerV2):
 
     def initialize(self, training=True, force_load_plans=False):
         """
-        this is a copy of nnUNetTrainerV2's initialize. We only add the regions to the data augmentation
+        this is a copy of tuframeworkTrainerV2's initialize. We only add the regions to the data augmentation
         :param training:
         :param force_load_plans:
         :return:
@@ -189,7 +189,7 @@ class nnUNetTrainerV2BraTSRegions(nnUNetTrainerV2):
             self.online_eval_fn.append(list(fn_hard))
 
 
-class nnUNetTrainerV2BraTSRegions_Dice(nnUNetTrainerV2BraTSRegions):
+class tuframeworkTrainerV2BraTSRegions_Dice(tuframeworkTrainerV2BraTSRegions):
     def __init__(self, plans_file, fold, output_folder=None, dataset_directory=None, batch_dice=True, stage=None,
                  unpack_data=True, deterministic=True, fp16=False):
         super().__init__(plans_file, fold, output_folder, dataset_directory, batch_dice, stage, unpack_data,
@@ -197,7 +197,7 @@ class nnUNetTrainerV2BraTSRegions_Dice(nnUNetTrainerV2BraTSRegions):
         self.loss = SoftDiceLoss(apply_nonlin=torch.sigmoid, **{'batch_dice': False, 'do_bg': True, 'smooth': 0})
 
 
-class nnUNetTrainerV2BraTSRegions_DDP(nnUNetTrainerV2_DDP):
+class tuframeworkTrainerV2BraTSRegions_DDP(tuframeworkTrainerV2_DDP):
     def __init__(self, plans_file, fold, local_rank, output_folder=None, dataset_directory=None, batch_dice=True,
                  stage=None,
                  unpack_data=True, deterministic=True, distribute_batch_size=False, fp16=False):
@@ -222,7 +222,7 @@ class nnUNetTrainerV2BraTSRegions_DDP(nnUNetTrainerV2_DDP):
 
     def initialize(self, training=True, force_load_plans=False):
         """
-        this is a copy of nnUNetTrainerV2's initialize. We only add the regions to the data augmentation
+        this is a copy of tuframeworkTrainerV2's initialize. We only add the regions to the data augmentation
         :param training:
         :param force_load_plans:
         :return:
@@ -352,7 +352,7 @@ class nnUNetTrainerV2BraTSRegions_DDP(nnUNetTrainerV2_DDP):
             # get the tp, fp and fn terms we need
             tp, fp, fn, _ = get_tp_fp_fn_tn(output_softmax, target[i], axes, mask=None)
             # for dice, compute nominator and denominator so that we have to accumulate only 2 instead of 3 variables
-            # do_bg=False in nnUNetTrainer -> [:, 1:]
+            # do_bg=False in tuframeworkTrainer -> [:, 1:]
             nominator = 2 * tp[:, 1:]
             denominator = 2 * tp[:, 1:] + fp[:, 1:] + fn[:, 1:]
 

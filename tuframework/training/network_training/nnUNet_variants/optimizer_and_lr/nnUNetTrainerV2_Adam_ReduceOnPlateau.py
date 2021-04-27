@@ -14,14 +14,14 @@
 
 
 import torch
-from tuframework.training.network_training.tuTrainer import nnUNetTrainer
-from tuframework.training.network_training.tuTrainerV2 import nnUNetTrainerV2
+from tuframework.training.network_training.tuTrainer import tuframeworkTrainer
+from tuframework.training.network_training.tuTrainerV2 import tuframeworkTrainerV2
 from torch.optim import lr_scheduler
 
 
-class nnUNetTrainerV2_Adam_ReduceOnPlateau(nnUNetTrainerV2):
+class tuframeworkTrainerV2_Adam_ReduceOnPlateau(tuframeworkTrainerV2):
     """
-    Same schedule as nnUNetTrainer
+    Same schedule as tuframeworkTrainer
     """
     def __init__(self, plans_file, fold, output_folder=None, dataset_directory=None, batch_dice=True, stage=None,
                  unpack_data=True, deterministic=True, fp16=False):
@@ -52,4 +52,4 @@ class nnUNetTrainerV2_Adam_ReduceOnPlateau(nnUNetTrainerV2):
         self.print_to_log_file("lr is now (scheduler) %s" % str(self.optimizer.param_groups[0]['lr']))
 
     def on_epoch_end(self):
-        return nnUNetTrainer.on_epoch_end(self)
+        return tuframeworkTrainer.on_epoch_end(self)

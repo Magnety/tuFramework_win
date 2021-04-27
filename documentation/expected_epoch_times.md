@@ -12,34 +12,34 @@ are the details about benchmarking:
 - We benchmark **2d**, **3d_fullres** and a modified 3d_fullres that uses 3x the default batch size (called **3d_fullres large** here) 
 - The datasets **Task002_Heart**, **Task005_Prostate** and **Task003_Liver** of the Medical Segmentation Decathlon are used 
 (they provide a good spectrum of dataset properties)
-- we use the nnUNetTrainerV2_5epochs trainer. This will run only for 5 epochs and it will skip validation. 
+- we use the tuframeworkTrainerV2_5epochs trainer. This will run only for 5 epochs and it will skip validation.
 From the 5 epochs, we select the fastest one as the epoch time. 
-- We will also be running the nnUNetTrainerV2_5epochs_dummyLoad trainer on the 3d_fullres config (called **3d_fullres dummy**). This trainer does not use 
+- We will also be running the tuframeworkTrainerV2_5epochs_dummyLoad trainer on the 3d_fullres config (called **3d_fullres dummy**). This trainer does not use
 the dataloader and instead uses random dummy inputs, bypassing all data augmentation (CPU) and I/O bottlenecks. 
 - All trainings are done with mixed precision. This is why Pascal GPUs (Titan Xp) are so slow (they do not have 
 tensor cores) 
 
 # How to run the benchmark
 First go into the folder where the preprocessed data and plans file of the task you would like to use are located. For me this is
-`/home/fabian/data/nnUNet_preprocessed/Task002_Heart`
+`/home/fabian/data/tuframework_preprocessed/Task002_Heart`
 
 Then run the following python snippet. This will create our custom **3d_fullres_large** configuration. Note that this 
 large configuration will only run on GPUs with 16GB or more! We included it in the test because some GPUs 
 (V100, and probably also A100) can shine when they get more work to do per iteration.
 ```python
 from batchgenerators.utilities.file_and_folder_operations import *
-plans = load_pickle('nnUNetPlansv2.1_plans_3D.pkl')
+plans = load_pickle('tuframeworkPlansv2.1_plans_3D.pkl')
 stage = max(plans['plans_per_stage'].keys())
 plans['plans_per_stage'][stage]['batch_size'] *= 3
-save_pickle(plans, 'nnUNetPlansv2.1_bs3x_plans_3D.pkl')
+save_pickle(plans, 'tuframeworkPlansv2.1_bs3x_plans_3D.pkl')
 ```
 
 Now you can run the benchmarks. Each should only take a couple of minutes
 ```bash
-nnUNet_train 2d nnUNetTrainerV2_5epochs TASKID 0
-nnUNet_train 3d_fullres nnUNetTrainerV2_5epochs TASKID 0
-nnUNet_train 3d_fullres nnUNetTrainerV2_5epochs_dummyLoad TASKID 0
-nnUNet_train 3d_fullres nnUNetTrainerV2_5epochs TASKID 0 -p nnUNetPlansv2.1_bs3x # optional, only for GPUs with more than 16GB of VRAM
+tuframework_train 2d tuframeworkTrainerV2_5epochs TASKID 0
+tuframework_train 3d_fullres tuframeworkTrainerV2_5epochs TASKID 0
+tuframework_train 3d_fullres tuframeworkTrainerV2_5epochs_dummyLoad TASKID 0
+tuframework_train 3d_fullres tuframeworkTrainerV2_5epochs TASKID 0 -p tuframeworkPlansv2.1_bs3x # optional, only for GPUs with more than 16GB of VRAM
 ```
 
 The time we are interested in is the epoch time. You can find it in the text output (stdout) or the log file 
@@ -130,8 +130,8 @@ What can you do about it?
 1) Depending on your single core performance, some datasets may require more than the default 12 processes for data 
 augmentation. The CPU requirements for DA increase roughly linearly with the number of input modalities. Most datasets 
 will train fine with much less than 12 (6 or even just 4). But datasets with for example 4 modalities may require more. 
-If you have more than 12 CPU threads available, set the environment variable `nnUNet_n_proc_DA` to a number higher than 12.
-2) If your CPU has less than 12 threads in total, running 12 threads can overburden it. Try lowering `nnUNet_n_proc_DA` 
+If you have more than 12 CPU threads available, set the environment variable `tuframework_n_proc_DA` to a number higher than 12.
+2) If your CPU has less than 12 threads in total, running 12 threads can overburden it. Try lowering `tuframework_n_proc_DA`
 to the number of threads you have available.
 3) (sounds stupid, but this is the only other way) upgrade your CPU. I have seen Servers with 8 CPU cores (16 threads)
  and 8 GPUs in them. That is not well balanced. CPUs are cheap compared to GPUs. On a 'workstation' (single or dual GPU) 
@@ -154,7 +154,7 @@ difficult to read and can only be run with sudo. However, the presence of an I/O
 then the only possible issue to my knowledge is in fact an I/O bottleneck. 
 
 Here is what you can do about an I/O bottleneck:
-1) Make sure you are actually using an SSD to store the preprocessed data (`nnUNet_preprocessed`). Do not use an 
+1) Make sure you are actually using an SSD to store the preprocessed data (`tuframework_preprocessed`). Do not use an
 SSD connected via USB! Never use a HDD. Do not use a network drive that was not specifically designed to handle fast I/O 
 (Note that you can use a network drive if it was designed for this purpose. At the DKFZ we use a
 [flashblade](https://www.purestorage.com/products/file-and-object/flashblade.html) connected via ethernet and that works 

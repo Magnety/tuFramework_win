@@ -43,7 +43,7 @@ class ExperimentPlanner(object):
 
         self.plans_per_stage = OrderedDict()
         self.plans = OrderedDict()
-        self.plans_fname = join(self.preprocessed_output_folder, "nnUNetPlans" + "fixed_plans_3D.pkl")
+        self.plans_fname = join(self.preprocessed_output_folder, "tuframeworkPlans" + "fixed_plans_3D.pkl")
         self.data_identifier = default_data_identifier
 
         self.transpose_forward = [0, 1, 2]
@@ -286,7 +286,7 @@ class ExperimentPlanner(object):
                                                                   len(self.list_of_cropped_npz_files),
                                                                   num_modalities, len(all_classes) + 1))
 
-        # thanks Zakiyi (https://github.com/MIC-DKFZ/nnUNet/issues/61) for spotting this bug :-)
+        # thanks Zakiyi (https://github.com/MIC-DKFZ/tuframework/issues/61) for spotting this bug :-)
         # if np.prod(self.plans_per_stage[-1]['median_patient_size_in_voxels'], dtype=np.int64) / \
         #        architecture_input_voxels < HOW_MUCH_OF_A_PATIENT_MUST_THE_NETWORK_SEE_AT_STAGE0:
         architecture_input_voxels_here = np.prod(self.plans_per_stage[-1]['patch_size'], dtype=np.int64)

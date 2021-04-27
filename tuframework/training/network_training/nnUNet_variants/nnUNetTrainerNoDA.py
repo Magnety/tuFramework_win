@@ -18,13 +18,13 @@ from batchgenerators.utilities.file_and_folder_operations import maybe_mkdir_p, 
 from tuframework.network_architecture.neural_network import SegmentationNetwork
 from tuframework.training.data_augmentation.data_augmentation_noDA import get_no_augmentation
 from tuframework.training.dataloading.dataset_loading import unpack_dataset, DataLoader3D, DataLoader2D
-from tuframework.training.network_training.tuTrainer import nnUNetTrainer
+from tuframework.training.network_training.tuTrainer import tuframeworkTrainer
 from torch import nn
 
 matplotlib.use("agg")
 
 
-class nnUNetTrainerNoDA(nnUNetTrainer):
+class tuframeworkTrainerNoDA(tuframeworkTrainer):
     def get_basic_generators(self):
         self.load_dataset()
         self.do_split()

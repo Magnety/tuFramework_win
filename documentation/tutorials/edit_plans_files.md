@@ -6,11 +6,11 @@ in the [supplementary information](https://static-content.springer.com/esm/art%3
     
 The goal of this tutorial is to demonstrate how to read and modify plans files and how to use them in your 
 experiments. The file used here works with Task120 and requires you to have downloaded the dataset, run 
-tuframework.dataset_conversion.Task120_Massachusetts_RoadSegm.py and then run nnUNet_plan_and_preprocess for it.
+tuframework.dataset_conversion.Task120_Massachusetts_RoadSegm.py and then run tuframework_plan_and_preprocess for it.
 
 Note that this task is 2D only, but the same principles we use here can be easily extended to 3D and other tasks as well.
 
-The output of `nnUNet_plan_and_preprocess` for this task looks like this:
+The output of `tuframework_plan_and_preprocess` for this task looks like this:
 
     [{'batch_size': 2, 
     'num_pool_per_axis': [8, 8], 
@@ -45,8 +45,8 @@ from tuframework.paths import preprocessing_output_dir
 task_name = 'Task120_MassRoadsSeg'
 
 # if it breaks upon loading the plans file, make sure to run the Task120 dataset conversion and
-# nnUNet_plan_and_preprocess first!
-plans_fname = join(preprocessing_output_dir, task_name, 'nnUNetPlansv2.1_plans_2D.pkl')
+# tuframework_plan_and_preprocess first!
+plans_fname = join(preprocessing_output_dir, task_name, 'tuframeworkPlansv2.1_plans_2D.pkl')
 plans = load_pickle(plans_fname)
 plans['plans_per_stage'][0]['batch_size'] = 12
 plans['plans_per_stage'][0]['patch_size'] = np.array((512, 512))
@@ -60,7 +60,7 @@ plans['plans_per_stage'][0]['conv_kernel_sizes'] = [[3, 3], [3, 3], [3, 3], [3, 
 # representations by factor 3 instead of 2.
 
 # save the plans under a new plans name. Note that the new plans file must end with _plans_2D.pkl!
-save_pickle(plans, join(preprocessing_output_dir, task_name, 'nnUNetPlansv2.1_ps512_bs12_plans_2D.pkl'))
+save_pickle(plans, join(preprocessing_output_dir, task_name, 'tuframeworkPlansv2.1_ps512_bs12_plans_2D.pkl'))
 ```
 
 
@@ -71,36 +71,36 @@ from batchgenerators.utilities.file_and_folder_operations import *
 import numpy as np
 from tuframework.paths import preprocessing_output_dir
 task_name = 'Task120_MassRoadsSeg'
-plans_fname = join(preprocessing_output_dir, task_name, 'nnUNetPlansv2.1_plans_2D.pkl')
+plans_fname = join(preprocessing_output_dir, task_name, 'tuframeworkPlansv2.1_plans_2D.pkl')
 plans = load_pickle(plans_fname)
 plans['plans_per_stage'][0]['batch_size'] = 60
 plans['plans_per_stage'][0]['patch_size'] = np.array((256, 256))
 plans['plans_per_stage'][0]['num_pool_per_axis'] = [6, 6]
 plans['plans_per_stage'][0]['pool_op_kernel_sizes'] = [[2, 2], [2, 2], [2, 2], [2, 2], [2, 2], [2, 2]]
 plans['plans_per_stage'][0]['conv_kernel_sizes'] = [[3, 3], [3, 3], [3, 3], [3, 3], [3, 3], [3, 3], [3, 3]]
-save_pickle(plans, join(preprocessing_output_dir, task_name, 'nnUNetPlansv2.1_ps256_bs60_plans_2D.pkl'))
+save_pickle(plans, join(preprocessing_output_dir, task_name, 'tuframeworkPlansv2.1_ps256_bs60_plans_2D.pkl'))
 ```
 
-You can now use these custom plans files to train the networks and compare the results! Remeber that all nnUNet_* 
-commands have the -h argument to display their arguments. nnUNet_train supports custom plans via the -p argument. 
+You can now use these custom plans files to train the networks and compare the results! Remeber that all tuframework_*
+commands have the -h argument to display their arguments. tuframework_train supports custom plans via the -p argument.
 Custom plans must be the prefix, so here this is everything except '_plans_2D.pkl':
 
 Variant 1:
 ```bash
-nnUNet_train 2d nnUNetTrainerV2 120 FOLD -p nnUNetPlansv2.1_ps512_bs12
+tuframework_train 2d tuframeworkTrainerV2 120 FOLD -p tuframeworkPlansv2.1_ps512_bs12
 ```
 
 Variant 2:
 ```bash
-nnUNet_train 2d nnUNetTrainerV2 120 FOLD -p nnUNetPlansv2.1_ps256_bs60
+tuframework_train 2d tuframeworkTrainerV2 120 FOLD -p tuframeworkPlansv2.1_ps256_bs60
 ```
 
 
 Let all 5 folds run for each plans file (original and the two variants). To compare the results, you can make use of
-nnUNet_determine_postprocessing to get the necessary metrics, for example:
+tuframework_determine_postprocessing to get the necessary metrics, for example:
 
 ```bash
-nnUNet_determine_postprocessing -t 120 -tr nnUNetTrainerV2 -p nnUNetPlansv2.1_ps512_bs12 -m 2d
+tuframework_determine_postprocessing -t 120 -tr tuframeworkTrainerV2 -p tuframeworkPlansv2.1_ps512_bs12 -m 2d
 ```
 
 This will create a `cv_niftis_raw` and `cv_niftis_postprocessed` subfolder in the training output directory. In each
@@ -122,7 +122,7 @@ tool to improve the performance of nnU-Net on some datasets. You never know unti
 
 **ADDITIONAL INFORMATION (READ THIS!)**
 
-  - when working with 3d plans ('nnUNetPlansv2.1_plans_3D.pkl') the 3d_lowres and 3d_fullres stage will be encoded 
+  - when working with 3d plans ('tuframeworkPlansv2.1_plans_3D.pkl') the 3d_lowres and 3d_fullres stage will be encoded
     in the same plans file. If len(plans['plans_per_stage']) == 2, then [0] is the 3d_lowres and [1] is the 
     3d_fullres variant. If len(plans['plans_per_stage']) == 1 then [0] will be 3d_fullres and 3d_cascade_fullres 
     (they use the same plans).

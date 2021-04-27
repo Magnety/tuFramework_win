@@ -47,5 +47,5 @@ def run_in_folder(folder):
 
 
 if __name__ == "__main__":
-    folder = "/media/fabian/Results/nnUNetOutput_final/summary_jsons"
+    folder = "/media/fabian/Results/tuframeworkOutput_final/summary_jsons"
     run_in_folder(folder)

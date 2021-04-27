@@ -23,9 +23,9 @@ class ExperimentPlanner3D_v21_customTargetSpacing_2x2x2(ExperimentPlanner3D_v21)
         # we change the data identifier and plans_fname. This will make this experiment planner save the preprocessed
         # data in a different folder so that they can co-exist with the default (ExperimentPlanner3D_v21). We also
         # create a custom plans file that will be linked to this data
-        self.data_identifier = "nnUNetData_plans_v2.1_trgSp_2x2x2"
+        self.data_identifier = "tuData_plans_v2.1_trgSp_2x2x2"
         self.plans_fname = join(self.preprocessed_output_folder,
-                                "nnUNetPlansv2.1_trgSp_2x2x2_plans_3D.pkl")
+                                "tuPlansv2.1_trgSp_2x2x2_plans_3D.pkl")
 
     def get_target_spacing(self):
         # simply return the desired spacing as np.array

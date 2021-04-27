@@ -28,12 +28,12 @@ from tuframework.training.data_augmentation.default_data_augmentation import def
 from tuframework.training.dataloading.dataset_loading import unpack_dataset
 from tuframework.training.loss_functions.deep_supervision import MultipleOutputLoss2
 from tuframework.training.loss_functions.dice_loss import DC_and_BCE_loss, get_tp_fp_fn_tn
-from tuframework.training.network_training.tuTrainerV2 import nnUNetTrainerV2
-from tuframework.training.network_training.nnUNet_variants.data_augmentation.nnUNetTrainerV2_DA3 import \
-    nnUNetTrainerV2_DA3_BN
+from tuframework.training.network_training.tuTrainerV2 import tuframeworkTrainerV2
+from tuframework.training.network_training.tuframework_variants.data_augmentation.tuframeworkTrainerV2_DA3 import \
+    tuframeworkTrainerV2_DA3_BN
 
 
-class nnUNetTrainerV2BraTSRegions_DA3_BN(nnUNetTrainerV2_DA3_BN):
+class tuframeworkTrainerV2BraTSRegions_DA3_BN(tuframeworkTrainerV2_DA3_BN):
     def __init__(self, plans_file, fold, output_folder=None, dataset_directory=None, batch_dice=True, stage=None,
                  unpack_data=True, deterministic=True, fp16=False):
         super().__init__(plans_file, fold, output_folder, dataset_directory, batch_dice, stage, unpack_data,
@@ -156,7 +156,7 @@ class nnUNetTrainerV2BraTSRegions_DA3_BN(nnUNetTrainerV2_DA3_BN):
             self.online_eval_fn.append(list(fn_hard))
 
 
-class nnUNetTrainerV2BraTSRegions_DA3(nnUNetTrainerV2BraTSRegions_DA3_BN):
+class tuframeworkTrainerV2BraTSRegions_DA3(tuframeworkTrainerV2BraTSRegions_DA3_BN):
     def initialize_network(self):
         if self.threeD:
             conv_op = nn.Conv3d
@@ -183,7 +183,7 @@ class nnUNetTrainerV2BraTSRegions_DA3(nnUNetTrainerV2BraTSRegions_DA3_BN):
         self.network.inference_apply_nonlin = nn.Sigmoid()
 
 
-class nnUNetTrainerV2BraTSRegions_DA3_BD(nnUNetTrainerV2BraTSRegions_DA3):
+class tuframeworkTrainerV2BraTSRegions_DA3_BD(tuframeworkTrainerV2BraTSRegions_DA3):
     def __init__(self, plans_file, fold, output_folder=None, dataset_directory=None, batch_dice=True, stage=None,
                  unpack_data=True, deterministic=True, fp16=False):
         super().__init__(plans_file, fold, output_folder, dataset_directory, batch_dice, stage, unpack_data,
@@ -191,7 +191,7 @@ class nnUNetTrainerV2BraTSRegions_DA3_BD(nnUNetTrainerV2BraTSRegions_DA3):
         self.loss = DC_and_BCE_loss({}, {'batch_dice': True, 'do_bg': True, 'smooth': 0})
 
 
-class nnUNetTrainerV2BraTSRegions_DA3_BN_BD(nnUNetTrainerV2BraTSRegions_DA3_BN):
+class tuframeworkTrainerV2BraTSRegions_DA3_BN_BD(tuframeworkTrainerV2BraTSRegions_DA3_BN):
     def __init__(self, plans_file, fold, output_folder=None, dataset_directory=None, batch_dice=True, stage=None,
                  unpack_data=True, deterministic=True, fp16=False):
         super().__init__(plans_file, fold, output_folder, dataset_directory, batch_dice, stage, unpack_data,
@@ -199,9 +199,9 @@ class nnUNetTrainerV2BraTSRegions_DA3_BN_BD(nnUNetTrainerV2BraTSRegions_DA3_BN):
         self.loss = DC_and_BCE_loss({}, {'batch_dice': True, 'do_bg': True, 'smooth': 0})
 
 
-class nnUNetTrainerV2BraTSRegions_DA4_BN(nnUNetTrainerV2BraTSRegions_DA3_BN):
+class tuframeworkTrainerV2BraTSRegions_DA4_BN(tuframeworkTrainerV2BraTSRegions_DA3_BN):
     def setup_DA_params(self):
-        nnUNetTrainerV2.setup_DA_params(self)
+        tuframeworkTrainerV2.setup_DA_params(self)
         self.deep_supervision_scales = [[1, 1, 1]] + list(list(i) for i in 1 / np.cumprod(
             np.vstack(self.net_num_pool_op_kernel_sizes), axis=0))[:-1]
 
@@ -265,7 +265,7 @@ class nnUNetTrainerV2BraTSRegions_DA4_BN(nnUNetTrainerV2BraTSRegions_DA3_BN):
         self.data_aug_params['num_cached_per_thread'] = 4
 
 
-class nnUNetTrainerV2BraTSRegions_DA4_BN_BD(nnUNetTrainerV2BraTSRegions_DA4_BN):
+class tuframeworkTrainerV2BraTSRegions_DA4_BN_BD(tuframeworkTrainerV2BraTSRegions_DA4_BN):
     def __init__(self, plans_file, fold, output_folder=None, dataset_directory=None, batch_dice=True, stage=None,
                  unpack_data=True, deterministic=True, fp16=False):
         super().__init__(plans_file, fold, output_folder, dataset_directory, batch_dice, stage, unpack_data,

@@ -33,7 +33,7 @@ from tuframework.training.data_augmentation.data_augmentation_moreDA import get_
 from tuframework.training.dataloading.dataset_loading import unpack_dataset
 from tuframework.training.loss_functions.crossentropy import RobustCrossEntropyLoss
 from tuframework.training.loss_functions.dice_loss import get_tp_fp_fn_tn
-from tuframework.training.network_training.tuTrainerV2 import nnUNetTrainerV2
+from tuframework.training.network_training.tuTrainerV2 import tuframeworkTrainerV2
 from tuframework.utilities.distributed import awesome_allgather_function
 from tuframework.utilities.nd_softmax import softmax_helper
 from tuframework.utilities.tensor_utilities import sum_tensor
@@ -46,7 +46,7 @@ from torch.optim.lr_scheduler import _LRScheduler
 from tqdm import trange
 
 
-class nnUNetTrainerV2_DDP(nnUNetTrainerV2):
+class tuframeworkTrainerV2_DDP(tuframeworkTrainerV2):
     def __init__(self, plans_file, fold, local_rank, output_folder=None, dataset_directory=None, batch_dice=True,
                  stage=None,
                  unpack_data=True, deterministic=True, distribute_batch_size=False, fp16=False):
@@ -256,7 +256,7 @@ class nnUNetTrainerV2_DDP(nnUNetTrainerV2):
             # get the tp, fp and fn terms we need
             tp, fp, fn, _ = get_tp_fp_fn_tn(output_softmax, target[i], axes, mask=None)
             # for dice, compute nominator and denominator so that we have to accumulate only 2 instead of 3 variables
-            # do_bg=False in nnUNetTrainer -> [:, 1:]
+            # do_bg=False in tuframeworkTrainer -> [:, 1:]
             nominator = 2 * tp[:, 1:]
             denominator = 2 * tp[:, 1:] + fp[:, 1:] + fn[:, 1:]
 

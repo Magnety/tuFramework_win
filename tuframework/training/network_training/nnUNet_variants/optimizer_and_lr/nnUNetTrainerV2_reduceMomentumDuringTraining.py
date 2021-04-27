@@ -15,10 +15,10 @@
 
 import torch
 
-from tuframework.training.network_training.tuTrainerV2 import nnUNetTrainerV2
+from tuframework.training.network_training.tuTrainerV2 import tuframeworkTrainerV2
 
 
-class nnUNetTrainerV2_reduceMomentumDuringTraining(nnUNetTrainerV2):
+class tuframeworkTrainerV2_reduceMomentumDuringTraining(tuframeworkTrainerV2):
     """
     This implementation will not work with LR scheduler!!!!!!!!!!
 

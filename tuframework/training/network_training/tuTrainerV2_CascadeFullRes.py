@@ -27,7 +27,7 @@ from tuframework.inference.segmentation_export import save_segmentation_nifti_fr
 from batchgenerators.utilities.file_and_folder_operations import *
 import numpy as np
 from tuframework.training.loss_functions.deep_supervision import MultipleOutputLoss2
-from tuframework.training.network_training.tuTrainerV2 import nnUNetTrainerV2
+from tuframework.training.network_training.tuTrainerV2 import tuframeworkTrainerV2
 from tuframework.utilities.one_hot_encoding import to_one_hot
 import shutil
 
@@ -36,9 +36,9 @@ from torch import nn
 matplotlib.use("agg")
 
 
-class nnUNetTrainerV2CascadeFullRes(nnUNetTrainerV2):
+class tuframeworkTrainerV2CascadeFullRes(tuframeworkTrainerV2):
     def __init__(self, plans_file, fold, output_folder=None, dataset_directory=None, batch_dice=True, stage=None,
-                 unpack_data=True, deterministic=True, previous_trainer="nnUNetTrainerV2", fp16=False):
+                 unpack_data=True, deterministic=True, previous_trainer="tuframeworkTrainerV2", fp16=False):
         super().__init__(plans_file, fold, output_folder, dataset_directory,
                          batch_dice, stage, unpack_data, deterministic, fp16)
         self.init_args = (plans_file, fold, output_folder, dataset_directory, batch_dice, stage, unpack_data,

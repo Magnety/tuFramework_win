@@ -404,7 +404,7 @@ class NetworkTrainer(object):
 
     def plot_network_architecture(self):
         """
-        can be implemented (see nnUNetTrainer) but does not have to. Not implemented here because it imposes stronger
+        can be implemented (see tuframeworkTrainer) but does not have to. Not implemented here because it imposes stronger
         assumptions on the presence of class variables
         :return:
         """

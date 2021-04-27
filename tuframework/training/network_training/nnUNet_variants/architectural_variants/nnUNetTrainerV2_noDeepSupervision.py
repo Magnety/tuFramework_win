@@ -23,14 +23,14 @@ from tuframework.training.data_augmentation.default_data_augmentation import def
     default_2D_augmentation_params, get_patch_size
 from tuframework.training.dataloading.dataset_loading import unpack_dataset
 from tuframework.training.loss_functions.dice_loss import DC_and_CE_loss
-from tuframework.training.network_training.tuTrainer import nnUNetTrainer
-from tuframework.training.network_training.tuTrainerV2 import nnUNetTrainerV2
+from tuframework.training.network_training.tuTrainer import tuframeworkTrainer
+from tuframework.training.network_training.tuTrainerV2 import tuframeworkTrainerV2
 from tuframework.utilities.nd_softmax import softmax_helper
 from torch import nn
 import torch
 
 
-class nnUNetTrainerV2_noDeepSupervision(nnUNetTrainerV2):
+class tuframeworkTrainerV2_noDeepSupervision(tuframeworkTrainerV2):
     def __init__(self, plans_file, fold, output_folder=None, dataset_directory=None, batch_dice=True, stage=None,
                  unpack_data=True, deterministic=True, fp16=False):
         super().__init__(plans_file, fold, output_folder, dataset_directory, batch_dice, stage, unpack_data,
@@ -163,4 +163,4 @@ class nnUNetTrainerV2_noDeepSupervision(nnUNetTrainerV2):
         self.network.inference_apply_nonlin = softmax_helper
 
     def run_online_evaluation(self, output, target):
-        return nnUNetTrainer.run_online_evaluation(self, output, target)
+        return tuframeworkTrainer.run_online_evaluation(self, output, target)

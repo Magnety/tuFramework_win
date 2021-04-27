@@ -13,10 +13,10 @@
 #    limitations under the License.
 
 
-from tuframework.training.network_training.tuTrainerV2_CascadeFullRes import nnUNetTrainerV2CascadeFullRes
+from tuframework.training.network_training.tuTrainerV2_CascadeFullRes import tuframeworkTrainerV2CascadeFullRes
 
 
-class nnUNetTrainerV2CascadeFullRes_noConnComp(nnUNetTrainerV2CascadeFullRes):
+class tuframeworkTrainerV2CascadeFullRes_noConnComp(tuframeworkTrainerV2CascadeFullRes):
     def setup_DA_params(self):
         super().setup_DA_params()
         self.data_aug_params['cascade_do_cascade_augmentations'] = True
@@ -30,7 +30,7 @@ class nnUNetTrainerV2CascadeFullRes_noConnComp(nnUNetTrainerV2CascadeFullRes):
         self.data_aug_params['cascade_remove_conn_comp_fill_with_other_class_p'] = 0.0
 
 
-class nnUNetTrainerV2CascadeFullRes_smallerBinStrel(nnUNetTrainerV2CascadeFullRes):
+class tuframeworkTrainerV2CascadeFullRes_smallerBinStrel(tuframeworkTrainerV2CascadeFullRes):
     def setup_DA_params(self):
         super().setup_DA_params()
         self.data_aug_params['cascade_do_cascade_augmentations'] = True
@@ -44,7 +44,7 @@ class nnUNetTrainerV2CascadeFullRes_smallerBinStrel(nnUNetTrainerV2CascadeFullRe
         self.data_aug_params['cascade_remove_conn_comp_fill_with_other_class_p'] = 0.0
 
 
-class nnUNetTrainerV2CascadeFullRes_EducatedGuess(nnUNetTrainerV2CascadeFullRes):
+class tuframeworkTrainerV2CascadeFullRes_EducatedGuess(tuframeworkTrainerV2CascadeFullRes):
     def setup_DA_params(self):
         super().setup_DA_params()
         self.data_aug_params['cascade_do_cascade_augmentations'] = True
@@ -58,7 +58,7 @@ class nnUNetTrainerV2CascadeFullRes_EducatedGuess(nnUNetTrainerV2CascadeFullRes)
         self.data_aug_params['cascade_remove_conn_comp_fill_with_other_class_p'] = 0.0
 
 
-class nnUNetTrainerV2CascadeFullRes_EducatedGuess2(nnUNetTrainerV2CascadeFullRes):
+class tuframeworkTrainerV2CascadeFullRes_EducatedGuess2(tuframeworkTrainerV2CascadeFullRes):
     def setup_DA_params(self):
         super().setup_DA_params()
         self.data_aug_params['cascade_do_cascade_augmentations'] = True
@@ -72,7 +72,7 @@ class nnUNetTrainerV2CascadeFullRes_EducatedGuess2(nnUNetTrainerV2CascadeFullRes
         self.data_aug_params['cascade_remove_conn_comp_fill_with_other_class_p'] = 0.0
 
 
-class nnUNetTrainerV2CascadeFullRes_EducatedGuess3(nnUNetTrainerV2CascadeFullRes):
+class tuframeworkTrainerV2CascadeFullRes_EducatedGuess3(tuframeworkTrainerV2CascadeFullRes):
     def setup_DA_params(self):
         super().setup_DA_params()
         self.data_aug_params['cascade_do_cascade_augmentations'] = True

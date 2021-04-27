@@ -19,26 +19,26 @@ ExperimentPlanner class. I created one and placed it in [experiment_planner_2DUN
 Now go have a look at these two classes. Details are in the comments there.
 
 To run the new preprocessor, you need to specify its accompanying ExperimentPlanner when running 
-`nnUNet_plan_and_preprocess`:
+`tuframework_plan_and_preprocess`:
 
 ```bash
-nnUNet_plan_and_preprocess -t 120 -pl3d None -pl2d ExperimentPlanner2D_v21_RGB_scaleTo_0_1
+tuframework_plan_and_preprocess -t 120 -pl3d None -pl2d ExperimentPlanner2D_v21_RGB_scaleTo_0_1
 ```
 
 After that you can run the training:
 
 ```bash
-nnUNet_train 2d nnUNetTrainerV2 120 FOLD -p nnUNet_RGB_scaleTo_0_1
+tuframework_train 2d tuframeworkTrainerV2 120 FOLD -p tuframework_RGB_scaleTo_0_1
 ```
 
-Note that `nnUNet_RGB_scaleTo_0_1` is the plans identifier defined in our custom ExperimentPlanner. Specify it for all 
-nnUNet_* commands whenever you want to use the models resulting from this training.
+Note that `tuframework_RGB_scaleTo_0_1` is the plans identifier defined in our custom ExperimentPlanner. Specify it for all
+tuframework_* commands whenever you want to use the models resulting from this training.
 
 Now let all 5 folds run for the original nnU-Net as well as the one that uses the newly defined normalization scheme. 
-To compare the results, you can make use of nnUNet_determine_postprocessing to get the necessary metrics, for example:
+To compare the results, you can make use of tuframework_determine_postprocessing to get the necessary metrics, for example:
 
 ```bash
-nnUNet_determine_postprocessing -t 120 -tr nnUNetTrainerV2 -p nnUNet_RGB_scaleTo_0_1
+tuframework_determine_postprocessing -t 120 -tr tuframeworkTrainerV2 -p tuframework_RGB_scaleTo_0_1
 ```
 
 This will create a `cv_niftis_raw` and `cv_niftis_postprocessed` subfolder in the training output directory. In each

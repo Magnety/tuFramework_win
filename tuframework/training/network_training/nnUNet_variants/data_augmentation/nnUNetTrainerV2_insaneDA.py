@@ -21,11 +21,11 @@ from tuframework.training.data_augmentation.default_data_augmentation import def
     default_2D_augmentation_params, get_patch_size
 from tuframework.training.dataloading.dataset_loading import unpack_dataset
 from tuframework.training.loss_functions.deep_supervision import MultipleOutputLoss2
-from tuframework.training.network_training.tuTrainerV2 import nnUNetTrainerV2
+from tuframework.training.network_training.tuTrainerV2 import tuframeworkTrainerV2
 from torch import nn
 
 
-class nnUNetTrainerV2_insaneDA(nnUNetTrainerV2):
+class tuframeworkTrainerV2_insaneDA(tuframeworkTrainerV2):
     def setup_DA_params(self):
         self.deep_supervision_scales = [[1, 1, 1]] + list(list(i) for i in 1 / np.cumprod(
             np.vstack(self.net_num_pool_op_kernel_sizes), axis=0))[:-1]

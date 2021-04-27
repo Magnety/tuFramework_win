@@ -27,31 +27,31 @@ if __name__ == "__main__":
     for f in folds:
         folds_str += str(f)
 
-    plans = "nnUNetPlans"
+    plans = "tuframeworkPlans"
 
     overwrite_plans = {
-        'nnUNetTrainerV2_2': ["nnUNetPlans", "nnUNetPlans_customClip"], # r
-        'nnUNetTrainerV2_2_noMirror': ["nnUNetPlans", "nnUNetPlans_customClip"],  # r
-        'nnUNetTrainerV2_lessMomentum_noMirror': ["nnUNetPlans", "nnUNetPlans_customClip"],  # r
-        'nnUNetTrainerV2_2_structSeg_noMirror': ["nnUNetPlans", "nnUNetPlans_customClip"],  # r
-        'nnUNetTrainerV2_2_structSeg': ["nnUNetPlans", "nnUNetPlans_customClip"],  # r
-        'nnUNetTrainerV2_lessMomentum_noMirror_structSeg': ["nnUNetPlans", "nnUNetPlans_customClip"],  # r
-        'nnUNetTrainerV2_FabiansResUNet_structSet_NoMirror_leakyDecoder': ["nnUNetPlans", "nnUNetPlans_customClip"],  # r
-        'nnUNetTrainerV2_FabiansResUNet_structSet_NoMirror': ["nnUNetPlans", "nnUNetPlans_customClip"],  # r
-        'nnUNetTrainerV2_FabiansResUNet_structSet': ["nnUNetPlans", "nnUNetPlans_customClip"],  # r
+        'tuframeworkTrainerV2_2': ["tuframeworkPlans", "tuframeworkPlans_customClip"], # r
+        'tuframeworkTrainerV2_2_noMirror': ["tuframeworkPlans", "tuframeworkPlans_customClip"],  # r
+        'tuframeworkTrainerV2_lessMomentum_noMirror': ["tuframeworkPlans", "tuframeworkPlans_customClip"],  # r
+        'tuframeworkTrainerV2_2_structSeg_noMirror': ["tuframeworkPlans", "tuframeworkPlans_customClip"],  # r
+        'tuframeworkTrainerV2_2_structSeg': ["tuframeworkPlans", "tuframeworkPlans_customClip"],  # r
+        'tuframeworkTrainerV2_lessMomentum_noMirror_structSeg': ["tuframeworkPlans", "tuframeworkPlans_customClip"],  # r
+        'tuframeworkTrainerV2_FabiansResUNet_structSet_NoMirror_leakyDecoder': ["tuframeworkPlans", "tuframeworkPlans_customClip"],  # r
+        'tuframeworkTrainerV2_FabiansResUNet_structSet_NoMirror': ["tuframeworkPlans", "tuframeworkPlans_customClip"],  # r
+        'tuframeworkTrainerV2_FabiansResUNet_structSet': ["tuframeworkPlans", "tuframeworkPlans_customClip"],  # r
 
     }
 
-    trainers = ['nnUNetTrainer'] + [
-        'nnUNetTrainerV2_2',
-        'nnUNetTrainerV2_lessMomentum_noMirror',
-        'nnUNetTrainerV2_2_noMirror',
-        'nnUNetTrainerV2_2_structSeg_noMirror',
-        'nnUNetTrainerV2_2_structSeg',
-        'nnUNetTrainerV2_lessMomentum_noMirror_structSeg',
-        'nnUNetTrainerV2_FabiansResUNet_structSet_NoMirror_leakyDecoder',
-        'nnUNetTrainerV2_FabiansResUNet_structSet_NoMirror',
-        'nnUNetTrainerV2_FabiansResUNet_structSet',
+    trainers = ['tuframeworkTrainer'] + [
+        'tuframeworkTrainerV2_2',
+        'tuframeworkTrainerV2_lessMomentum_noMirror',
+        'tuframeworkTrainerV2_2_noMirror',
+        'tuframeworkTrainerV2_2_structSeg_noMirror',
+        'tuframeworkTrainerV2_2_structSeg',
+        'tuframeworkTrainerV2_lessMomentum_noMirror_structSeg',
+        'tuframeworkTrainerV2_FabiansResUNet_structSet_NoMirror_leakyDecoder',
+        'tuframeworkTrainerV2_FabiansResUNet_structSet_NoMirror',
+        'tuframeworkTrainerV2_FabiansResUNet_structSet',
     ]
 
     datasets = \

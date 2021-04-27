@@ -14,12 +14,12 @@
 import torch
 from tuframework.network_architecture.generic_UNet import Generic_UNet, ConvDropoutNonlinNorm
 from tuframework.network_architecture.initialization import InitWeights_He
-from tuframework.training.network_training.tuTrainerV2 import nnUNetTrainerV2
+from tuframework.training.network_training.tuTrainerV2 import tuframeworkTrainerV2
 from tuframework.utilities.nd_softmax import softmax_helper
 from torch import nn
 
 
-class nnUNetTrainerV2_lReLU_convReLUIN(nnUNetTrainerV2):
+class tuframeworkTrainerV2_lReLU_convReLUIN(tuframeworkTrainerV2):
     def initialize_network(self):
         if self.threeD:
             conv_op = nn.Conv3d

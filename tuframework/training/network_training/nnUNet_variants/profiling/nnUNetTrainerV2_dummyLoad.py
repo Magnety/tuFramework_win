@@ -16,16 +16,16 @@ from typing import Tuple
 import torch
 
 from tuframework.training.loss_functions.crossentropy import RobustCrossEntropyLoss
-from tuframework.training.network_training.nnUNet_variants.architectural_variants.nnUNetTrainerV2_noDeepSupervision import \
-    nnUNetTrainerV2_noDeepSupervision
-from tuframework.training.network_training.nnUNet_variants.profiling.nnUNetTrainerV2_2epochs import nnUNetTrainerV2_5epochs
+from tuframework.training.network_training.tuframework_variants.architectural_variants.tuframeworkTrainerV2_noDeepSupervision import \
+    tuframeworkTrainerV2_noDeepSupervision
+from tuframework.training.network_training.tuframework_variants.profiling.tuframeworkTrainerV2_2epochs import tuframeworkTrainerV2_5epochs
 from torch.cuda.amp import autocast
 from torch.nn.utils import clip_grad_norm_
 import numpy as np
 from torch import nn
 
 
-class nnUNetTrainerV2_5epochs_dummyLoad(nnUNetTrainerV2_5epochs):
+class tuframeworkTrainerV2_5epochs_dummyLoad(tuframeworkTrainerV2_5epochs):
     def initialize(self, training=True, force_load_plans=False):
         super().initialize(training, force_load_plans)
         self.some_batch = torch.rand((self.batch_size, self.num_input_channels, *self.patch_size)).float().cuda()
@@ -68,7 +68,7 @@ class nnUNetTrainerV2_5epochs_dummyLoad(nnUNetTrainerV2_5epochs):
         return l.detach().cpu().numpy()
 
 
-class nnUNetTrainerV2_5epochs_dummyLoadCEnoDS(nnUNetTrainerV2_noDeepSupervision):
+class tuframeworkTrainerV2_5epochs_dummyLoadCEnoDS(tuframeworkTrainerV2_noDeepSupervision):
     def __init__(self, plans_file, fold, output_folder=None, dataset_directory=None, batch_dice=True, stage=None,
                  unpack_data=True, deterministic=True, fp16=False):
         super().__init__(plans_file, fold, output_folder, dataset_directory, batch_dice, stage, unpack_data,

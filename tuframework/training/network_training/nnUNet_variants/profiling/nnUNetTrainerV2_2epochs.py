@@ -16,15 +16,15 @@ import numpy as np
 import torch
 
 from tuframework.training.loss_functions.crossentropy import RobustCrossEntropyLoss
-from tuframework.training.network_training.tuTrainerV2 import nnUNetTrainerV2
-from tuframework.training.network_training.tuTrainerV2_DDP import nnUNetTrainerV2_DDP
-from tuframework.training.network_training.nnUNet_variants.architectural_variants.nnUNetTrainerV2_noDeepSupervision import \
-    nnUNetTrainerV2_noDeepSupervision
+from tuframework.training.network_training.tuTrainerV2 import tuframeworkTrainerV2
+from tuframework.training.network_training.tuTrainerV2_DDP import tuframeworkTrainerV2_DDP
+from tuframework.training.network_training.tuframework_variants.architectural_variants.tuframeworkTrainerV2_noDeepSupervision import \
+    tuframeworkTrainerV2_noDeepSupervision
 from tuframework.utilities.to_torch import maybe_to_torch, to_cuda
 from torch.cuda.amp import autocast
 
 
-class nnUNetTrainerV2_2epochs(nnUNetTrainerV2):
+class tuframeworkTrainerV2_2epochs(tuframeworkTrainerV2):
     def __init__(self, plans_file, fold, output_folder=None, dataset_directory=None, batch_dice=True, stage=None,
                  unpack_data=True, deterministic=True, fp16=False):
         super().__init__(plans_file, fold, output_folder, dataset_directory, batch_dice, stage, unpack_data,
@@ -49,7 +49,7 @@ class nnUNetTrainerV2_2epochs(nnUNetTrainerV2):
         pass
 
 
-class nnUNetTrainerV2_5epochs(nnUNetTrainerV2):
+class tuframeworkTrainerV2_5epochs(tuframeworkTrainerV2):
     def __init__(self, plans_file, fold, output_folder=None, dataset_directory=None, batch_dice=True, stage=None,
                  unpack_data=True, deterministic=True, fp16=False):
         super().__init__(plans_file, fold, output_folder, dataset_directory, batch_dice, stage, unpack_data,
@@ -74,7 +74,7 @@ class nnUNetTrainerV2_5epochs(nnUNetTrainerV2):
         pass
 
 
-class nnUNetTrainerV2_5epochs_CEnoDS(nnUNetTrainerV2_noDeepSupervision):
+class tuframeworkTrainerV2_5epochs_CEnoDS(tuframeworkTrainerV2_noDeepSupervision):
     def __init__(self, plans_file, fold, output_folder=None, dataset_directory=None, batch_dice=True, stage=None,
                  unpack_data=True, deterministic=True, fp16=False):
         super().__init__(plans_file, fold, output_folder, dataset_directory, batch_dice, stage, unpack_data,
@@ -149,7 +149,7 @@ class nnUNetTrainerV2_5epochs_CEnoDS(nnUNetTrainerV2_noDeepSupervision):
         pass
 
 
-class nnUNetTrainerV2_5epochs_noDS(nnUNetTrainerV2_noDeepSupervision):
+class tuframeworkTrainerV2_5epochs_noDS(tuframeworkTrainerV2_noDeepSupervision):
     def __init__(self, plans_file, fold, output_folder=None, dataset_directory=None, batch_dice=True, stage=None,
                  unpack_data=True, deterministic=True, fp16=False):
         super().__init__(plans_file, fold, output_folder, dataset_directory, batch_dice, stage, unpack_data,
@@ -223,7 +223,7 @@ class nnUNetTrainerV2_5epochs_noDS(nnUNetTrainerV2_noDeepSupervision):
         pass
 
 
-class nnUNetTrainerV2_DDP_5epochs(nnUNetTrainerV2_DDP):
+class tuframeworkTrainerV2_DDP_5epochs(tuframeworkTrainerV2_DDP):
     def __init__(self, plans_file, fold, local_rank, output_folder=None, dataset_directory=None, batch_dice=True,
                  stage=None,
                  unpack_data=True, deterministic=True, distribute_batch_size=False, fp16=False):
@@ -249,7 +249,7 @@ class nnUNetTrainerV2_DDP_5epochs(nnUNetTrainerV2_DDP):
         pass
 
 
-class nnUNetTrainerV2_DDP_5epochs_dummyLoad(nnUNetTrainerV2_DDP_5epochs):
+class tuframeworkTrainerV2_DDP_5epochs_dummyLoad(tuframeworkTrainerV2_DDP_5epochs):
     def initialize(self, training=True, force_load_plans=False):
         super().initialize(training, force_load_plans)
         self.some_batch = torch.rand((self.batch_size, self.num_input_channels, *self.patch_size)).float().cuda()

@@ -16,14 +16,14 @@
 from tuframework.network_architecture.custom_modules.feature_response_normalization import FRN3D
 from tuframework.network_architecture.generic_UNet import Generic_UNet
 from tuframework.network_architecture.initialization import InitWeights_He
-from tuframework.training.network_training.tuTrainerV2 import nnUNetTrainerV2
+from tuframework.training.network_training.tuTrainerV2 import tuframeworkTrainerV2
 from tuframework.utilities.nd_softmax import softmax_helper
 from torch import nn
 from tuframework.network_architecture.custom_modules.helperModules import Identity
 import torch
 
 
-class nnUNetTrainerV2_FRN(nnUNetTrainerV2):
+class tuframeworkTrainerV2_FRN(tuframeworkTrainerV2):
     def initialize_network(self):
         """
         changed deep supervision to False

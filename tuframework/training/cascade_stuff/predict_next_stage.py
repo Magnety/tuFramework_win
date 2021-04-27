@@ -25,7 +25,7 @@ from tuframework.run.default_configuration import get_default_configuration
 from multiprocessing import Pool
 
 from tuframework.training.model_restore import recursive_find_python_class
-from tuframework.training.network_training.tuTrainer import nnUNetTrainer
+from tuframework.training.network_training.tuTrainer import tuframeworkTrainer
 
 
 def resample_and_save(predicted, target_shape, output_file, force_separate_z=False,
@@ -118,7 +118,7 @@ if __name__ == "__main__":
         raise RuntimeError("Could not find trainer class in tuframework.training.network_training")
     else:
         assert issubclass(trainer_class,
-                          nnUNetTrainer), "network_trainer was found but is not derived from nnUNetTrainer"
+                          tuframeworkTrainer), "network_trainer was found but is not derived from tuframeworkTrainer"
 
     trainer = trainer_class(plans_file, fold, folder_with_preprocessed_data, output_folder=output_folder_name,
                             dataset_directory=dataset_directory, batch_dice=batch_dice, stage=stage)

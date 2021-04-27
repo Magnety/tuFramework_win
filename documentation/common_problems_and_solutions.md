@@ -4,8 +4,8 @@
 
 This can happen when running inference (or training) with mixed precision enabled on older GPU hardware. It points 
 to some operation not being implemented in half precision for the type of GPU you are using. There are flags to enforce
- the use of fp32 for both nnUNet_predict and nnUNet_train. If you run into this error, using these flags will probably 
- solve it. See `nnUNet_predict -h` and `nnUNet_train -h` for what the flags are.
+ the use of fp32 for both tuframework_predict and tuframework_train. If you run into this error, using these flags will probably
+ solve it. See `tuframework_predict -h` and `tuframework_train -h` for what the flags are.
 
 ## nnU-Net gets 'stuck' during preprocessing, training or inference
 nnU-Net uses python multiprocessing to leverage multiple CPU cores during preprocessing, background workers for data 
@@ -24,8 +24,8 @@ error message (if necessary copy the stdout to a text editor and search for 'err
 2) If there is no error message, this could mean that your OS silently killed a background worker because it was about 
 to go out of memory. In this case, please rerun whatever command you have been running and closely monitor your system 
 RAM (not GPU memory!) usage. If your RAM is full or close to full, you need to take action:
-   - reduce the number of background workers: use `-tl` and `-tf` in `nnUNet_plan_and_preprocess` (you may have to 
-   go as low as 1!). Reduce the number of workers used by `nnUNet_predict` by reducing `--num_threads_preprocessing` and 
+   - reduce the number of background workers: use `-tl` and `-tf` in `tuframework_plan_and_preprocess` (you may have to
+   go as low as 1!). Reduce the number of workers used by `tuframework_predict` by reducing `--num_threads_preprocessing` and
    `--num_threads_nifti_save`.
    - If even `-tf 1` during preprocessing is not low enough, consider adding a swap partition located on an SSD.
    - upgrade your RAM! (32 GB should get the job done)
@@ -50,7 +50,7 @@ At the start of each training, cuDNN will run some benchmarks in order to figure
 for the current network architecture (we use `torch.backends.cudnn.benchmark=True`). VRAM consumption will jump all over
 the place while these benchmarks run and can briefly exceed the 8GB nnU-Net typically requires. If you keep running into
  `RuntimeError: CUDA out of memory` problems you may want to consider disabling that. You can do so by setting the 
- `--deterministic` flag when using `nnUNet_train`. Setting this flag can slow down your training, so it is recommended 
+ `--deterministic` flag when using `tuframework_train`. Setting this flag can slow down your training, so it is recommended
  to only use it if necessary.
  
 ## nnU-Net training in Docker container: RuntimeError: unable to write to file </torch_781_2606105346>
@@ -65,12 +65,12 @@ file </torch_781_2606105346>`. Please start the docker with the `--ipc=host` fla
 Sometimes downloading the large zip files containing our pretrained models can fail and cause the error above. Please 
 make sure to use the most recent nnU-Net version (we constantly try to improve the downloading). If that does not fix it
 you can always download the zip file from our zenodo (https://zenodo.org/record/4003545) and use the 
-`nnUNet_install_pretrained_model_from_zip` command to install the model.
+`tuframework_install_pretrained_model_from_zip` command to install the model.
 
 ## Downloading pre-trained models: `unzip: 'unzip' is not recognized as an internal or external command` OR `Command 'unzip' not found`
 
 On Windows systems and on a bare WSL2 system, the `unzip` command may not be present.
-Either install it, unzip the pre-trained model from zenodo download, or update to a newer version of nnUNet that uses the Python build in
+Either install it, unzip the pre-trained model from zenodo download, or update to a newer version of tuframework that uses the Python build in
 (https://docs.python.org/3/library/zipfile.html)
 
 ## nnU-Net training (2D U-Net): High (and increasing) system RAM usage, OOM
@@ -94,11 +94,11 @@ This means that your dataset contains unexpected values in the segmentations. nn
 consecutive integers. So if your dataset has 4 classes (background and three foregound labels), then the labels 
 must be 0, 1, 2, 3 (where 0 must be background!). There cannot be any other values in the ground truth segmentations.
 
-If you run `nnUNet_plan_and_preprocess` with the `--verify_dataset_integrity` option, this should never happen because 
+If you run `tuframework_plan_and_preprocess` with the `--verify_dataset_integrity` option, this should never happen because
 it will check for wrong values in the label images.
 
 ## nnU-Net training: Error: mmap length is greater than file size and EOFError
-Please delete all .npy files in the nnUNet_preprocessed folder of the test you were trying to train. Then try again.
+Please delete all .npy files in the tuframework_preprocessed folder of the test you were trying to train. Then try again.
 
 ## running nnU-Net on Azure instances
-see https://github.com/MIC-DKFZ/nnUNet/issues/437, thank you @Alaska47
+see https://github.com/MIC-DKFZ/tuframework/issues/437, thank you @Alaska47

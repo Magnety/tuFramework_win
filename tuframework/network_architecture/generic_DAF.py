@@ -1,5 +1,6 @@
 from functools import partial
 from torch import nn
+import torch
 import torch.nn.functional as F
 from torch.autograd import Variable
 def conv3x3x3(in_planes, out_planes, stride=1):
@@ -11,8 +12,6 @@ def conv3x3x3(in_planes, out_planes, stride=1):
         stride=stride,
         padding=1,
         bias=False)
-
-
 def downsample_basic_block(x, planes, stride):
     out = F.avg_pool3d(x, kernel_size=1, stride=stride)
     zero_pads = torch.Tensor(
@@ -28,7 +27,6 @@ def downsample_basic_block(x, planes, stride):
 
 class ResNeXtBottleneck(nn.Module):
     expansion = 2
-
     def __init__(self, inplanes, planes, cardinality, stride=1,
                  downsample=None):
         super(ResNeXtBottleneck, self).__init__()

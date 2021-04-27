@@ -248,7 +248,7 @@ if __name__ == "__main__":
 
     # load image
     gt_itk = sitk.ReadImage(
-        "/media/fabian/Results/nnUNet/3d_fullres/Task064_KiTS_labelsFixed/nnUNetTrainerV2__nnUNetPlansv2.1/gt_niftis/case_00085.nii.gz")
+        "/media/fabian/Results/tuframework/3d_fullres/Task064_KiTS_labelsFixed/tuframeworkTrainerV2__tuframeworkPlansv2.1/gt_niftis/case_00085.nii.gz")
 
     # get numpy array
     pred_npy = sitk.GetArrayFromImage(gt_itk)
@@ -264,7 +264,7 @@ if __name__ == "__main__":
 
     # load images in nib
     gt = nib.load(
-        "/media/fabian/Results/nnUNet/3d_fullres/Task064_KiTS_labelsFixed/nnUNetTrainerV2__nnUNetPlansv2.1/gt_niftis/case_00085.nii.gz")
+        "/media/fabian/Results/tuframework/3d_fullres/Task064_KiTS_labelsFixed/tuframeworkTrainerV2__tuframeworkPlansv2.1/gt_niftis/case_00085.nii.gz")
     pred_nib = nib.load("test.mnc")
 
     new_img_sitk = sitk.ReadImage("test.mnc")

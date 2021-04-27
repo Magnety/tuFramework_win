@@ -13,12 +13,12 @@
 #    limitations under the License.
 
 
-from tuframework.training.network_training.tuTrainerV2 import nnUNetTrainerV2
+from tuframework.training.network_training.tuTrainerV2 import tuframeworkTrainerV2
 from tuframework.training.loss_functions.dice_loss import MCCLoss
 from tuframework.utilities.nd_softmax import softmax_helper
 
 
-class nnUNetTrainerV2_Loss_MCC(nnUNetTrainerV2):
+class tuframeworkTrainerV2_Loss_MCC(tuframeworkTrainerV2):
     def __init__(self, plans_file, fold, output_folder=None, dataset_directory=None, batch_dice=True, stage=None,
                  unpack_data=True, deterministic=True, fp16=False):
         super().__init__(plans_file, fold, output_folder, dataset_directory, batch_dice, stage, unpack_data,
@@ -27,7 +27,7 @@ class nnUNetTrainerV2_Loss_MCC(nnUNetTrainerV2):
         self.loss = MCCLoss(apply_nonlin=softmax_helper, batch_mcc=self.batch_dice, do_bg=True, smooth=0.0)
 
 
-class nnUNetTrainerV2_Loss_MCCnoBG(nnUNetTrainerV2):
+class tuframeworkTrainerV2_Loss_MCCnoBG(tuframeworkTrainerV2):
     def __init__(self, plans_file, fold, output_folder=None, dataset_directory=None, batch_dice=True, stage=None,
                  unpack_data=True, deterministic=True, fp16=False):
         super().__init__(plans_file, fold, output_folder, dataset_directory, batch_dice, stage, unpack_data,

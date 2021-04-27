@@ -13,11 +13,11 @@
 #    limitations under the License.
 
 
-from tuframework.training.network_training.tuTrainerV2 import nnUNetTrainerV2
+from tuframework.training.network_training.tuTrainerV2 import tuframeworkTrainerV2
 from tuframework.training.optimizer.ranger import Ranger
 
 
-class nnUNetTrainerV2_Ranger_lr1en2(nnUNetTrainerV2):
+class tuframeworkTrainerV2_Ranger_lr1en2(tuframeworkTrainerV2):
     def __init__(self, plans_file, fold, output_folder=None, dataset_directory=None, batch_dice=True, stage=None,
                  unpack_data=True, deterministic=True, fp16=False):
         super().__init__(plans_file, fold, output_folder, dataset_directory, batch_dice, stage, unpack_data,

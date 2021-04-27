@@ -19,12 +19,12 @@ import numpy as np
 import torch
 from tuframework.configuration import default_num_threads
 from tuframework.inference.segmentation_export import save_segmentation_nifti_from_softmax
-from tuframework.training.network_training.tuTrainerV2 import nnUNetTrainerV2
+from tuframework.training.network_training.tuTrainerV2 import tuframeworkTrainerV2
 from batchgenerators.utilities.file_and_folder_operations import *
 from tuframework.evaluation.region_based_evaluation import evaluate_regions, get_brats_regions
 
 
-class nnUNetTrainerV2_fullEvals(nnUNetTrainerV2):
+class tuframeworkTrainerV2_fullEvals(tuframeworkTrainerV2):
     """
     this trainer only works for brats and nothing else
     """

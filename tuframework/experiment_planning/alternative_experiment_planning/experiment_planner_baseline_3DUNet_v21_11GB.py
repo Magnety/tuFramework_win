@@ -28,9 +28,9 @@ class ExperimentPlanner3D_v21_11GB(ExperimentPlanner3D_v21):
     """
     def __init__(self, folder_with_cropped_data, preprocessed_output_folder):
         super(ExperimentPlanner3D_v21_11GB, self).__init__(folder_with_cropped_data, preprocessed_output_folder)
-        self.data_identifier = "nnUNetData_plans_v2.1_big"
+        self.data_identifier = "tuData_plans_v2.1_big"
         self.plans_fname = join(self.preprocessed_output_folder,
-                                "nnUNetPlansv2.1_big_plans_3D.pkl")
+                                "tuPlansv2.1_big_plans_3D.pkl")
 
     def get_properties_for_stage(self, current_spacing, original_spacing, original_shape, num_cases,
                                  num_modalities, num_classes):

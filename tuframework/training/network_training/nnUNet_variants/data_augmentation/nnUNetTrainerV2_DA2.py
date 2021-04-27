@@ -13,10 +13,10 @@
 #    limitations under the License.
 
 
-from tuframework.training.network_training.tuTrainerV2 import nnUNetTrainerV2
+from tuframework.training.network_training.tuTrainerV2 import tuframeworkTrainerV2
 
 
-class nnUNetTrainerV2_DA2(nnUNetTrainerV2):
+class tuframeworkTrainerV2_DA2(tuframeworkTrainerV2):
     def setup_DA_params(self):
         super().setup_DA_params()
 

@@ -13,12 +13,12 @@
 #    limitations under the License.
 
 
-from tuframework.training.network_training.tuTrainerV2 import nnUNetTrainerV2
+from tuframework.training.network_training.tuTrainerV2 import tuframeworkTrainerV2
 
 
-class nnUNetTrainerV2_fp32(nnUNetTrainerV2):
+class tuframeworkTrainerV2_fp32(tuframeworkTrainerV2):
     """
-    Info for Fabian: same as internal nnUNetTrainerV2_2
+    Info for Fabian: same as internal tuframeworkTrainerV2_2
     """
 
     def __init__(self, plans_file, fold, output_folder=None, dataset_directory=None, batch_dice=True, stage=None,

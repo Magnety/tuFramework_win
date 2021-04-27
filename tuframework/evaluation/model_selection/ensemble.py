@@ -60,15 +60,15 @@ def ensemble(training_output_folder1, training_output_folder2, output_folder, ta
         validation_folder_net2 = join(training_output_folder2, "fold_%d" % f, validation_folder)
 
         if not isdir(validation_folder_net1):
-            raise AssertionError("Validation directory missing: %s. Please rerun validation with `nnUNet_train CONFIG TRAINER TASK FOLD -val --npz`" % validation_folder_net1)
+            raise AssertionError("Validation directory missing: %s. Please rerun validation with `tuframework_train CONFIG TRAINER TASK FOLD -val --npz`" % validation_folder_net1)
         if not isdir(validation_folder_net2):
-            raise AssertionError("Validation directory missing: %s. Please rerun validation with `nnUNet_train CONFIG TRAINER TASK FOLD -val --npz`" % validation_folder_net2)
+            raise AssertionError("Validation directory missing: %s. Please rerun validation with `tuframework_train CONFIG TRAINER TASK FOLD -val --npz`" % validation_folder_net2)
 
         # we need to ensure the validation was successful. We can verify this via the presence of the summary.json file
         if not isfile(join(validation_folder_net1, 'summary.json')):
-            raise AssertionError("Validation directory incomplete: %s. Please rerun validation with `nnUNet_train CONFIG TRAINER TASK FOLD -val --npz`" % validation_folder_net1)
+            raise AssertionError("Validation directory incomplete: %s. Please rerun validation with `tuframework_train CONFIG TRAINER TASK FOLD -val --npz`" % validation_folder_net1)
         if not isfile(join(validation_folder_net2, 'summary.json')):
-            raise AssertionError("Validation directory missing: %s. Please rerun validation with `nnUNet_train CONFIG TRAINER TASK FOLD -val --npz`" % validation_folder_net2)
+            raise AssertionError("Validation directory missing: %s. Please rerun validation with `tuframework_train CONFIG TRAINER TASK FOLD -val --npz`" % validation_folder_net2)
 
         patient_identifiers1_npz = [i[:-4] for i in subfiles(validation_folder_net1, False, None, 'npz', True)]
         patient_identifiers2_npz = [i[:-4] for i in subfiles(validation_folder_net2, False, None, 'npz', True)]

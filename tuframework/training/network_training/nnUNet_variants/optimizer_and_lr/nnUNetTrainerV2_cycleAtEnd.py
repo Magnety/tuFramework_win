@@ -14,7 +14,7 @@
 
 
 from tuframework.training.learning_rate.poly_lr import poly_lr
-from tuframework.training.network_training.tuTrainerV2 import nnUNetTrainerV2
+from tuframework.training.network_training.tuTrainerV2 import tuframeworkTrainerV2
 import matplotlib.pyplot as plt
 
 
@@ -37,7 +37,7 @@ def plot_cycle_lr():
     plt.close()
 
 
-class nnUNetTrainerV2_cycleAtEnd(nnUNetTrainerV2):
+class tuframeworkTrainerV2_cycleAtEnd(tuframeworkTrainerV2):
     """
     after 1000 epoch, run one iteration through the cycle lr schedule. I want to see if the train loss starts
     increasing again
@@ -63,7 +63,7 @@ class nnUNetTrainerV2_cycleAtEnd(nnUNetTrainerV2):
             self.print_to_log_file("lr:", new_lr)
 
 
-class nnUNetTrainerV2_cycleAtEnd2(nnUNetTrainerV2):
+class tuframeworkTrainerV2_cycleAtEnd2(tuframeworkTrainerV2):
     """
     after 1000 epoch, run one iteration through the cycle lr schedule. I want to see if the train loss starts
     increasing again

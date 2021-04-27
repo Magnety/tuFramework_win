@@ -57,7 +57,7 @@ def write_plans_to_file(f, plans_file, stage=0, do_linebreak_at_end=True, overri
 if __name__ == "__main__":
     summarize((1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 24, 27), output_dir=join(network_training_output_dir, "summary_fold0"), folds=(0,))
     base_dir = os.environ['RESULTS_FOLDER']
-    tuframeworks = ['nnUNetV2', 'nnUNetV2_zspacing']
+    tuframeworks = ['tuframeworkV2', 'tuframeworkV2_zspacing']
     task_ids = list(range(99))
     with open("summary.csv", 'w') as f:
         f.write("identifier;stage;batch_size;num_pool_per_axis;patch_size;patch_size(mm);median_patient_size_in_voxels;median_patient_size_in_mm;current_spacing;original_spacing;pool_op_kernel_sizes;conv_kernel_sizes;patient_dc;global_dc\n")

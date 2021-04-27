@@ -27,23 +27,23 @@ if __name__ == "__main__":
     for f in folds:
         folds_str += str(f)
 
-    plans = "nnUNetPlansv2.1"
+    plans = "tuframeworkPlansv2.1"
 
     overwrite_plans = {
-        'nnUNetTrainerCascadeFullRes': ['nnUNetPlans'],
+        'tuframeworkTrainerCascadeFullRes': ['tuframeworkPlans'],
     }
 
     trainers = [
-        'nnUNetTrainerCascadeFullRes',
-        'nnUNetTrainerV2CascadeFullRes_EducatedGuess',
-        'nnUNetTrainerV2CascadeFullRes_EducatedGuess2',
-        'nnUNetTrainerV2CascadeFullRes_EducatedGuess3',
-        'nnUNetTrainerV2CascadeFullRes_lowerLR',
-        'nnUNetTrainerV2CascadeFullRes',
-        'nnUNetTrainerV2CascadeFullRes_noConnComp',
-        'nnUNetTrainerV2CascadeFullRes_shorter_lowerLR',
-        'nnUNetTrainerV2CascadeFullRes_shorter',
-        'nnUNetTrainerV2CascadeFullRes_smallerBinStrel',
+        'tuframeworkTrainerCascadeFullRes',
+        'tuframeworkTrainerV2CascadeFullRes_EducatedGuess',
+        'tuframeworkTrainerV2CascadeFullRes_EducatedGuess2',
+        'tuframeworkTrainerV2CascadeFullRes_EducatedGuess3',
+        'tuframeworkTrainerV2CascadeFullRes_lowerLR',
+        'tuframeworkTrainerV2CascadeFullRes',
+        'tuframeworkTrainerV2CascadeFullRes_noConnComp',
+        'tuframeworkTrainerV2CascadeFullRes_shorter_lowerLR',
+        'tuframeworkTrainerV2CascadeFullRes_shorter',
+        'tuframeworkTrainerV2CascadeFullRes_smallerBinStrel',
         #'',
         #'',
         #'',

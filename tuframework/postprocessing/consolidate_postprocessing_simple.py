@@ -27,7 +27,7 @@ def main():
                                                                "3d_cascade_fullres)")
     argparser.add_argument("-t", type=str, required=True, help="Task name or id")
     argparser.add_argument("-tr", type=str, required=False, default=None,
-                           help="nnUNetTrainer class. Default: %s, unless 3d_cascade_fullres "
+                           help="tuframeworkTrainer class. Default: %s, unless 3d_cascade_fullres "
                                 "(then it's %s)" % (default_trainer, default_cascade_trainer))
     argparser.add_argument("-pl", type=str, required=False, default=default_plans_identifier,
                            help="Plans name, Default=%s" % default_plans_identifier)
@@ -47,9 +47,9 @@ def main():
 
     if trainer is None:
         if model == "3d_cascade_fullres":
-            trainer = "nnUNetTrainerV2CascadeFullRes"
+            trainer = "tuframeworkTrainerV2CascadeFullRes"
         else:
-            trainer = "nnUNetTrainerV2"
+            trainer = "tuframeworkTrainerV2"
 
     folder = get_output_folder_name(model, task, trainer, plans, None)
 

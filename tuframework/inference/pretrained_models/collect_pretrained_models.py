@@ -188,7 +188,7 @@ def export_pretrained_model(task_name: str, output_file: str,
                    os.path.relpath(join(expected_output_folder, "plans.pkl"), network_training_output_dir))
         if not isfile(join(expected_output_folder, "postprocessing.json")):
             if strict:
-                raise RuntimeError('postprocessing.json missing. Run nnUNet_determine_postprocessing or disable strict')
+                raise RuntimeError('postprocessing.json missing. Run tuframework_determine_postprocessing or disable strict')
             else:
                 print('WARNING: postprocessing.json missing')
         else:
@@ -216,8 +216,8 @@ def export_entry_point():
     import argparse
     parser = argparse.ArgumentParser(description="Use this script to export models to a zip file for sharing with "
                                                  "others. You can upload the zip file and then either share the url "
-                                                 "for usage with nnUNet_download_pretrained_model_by_url, or share the "
-                                                 "zip for usage with nnUNet_install_pretrained_model_from_zip")
+                                                 "for usage with tuframework_download_pretrained_model_by_url, or share the "
+                                                 "zip for usage with tuframework_install_pretrained_model_from_zip")
     parser.add_argument('-t', type=str, help='task name or task id')
     parser.add_argument('-o', type=str, help='output file name. Should end with .zip')
     parser.add_argument('-m', nargs='+',

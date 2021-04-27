@@ -56,9 +56,9 @@ def main():
     parser.add_argument("-t", '--task_ids', nargs="+", required=True)
 
     parser.add_argument("-tr", type=str, required=False, default=default_trainer,
-                           help="nnUNetTrainer class. Default: %s" % default_trainer)
+                           help="tuframeworkTrainer class. Default: %s" % default_trainer)
     parser.add_argument("-ctr", type=str, required=False, default=default_cascade_trainer,
-                           help="nnUNetTrainer class for cascade model. Default: %s" % default_cascade_trainer)
+                           help="tuframeworkTrainer class for cascade model. Default: %s" % default_cascade_trainer)
     parser.add_argument("-pl", type=str, required=False, default=default_plans_identifier,
                            help="plans name, Default: %s" % default_plans_identifier)
     parser.add_argument('-f', '--folds', nargs='+', default=(0, 1, 2, 3, 4), help="Use this if you have non-standard "
@@ -197,17 +197,17 @@ def main():
                     model1, model2 = tmp.split("--")
                     m1, t1, pl1 = model1.split("__")
                     m2, t2, pl2 = model2.split("__")
-                    predict_str += "nnUNet_predict -i FOLDER_WITH_TEST_CASES -o OUTPUT_FOLDER_MODEL1 -tr " + tr + " -ctr " + trc + " -m " + m1 + " -p " + pl + " -t " + \
+                    predict_str += "tuframework_predict -i FOLDER_WITH_TEST_CASES -o OUTPUT_FOLDER_MODEL1 -tr " + tr + " -ctr " + trc + " -m " + m1 + " -p " + pl + " -t " + \
                                    id_task_mapping[t] + "\n"
-                    predict_str += "nnUNet_predict -i FOLDER_WITH_TEST_CASES -o OUTPUT_FOLDER_MODEL2 -tr " + tr + " -ctr " + trc + " -m " + m2 + " -p " + pl + " -t " + \
+                    predict_str += "tuframework_predict -i FOLDER_WITH_TEST_CASES -o OUTPUT_FOLDER_MODEL2 -tr " + tr + " -ctr " + trc + " -m " + m2 + " -p " + pl + " -t " + \
                                    id_task_mapping[t] + "\n"
 
                     if not disable_postprocessing:
-                        predict_str += "nnUNet_ensemble -f OUTPUT_FOLDER_MODEL1 OUTPUT_FOLDER_MODEL2 -o OUTPUT_FOLDER -pp " + join(network_training_output_dir, "ensembles", id_task_mapping[t], k, "postprocessing.json") + "\n"
+                        predict_str += "tuframework_ensemble -f OUTPUT_FOLDER_MODEL1 OUTPUT_FOLDER_MODEL2 -o OUTPUT_FOLDER -pp " + join(network_training_output_dir, "ensembles", id_task_mapping[t], k, "postprocessing.json") + "\n"
                     else:
-                        predict_str += "nnUNet_ensemble -f OUTPUT_FOLDER_MODEL1 OUTPUT_FOLDER_MODEL2 -o OUTPUT_FOLDER\n"
+                        predict_str += "tuframework_ensemble -f OUTPUT_FOLDER_MODEL1 OUTPUT_FOLDER_MODEL2 -o OUTPUT_FOLDER\n"
                 else:
-                    predict_str += "nnUNet_predict -i FOLDER_WITH_TEST_CASES -o OUTPUT_FOLDER_MODEL1 -tr " + tr + " -ctr " + trc + " -m " + k + " -p " + pl + " -t " + \
+                    predict_str += "tuframework_predict -i FOLDER_WITH_TEST_CASES -o OUTPUT_FOLDER_MODEL1 -tr " + tr + " -ctr " + trc + " -m " + k + " -p " + pl + " -t " + \
                                    id_task_mapping[t] + "\n"
                 print(predict_str)
 

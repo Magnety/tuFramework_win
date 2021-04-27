@@ -17,20 +17,20 @@ from batchgenerators.utilities.file_and_folder_operations import join, maybe_mkd
 from tuframework.training.data_augmentation.data_augmentation_moreDA import get_moreDA_augmentation
 
 try:
-    from meddec.model_training.ablation_studies.new_nnUNet_candidates.nnUNetTrainerCandidate23_softDeepSupervision4 import \
+    from meddec.model_training.ablation_studies.new_tuframework_candidates.tuframeworkTrainerCandidate23_softDeepSupervision4 import \
         MyDSLoss4
 except ImportError:
     MyDSLoss4 = None
 
 from tuframework.network_architecture.neural_network import SegmentationNetwork
 from tuframework.training.dataloading.dataset_loading import unpack_dataset
-from tuframework.training.network_training.tuTrainer import nnUNetTrainer
-from tuframework.training.network_training.tuTrainerV2 import nnUNetTrainerV2
+from tuframework.training.network_training.tuTrainer import tuframeworkTrainer
+from tuframework.training.network_training.tuTrainerV2 import tuframeworkTrainerV2
 from torch import nn
 import numpy as np
 
 
-class nnUNetTrainerV2_softDeepSupervision(nnUNetTrainerV2):
+class tuframeworkTrainerV2_softDeepSupervision(tuframeworkTrainerV2):
     def __init__(self, plans_file, fold, output_folder=None, dataset_directory=None, batch_dice=True, stage=None,
                  unpack_data=True, deterministic=True, fp16=False):
         super().__init__(plans_file, fold, output_folder, dataset_directory, batch_dice, stage, unpack_data,
@@ -124,4 +124,4 @@ class nnUNetTrainerV2_softDeepSupervision(nnUNetTrainerV2):
         target = target[0][:,
                  None]  # we need to restore color channel dimension here to be compatible with previous code
         output = output[0]
-        return nnUNetTrainer.run_online_evaluation(self, output, target)
+        return tuframeworkTrainer.run_online_evaluation(self, output, target)

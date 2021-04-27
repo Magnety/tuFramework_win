@@ -14,12 +14,12 @@
 import torch
 from tuframework.network_architecture.generic_UNet import Generic_UNet
 from tuframework.network_architecture.initialization import InitWeights_He
-from tuframework.training.network_training.tuTrainerV2 import nnUNetTrainerV2
+from tuframework.training.network_training.tuTrainerV2 import tuframeworkTrainerV2
 from tuframework.utilities.nd_softmax import softmax_helper
 from torch import nn
 
 
-class nnUNetTrainerV2_BN(nnUNetTrainerV2):
+class tuframeworkTrainerV2_BN(tuframeworkTrainerV2):
     def initialize_network(self):
         """
         changed deep supervision to False
@@ -49,7 +49,7 @@ class nnUNetTrainerV2_BN(nnUNetTrainerV2):
         self.network.inference_apply_nonlin = softmax_helper
 
 
-nnUNetTrainerV2_BN_copy1 = nnUNetTrainerV2_BN
-nnUNetTrainerV2_BN_copy2 = nnUNetTrainerV2_BN
-nnUNetTrainerV2_BN_copy3 = nnUNetTrainerV2_BN
-nnUNetTrainerV2_BN_copy4 = nnUNetTrainerV2_BN
+tuframeworkTrainerV2_BN_copy1 = tuframeworkTrainerV2_BN
+tuframeworkTrainerV2_BN_copy2 = tuframeworkTrainerV2_BN
+tuframeworkTrainerV2_BN_copy3 = tuframeworkTrainerV2_BN
+tuframeworkTrainerV2_BN_copy4 = tuframeworkTrainerV2_BN

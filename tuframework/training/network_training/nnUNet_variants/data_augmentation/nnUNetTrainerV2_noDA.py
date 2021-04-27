@@ -19,11 +19,11 @@ from tuframework.network_architecture.neural_network import SegmentationNetwork
 from tuframework.training.data_augmentation.data_augmentation_noDA import get_no_augmentation
 from tuframework.training.dataloading.dataset_loading import unpack_dataset, DataLoader3D, DataLoader2D
 from tuframework.training.loss_functions.deep_supervision import MultipleOutputLoss2
-from tuframework.training.network_training.tuTrainerV2 import nnUNetTrainerV2
+from tuframework.training.network_training.tuTrainerV2 import tuframeworkTrainerV2
 from torch import nn
 
 
-class nnUNetTrainerV2_noDataAugmentation(nnUNetTrainerV2):
+class tuframeworkTrainerV2_noDataAugmentation(tuframeworkTrainerV2):
     def setup_DA_params(self):
         super().setup_DA_params()
         # important because we need to know in validation and inference that we did not mirror in training
@@ -137,7 +137,7 @@ class nnUNetTrainerV2_noDataAugmentation(nnUNetTrainerV2):
 
 
 
-nnUNetTrainerV2_noDataAugmentation_copy1 = nnUNetTrainerV2_noDataAugmentation
-nnUNetTrainerV2_noDataAugmentation_copy2 = nnUNetTrainerV2_noDataAugmentation
-nnUNetTrainerV2_noDataAugmentation_copy3 = nnUNetTrainerV2_noDataAugmentation
-nnUNetTrainerV2_noDataAugmentation_copy4 = nnUNetTrainerV2_noDataAugmentation
+tuframeworkTrainerV2_noDataAugmentation_copy1 = tuframeworkTrainerV2_noDataAugmentation
+tuframeworkTrainerV2_noDataAugmentation_copy2 = tuframeworkTrainerV2_noDataAugmentation
+tuframeworkTrainerV2_noDataAugmentation_copy3 = tuframeworkTrainerV2_noDataAugmentation
+tuframeworkTrainerV2_noDataAugmentation_copy4 = tuframeworkTrainerV2_noDataAugmentation

@@ -22,12 +22,12 @@ from tuframework.training.data_augmentation.default_data_augmentation import def
     default_2D_augmentation_params, get_patch_size
 from tuframework.training.dataloading.dataset_loading import unpack_dataset
 from tuframework.training.loss_functions.deep_supervision import MultipleOutputLoss2
-from tuframework.training.network_training.tuTrainerV2 import nnUNetTrainerV2, maybe_mkdir_p
+from tuframework.training.network_training.tuTrainerV2 import tuframeworkTrainerV2, maybe_mkdir_p
 from tuframework.utilities.nd_softmax import softmax_helper
 from torch import nn
 
 
-class nnUNetTrainerV2_DA3(nnUNetTrainerV2):
+class tuframeworkTrainerV2_DA3(tuframeworkTrainerV2):
     def setup_DA_params(self):
         super().setup_DA_params()
         self.deep_supervision_scales = [[1, 1, 1]] + list(list(i) for i in 1 / np.cumprod(
@@ -165,7 +165,7 @@ class nnUNetTrainerV2_DA3(nnUNetTrainerV2):
         import IPython;IPython.embed()"""
 
 
-class nnUNetTrainerV2_DA3_BN(nnUNetTrainerV2_DA3):
+class tuframeworkTrainerV2_DA3_BN(tuframeworkTrainerV2_DA3):
     def initialize_network(self):
         if self.threeD:
             conv_op = nn.Conv3d
