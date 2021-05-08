@@ -21,15 +21,12 @@ class DeformableTransformer(nn.Module):
                  num_encoder_layers=6, dim_feedforward=1024, dropout=0.1,
                  activation="relu", num_feature_levels=4, enc_n_points=4):
         super().__init__()
-
         self.d_model = d_model
         self.nhead = nhead
-
         encoder_layer = DeformableTransformerEncoderLayer(d_model, dim_feedforward,
                                                           dropout, activation,
                                                           num_feature_levels, nhead, enc_n_points)
         self.encoder = DeformableTransformerEncoder(encoder_layer, num_encoder_layers)
-
         self.level_embed = nn.Parameter(torch.Tensor(num_feature_levels, d_model))
 
         self._reset_parameters()
@@ -56,29 +53,45 @@ class DeformableTransformer(nn.Module):
         return valid_ratio
 
     def forward(self, srcs, masks, pos_embeds):
-
         # prepare input for encoder
         src_flatten = []
         mask_flatten = []
         lvl_pos_embed_flatten = []
         spatial_shapes = []
         for lvl, (src, mask, pos_embed) in enumerate(zip(srcs, masks, pos_embeds)):
+            #print("DT:src.shape",src.shape)
             bs, c, d, h, w = src.shape
             spatial_shape = (d, h, w)
             spatial_shapes.append(spatial_shape)
             src = src.flatten(2).transpose(1, 2)
+            #print("DT:src.shape", src.shape)
             mask = mask.flatten(1)
+            #print("DT:mask.shape",mask.shape)
             pos_embed = pos_embed.flatten(2).transpose(1, 2)
+            #print("DT:pos_embed.shape", pos_embed.shape)
+            #print("DT:level_embed.shape", self.level_embed[lvl].view(1, 1, -1).shape)
             lvl_pos_embed = pos_embed + self.level_embed[lvl].view(1, 1, -1)
+            #print("DT:lvl_pos_embed.shape",lvl_pos_embed.shape)
             lvl_pos_embed_flatten.append(lvl_pos_embed)
             src_flatten.append(src)
             mask_flatten.append(mask)
         src_flatten = torch.cat(src_flatten, 1)
+        #print("DT:src_flatten.shape", src_flatten.shape)
+
         mask_flatten = torch.cat(mask_flatten, 1)
+        #print("DT:mask_flatten.shape", mask_flatten.shape)
+
         lvl_pos_embed_flatten = torch.cat(lvl_pos_embed_flatten, 1)
+        #print("DT:lvl_pos_embed_flatten.shape", lvl_pos_embed_flatten.shape)
+
         spatial_shapes = torch.as_tensor(spatial_shapes, dtype=torch.long, device=src_flatten.device)
+        #print("DT:spatial_shapes.shape", spatial_shapes.shape)
+
         level_start_index = torch.cat((spatial_shapes.new_zeros((1, )), spatial_shapes.prod(1).cumsum(0)[:-1]))
+        #print("DT:level_start_index.shape", level_start_index.shape)
+
         valid_ratios = torch.stack([self.get_valid_ratio(m) for m in masks], 1)
+        #print("DT:valid_ratios.shape", valid_ratios.shape)
 
         # encoder
         memory = self.encoder(src_flatten, spatial_shapes, level_start_index, valid_ratios, lvl_pos_embed_flatten, mask_flatten)

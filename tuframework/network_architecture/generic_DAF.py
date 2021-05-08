@@ -1,8 +1,11 @@
 from functools import partial
-from torch import nn
 import torch
+from torch import nn
 import torch.nn.functional as F
 from torch.autograd import Variable
+from tuframework.network_architecture.neural_network import SegmentationNetwork
+
+
 def conv3x3x3(in_planes, out_planes, stride=1):
     """3x3x3 convolution with padding."""
     return nn.Conv3d(
@@ -12,6 +15,8 @@ def conv3x3x3(in_planes, out_planes, stride=1):
         stride=stride,
         padding=1,
         bias=False)
+
+
 def downsample_basic_block(x, planes, stride):
     out = F.avg_pool3d(x, kernel_size=1, stride=stride)
     zero_pads = torch.Tensor(
@@ -27,6 +32,7 @@ def downsample_basic_block(x, planes, stride):
 
 class ResNeXtBottleneck(nn.Module):
     expansion = 2
+
     def __init__(self, inplanes, planes, cardinality, stride=1,
                  downsample=None):
         super(ResNeXtBottleneck, self).__init__()
@@ -261,10 +267,11 @@ def resnext3d200(**kwargs):
     model = ResNeXt3D(ResNeXtBottleneck, [3, 24, 36, 3], **kwargs)
     return model
 
+
 class BackBone3D(nn.Module):
-    def __init__(self):
+    def __init__(self, num_classes):
         super(BackBone3D, self).__init__()
-        net = ResNeXt3D(ResNeXtBottleneck, [3, 4, 6, 3], num_classes=2)
+        net = ResNeXt3D(ResNeXtBottleneck, [3, 4, 6, 3], num_classes=num_classes)
         # resnext3d-101 is [3, 4, 23, 3]
         # we use the resnet3d-50 with [3, 4, 6, 3] blocks
         # and if we use the resnet3d-101, change the block list with [3, 4, 23, 3]
@@ -290,6 +297,8 @@ class BackBone3D(nn.Module):
         layer3 = self.layer3(layer2)
         layer4 = self.layer4(layer3)
         return layer4
+
+
 class ASPP_module(nn.Module):
     def __init__(self, inplanes, planes, rate):
         super(ASPP_module, self).__init__()
@@ -314,11 +323,17 @@ class ASPP_module(nn.Module):
                 m.bias.data.zero_()
 
 
-class DAF3D(nn.Module):
-    def __init__(self):
+class DAF3D(SegmentationNetwork):
+    def __init__(self, num_classes=None, weight_std=False, deep_supervision=False):
         super(DAF3D, self).__init__()
-        self.backbone = BackBone3D()
-
+        self.do_ds = False
+        self.conv_op = nn.Conv3d
+        self.norm_op = nn.GroupNorm
+        self.dropout_op = nn.Dropout3d
+        self.num_classes = num_classes
+        self._deep_supervision = deep_supervision
+        self.do_ds = deep_supervision
+        self.backbone = BackBone3D(num_classes=self.num_classes)
         self.down4 = nn.Sequential(
             nn.Conv3d(2048, 128, kernel_size=1),
             nn.GroupNorm(32, 128),
@@ -390,7 +405,7 @@ class DAF3D(nn.Module):
         )
         self.refine = nn.Sequential(nn.Conv3d(256, 64, kernel_size=1),
                                     nn.GroupNorm(32, 64),
-                                    nn.PReLU(),)
+                                    nn.PReLU(), )
 
         rates = (1, 6, 12, 18)
         self.aspp1 = ASPP_module(64, 64, rate=rates[0])
@@ -411,7 +426,7 @@ class DAF3D(nn.Module):
         self.predict2_2 = nn.Conv3d(64, 1, kernel_size=1)
         self.predict2_1 = nn.Conv3d(64, 1, kernel_size=1)
 
-        self.predict = nn.Conv3d(64, 1, kernel_size=1)
+        self.predict = nn.Conv3d(64, self.num_classes, kernel_size=1)
 
     def forward(self, x):
         layer0 = self.backbone.layer0(x)
@@ -438,10 +453,6 @@ class DAF3D(nn.Module):
         down3 = F.upsample(down3, size=layer1.size()[2:], mode='trilinear')
         down2 = F.upsample(down2, size=layer1.size()[2:], mode='trilinear')
 
-        predict1_4 = self.predict1_4(down4)
-        predict1_3 = self.predict1_3(down3)
-        predict1_2 = self.predict1_2(down2)
-        predict1_1 = self.predict1_1(down1)
 
         fuse1 = self.fuse1(torch.cat((down4, down3, down2, down1), 1))
 
@@ -457,10 +468,7 @@ class DAF3D(nn.Module):
 
         refine = self.refine(torch.cat((refine1, refine2, refine3, refine4), 1))
 
-        predict2_4 = self.predict2_4(refine4)
-        predict2_3 = self.predict2_3(refine3)
-        predict2_2 = self.predict2_2(refine2)
-        predict2_1 = self.predict2_1(refine1)
+
 
         aspp1 = self.aspp1(refine)
         aspp2 = self.aspp2(refine)
@@ -473,20 +481,13 @@ class DAF3D(nn.Module):
 
         predict = self.predict(aspp)
 
-        predict1_1 = F.upsample(predict1_1, size=x.size()[2:], mode='trilinear')
-        predict1_2 = F.upsample(predict1_2, size=x.size()[2:], mode='trilinear')
-        predict1_3 = F.upsample(predict1_3, size=x.size()[2:], mode='trilinear')
-        predict1_4 = F.upsample(predict1_4, size=x.size()[2:], mode='trilinear')
-
-        predict2_1 = F.upsample(predict2_1, size=x.size()[2:], mode='trilinear')
-        predict2_2 = F.upsample(predict2_2, size=x.size()[2:], mode='trilinear')
-        predict2_3 = F.upsample(predict2_3, size=x.size()[2:], mode='trilinear')
-        predict2_4 = F.upsample(predict2_4, size=x.size()[2:], mode='trilinear')
-
         predict = F.upsample(predict, size=x.size()[2:], mode='trilinear')
+        seg_outputs = []
 
-        if self.training:
-            return predict1_1, predict1_2, predict1_3, predict1_4, \
-                   predict2_1, predict2_2, predict2_3, predict2_4, predict
+        seg_outputs.append(predict)
+        if self._deep_supervision and self.do_ds:
+            return tuple([seg_outputs[-1]])
         else:
-            return predict
+            return seg_outputs[-1]
+
+

@@ -115,14 +115,25 @@ class Backbone(nn.Module):
                     nn.init.constant_(m.bias, 0)
     def forward(self, x):
         out = []
+        #print("Backbone:x.shape",x.shape)
         x = self.conv1(x)
+        #print("Backbone:x1.shape",x.shape)
         x = self.norm1(x)
+        #print("Backbone:x2.shape",x.shape)
         x = self.nonlin(x)
+        #print("Backbone:x3.shape",x.shape)
         out.append(x)
+
         x = self.layer1(x)
+        #print("Backbone:x4.shape",x.shape)
+
         out.append(x)
         x = self.layer2(x)
+        #print("Backbone:x5.shape",x.shape)
+
         out.append(x)
         x = self.layer3(x)
+        #print("Backbone:x6.shape",x.shape)
+
         out.append(x)
         return out

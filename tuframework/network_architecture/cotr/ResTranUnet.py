@@ -86,10 +86,23 @@ class U_ResTran3D(nn.Module):
     def __init__(self, norm_cfg='BN', activation_cfg='ReLU', img_size=None, num_classes=None, weight_std=False):
         super(U_ResTran3D, self).__init__()
         self.MODEL_NUM_CLASSES = num_classes
-        self.upsamplex2 = nn.Upsample(scale_factor=(1,2,2), mode='trilinear')
-        self.transposeconv_stage2 = nn.ConvTranspose3d(384, 384, kernel_size=(2,2,2), stride=(2,2,2), bias=False)
+        self.upsamplex2 = nn.Upsample(scale_factor=(2,2,2), mode='trilinear')
+        """self.transposeconv_stage2 = nn.ConvTranspose3d(384, 384, kernel_size=(2,2,2), stride=(1,2,2), bias=False)
         self.transposeconv_stage1 = nn.ConvTranspose3d(384, 192, kernel_size=(2,2,2), stride=(2,2,2), bias=False)
-        self.transposeconv_stage0 = nn.ConvTranspose3d(192, 64, kernel_size=(2,2,2), stride=(2,2,2), bias=False)
+        self.transposeconv_stage0 = nn.ConvTranspose3d(192, 64, kernel_size=(2,2,2), stride=(2,2,2), bias=False)"""
+        self.transposeconv_stage2 = nn.Sequential(
+            nn.Upsample(scale_factor=(1, 2, 2), mode='trilinear'),
+            nn.Conv3d(384, 384, kernel_size=1, stride=1, bias=False)
+        )
+        self.transposeconv_stage1 = nn.Sequential(
+            nn.Upsample(scale_factor=(1, 2, 2), mode='trilinear'),
+            nn.Conv3d(384, 192, kernel_size=1, stride=1, bias=False)
+        )
+        self.transposeconv_stage0 = nn.Sequential(
+            nn.Upsample(scale_factor=(1, 2, 2), mode='trilinear'),
+            nn.Conv3d(192, 64, kernel_size=1, stride=1, bias=False)
+        )
+
         self.stage2_de = ResBlock(384, 384, norm_cfg, activation_cfg, weight_std=weight_std)
         self.stage1_de = ResBlock(192, 192, norm_cfg, activation_cfg, weight_std=weight_std)
         self.stage0_de = ResBlock(64, 64, norm_cfg, activation_cfg, weight_std=weight_std)
@@ -107,11 +120,11 @@ class U_ResTran3D(nn.Module):
                     nn.init.constant_(m.bias, 0)
         self.backbone = CNNBackbone.Backbone(depth=9, norm_cfg=norm_cfg, weight_std=weight_std)
         total = sum([param.nelement() for param in self.backbone.parameters()])
-        print('  + Number of Backbone Params: %.2f(e6)' % (total / 1e6))
+        #print('  + Number of Backbone Params: %.2f(e6)' % (total / 1e6))
         self.position_embed = build_position_encoding(mode='v2', hidden_dim=384)
         self.encoder_Detrans = DeformableTransformer(d_model=384, dim_feedforward=1536, dropout=0.1, activation='gelu', num_feature_levels=2, nhead=6, num_encoder_layers=6, enc_n_points=4)
         total = sum([param.nelement() for param in self.encoder_Detrans.parameters()])
-        print('  + Number of Transformer Params: %.2f(e6)' % (total / 1e6))
+        #print('  + Number of Transformer Params: %.2f(e6)' % (total / 1e6))
 
     def posi_mask(self, x):
         x_fea = []
@@ -125,37 +138,83 @@ class U_ResTran3D(nn.Module):
         return x_fea, masks, x_posemb
     def forward(self, inputs):
         # # %%%%%%%%%%%%% CoTr
+        #print("inputs.shape", inputs.shape)
         x_convs = self.backbone(inputs)
+        #print("x_convs[0].shape", x_convs[0].shape)
+        #print("x_convs[1].shape", x_convs[1].shape)
+        #print("x_convs[2].shape", x_convs[2].shape)
+        #print("x_convs[3].shape", x_convs[3].shape)
         x_fea, masks, x_posemb = self.posi_mask(x_convs)
+        #print("x_fea[0].shape", x_fea[0].shape)
+        #print("x_fea[1].shape", x_fea[1].shape)
+        #print("masks[0].shape", masks[0].shape)
+        #print("masks[1].shape", masks[1].shape)
+        #print("x_posemb[0].shape", x_posemb[0].shape)
+        #print("x_posemb[1].shape", x_posemb[1].shape)
+        ##print("x_fea[2].shape", x_fea[2].shape)
+        ##print("x_fea[3].shape", x_fea[3].shape)
+
+        ##print("masks.shape", masks.shape)
+        ##print("x_posemb.shape", x_posemb.shape)
         x_trans = self.encoder_Detrans(x_fea, masks, x_posemb)
+        #print("x_trans.shape", x_trans.shape)
+        #print("x_trans[].shape", x_trans[:, ::].shape)
+
+
         # # Single_scale
         # # x = self.transposeconv_stage2(x_trans.transpose(-1, -2).view(x_convs[-1].shape))
         # # skip2 = x_convs[-2]
         # Multi-scale
-        x = self.transposeconv_stage2(x_trans[:, 6912::].transpose(-1, -2).view(x_convs[-1].shape)) # x_trans length: 12*24*24+6*12*12=7776
-        skip2 = x_trans[:, 0:6912].transpose(-1, -2).view(x_convs[-2].shape)
+        x = self.transposeconv_stage2(x_trans[:, 1024::].transpose(-1, -2).view(x_convs[-1].shape)) # x_trans length: 12*24*24+6*12*12=7776
+        #print("x.shape", x.shape)
 
+        skip2 = x_trans[:, 0:1024].transpose(-1, -2).view(x_convs[-2].shape)
+        #print("skip2.shape", skip2.shape)
         x = x + skip2
+        #print("x.shape", x.shape)
+
         x = self.stage2_de(x)
+        #print("x.shape", x.shape)
+
         ds2 = self.ds2_cls_conv(x)
+        #print("ds2.shape", ds2.shape)
 
         x = self.transposeconv_stage1(x)
-        skip1 = x_convs[-3]
-        x = x + skip1
-        x = self.stage1_de(x)
-        ds1 = self.ds1_cls_conv(x)
+        #print("x.shape", x.shape)
 
+        skip1 = x_convs[-3]
+        #print("skip1.shape", skip1.shape)
+
+        x = x + skip1
+        #print("x.shape", x.shape)
+
+        x = self.stage1_de(x)
+
+        #print("x.shape", x.shape)
+
+        ds1 = self.ds1_cls_conv(x)
+        #print("ds1.shape", ds1.shape)
         x = self.transposeconv_stage0(x)
+        #print("x.shape", x.shape)
+
         skip0 = x_convs[-4]
+        #print("skip0.shape", skip0.shape)
+
         x = x + skip0
         x = self.stage0_de(x)
+        #print("x.shape", x.shape)
+
         ds0 = self.ds0_cls_conv(x)
+        #print("ds0.shape", ds0.shape)
 
 
         result = self.upsamplex2(x)
-        result = self.cls_conv(result)
+        #print("result.shape", result.shape)
 
-        return [result, ds0, ds1, ds2]
+        result = self.cls_conv(result)
+        #print("result.shape", result.shape)
+
+        return [result]
 
 
 class ResTranUnet(SegmentationNetwork):
@@ -186,7 +245,8 @@ class ResTranUnet(SegmentationNetwork):
         self.do_ds = deep_supervision
 
     def forward(self, x):
-        print("/////////////////////////////")
+        #print("/////////////////////////////")
+        #print("x.shape",x.shape)
         """seg_outputs = []
         seg_outputs.append(self.U_ResTran3D(x))
 

@@ -35,7 +35,7 @@ from tuframework.training.data_augmentation.default_data_augmentation import def
     default_2D_augmentation_params, get_default_augmentation, get_patch_size
 from tuframework.training.dataloading.dataset_loading import load_dataset, DataLoader3D, DataLoader2D, unpack_dataset
 from tuframework.training.loss_functions.dice_loss import DC_and_CE_loss
-from tuframework.training.network_training.network_trainer import NetworkTrainer
+from tuframework.pixelCL.network_trainer import NetworkTrainer
 from tuframework.utilities.nd_softmax import softmax_helper
 from tuframework.utilities.tensor_utilities import sum_tensor
 from torch import nn
@@ -45,7 +45,7 @@ from torch.optim import lr_scheduler
 matplotlib.use("agg")
 
 
-class tuframeworkTrainer(NetworkTrainer):
+class pixelCLTrainer(NetworkTrainer):
     def __init__(self, plans_file, fold, output_folder=None, dataset_directory=None, batch_dice=True, stage=None,
                  unpack_data=True, deterministic=True, fp16=False):
         """
@@ -72,7 +72,7 @@ class tuframeworkTrainer(NetworkTrainer):
         IMPORTANT: If you inherit from tuframeworkTrainer and the init args change then you need to redefine self.init_args
         in your init accordingly. Otherwise checkpoints won't load properly!
         """
-        super(tuframeworkTrainer, self).__init__(deterministic, fp16)
+        super(pixelCLTrainer, self).__init__(deterministic, fp16)
         self.unpack_data = unpack_data
         self.init_args = (plans_file, fold, output_folder, dataset_directory, batch_dice, stage, unpack_data,
                           deterministic, fp16)
@@ -313,7 +313,7 @@ class tuframeworkTrainer(NetworkTrainer):
 
         shutil.copy(self.plans_file, join(self.output_folder_base, "plans.pkl"))
 
-        super(tuframeworkTrainer, self).run_training()
+        super(pixelCLTrainer, self).run_training()
 
     def load_plans_file(self):
         """
@@ -333,7 +333,7 @@ class tuframeworkTrainer(NetworkTrainer):
         stage_plans = self.plans['plans_per_stage'][self.stage]
         #self.batch_size = stage_plans['batch_size']
         #liuyiyao
-        self.batch_size = 12
+        self.batch_size = 2
         self.net_pool_per_axis = stage_plans['num_pool_per_axis']
         self.patch_size = np.array(stage_plans['patch_size']).astype(int)
         self.do_dummy_2D_aug = stage_plans['do_dummy_2D_data_aug']
@@ -725,7 +725,7 @@ class tuframeworkTrainer(NetworkTrainer):
         self.online_eval_fn = []
 
     def save_checkpoint(self, fname, save_optimizer=True):
-        super(tuframeworkTrainer, self).save_checkpoint(fname, save_optimizer)
+        super(pixelCLTrainer, self).save_checkpoint(fname, save_optimizer)
         info = OrderedDict()
         info['init'] = self.init_args
         info['name'] = self.__class__.__name__

@@ -168,9 +168,9 @@ class ExperimentPlanner3D_v21(ExperimentPlanner):
         plan = {
             'batch_size': batch_size,
             'num_pool_per_axis': network_num_pool_per_axis,
-            #'patch_size': input_patch_size,
+            'patch_size': input_patch_size,
             #liuyiyao
-            'patch_size': (8,128,128),
+            #'patch_size': (8,128,128),
             'median_patient_size_in_voxels': new_median_shape,
             'current_spacing': current_spacing,
             'original_spacing': original_spacing,
