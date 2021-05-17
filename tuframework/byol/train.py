@@ -32,8 +32,9 @@ LR         = 3e-4
 NUM_GPUS   = 2
 IMAGE_SIZE = 256
 IMAGE_EXTS = ['.jpg', '.png', '.jpeg']
-NUM_WORKERS = multiprocessing.cpu_count()
-
+#liuyiyao
+#NUM_WORKERS = multiprocessing.cpu_count()
+NUM_WORKERS = 0
 # pytorch lightning module
 
 class SelfSupervisedLearner(pl.LightningModule):

@@ -22,7 +22,7 @@ from tuframework.network_architecture.neural_network import SegmentationNetwork
 from tuframework.training.data_augmentation.default_data_augmentation import default_2D_augmentation_params, \
     get_patch_size, default_3D_augmentation_params
 from tuframework.training.dataloading.dataset_loading import unpack_dataset
-from tuframework.pixelCL.pixelCLTrainer import pixelCLTrainer
+from tuframework.pixelCL.pixelCL_seg_Trainer import pixelCL_seg_Trainer
 from tuframework.utilities.nd_softmax import softmax_helper
 from sklearn.model_selection import KFold
 from torch import nn
@@ -32,7 +32,7 @@ from batchgenerators.utilities.file_and_folder_operations import *
 from tuframework.byol.byol import BYOL
 from tuframework.pixelCL.pixel_level_contrastive_learning import PixelCL
 from tuframework.network_architecture.vit_seg_modeling import VisionTransformer
-class pixelCLTrainerV2(pixelCLTrainer):
+class pixelCL_seg_TrainerV2(pixelCL_seg_Trainer):
     """
     Info for Fabian: same as internal tuframeworkTrainerV2_2
     """
@@ -41,11 +41,13 @@ class pixelCLTrainerV2(pixelCLTrainer):
                  unpack_data=True, deterministic=True, fp16=False):
         super().__init__(plans_file, fold, output_folder, dataset_directory, batch_dice, stage, unpack_data,
                          deterministic, fp16)
-        self.max_num_epochs = 1000
+        self.max_num_epochs = 3000
         self.initial_lr = 1e-2
         self.deep_supervision_scales = None
         self.ds_loss_weights = None
+
         self.pin_memory = True
+
     def initialize(self, training=True, force_load_plans=False):
         """
         - replaced get_default_augmentation with get_moreDA_augmentation
@@ -57,8 +59,7 @@ class pixelCLTrainerV2(pixelCLTrainer):
         :return:
         """
         if not self.was_initialized:
-            if not os.path.isdir(self.output_folder):
-                os.makedirs(self.output_folder)
+            if not os.path.isdir(self.output_folder):os.makedirs(self.output_folder)
 
             if force_load_plans or (self.plans is None):
                 self.load_plans_file()
@@ -84,14 +85,13 @@ class pixelCLTrainerV2(pixelCLTrainer):
             self.loss = MultipleOutputLoss2(self.loss, self.ds_loss_weights)
             ################# END ###################
 
-            self.folder_with_preprocessed_data = self.dataset_directory+"/"+ self.plans['data_identifier'] + "_stage%d" % self.stage
+            self.folder_with_preprocessed_data = join(self.dataset_directory, self.plans['data_identifier'] +
+                                                      "_stage%d" % self.stage)
             if training:
                 self.dl_tr, self.dl_val = self.get_basic_generators()
                 if self.unpack_data:
                     print("unpacking dataset")
-                    print("TV2:folder_with_preprocessed_data:", self.folder_with_preprocessed_data)
                     unpack_dataset(self.folder_with_preprocessed_data)
-
                     print("done")
                 else:
                     print(
@@ -133,20 +133,45 @@ class pixelCLTrainerV2(pixelCLTrainer):
         Known issue: forgot to set neg_slope=0 in InitWeights_He; should not make a difference though
         :return:
         """
+        if self.threeD:
+            conv_op = nn.Conv3d
+            dropout_op = nn.Dropout3d
+            norm_op = nn.InstanceNorm3d
 
+        else:
+            conv_op = nn.Conv2d
+            dropout_op = nn.Dropout2d
+            norm_op = nn.InstanceNorm2d
 
+        norm_op_kwargs = {'eps': 1e-5, 'affine': True}
+        dropout_op_kwargs = {'p': 0, 'inplace': True}
+        net_nonlin = nn.LeakyReLU
+        net_nonlin_kwargs = {'negative_slope': 1e-2, 'inplace': True}
 
-        #self.network = BYOL(num_classes=self.num_classes, deep_supervision=True)
+        """self.network = TUNet([1, 2, 4, 1], self.num_input_channels,
+                                self.num_classes, len(self.net_num_pool_op_kernel_sizes),
+                                self.conv_per_stage, 2, conv_op, norm_op, norm_op_kwargs, dropout_op,
+                                dropout_op_kwargs,
+                                net_nonlin, net_nonlin_kwargs, False, lambda x: x, InitWeights_He(1e-2),
+                                self.net_num_pool_op_kernel_sizes, self.net_conv_kernel_sizes, False, True,
+                                True, s=0.125, img_size=self.patch_size)"""
+        """self.network = VNet_recons(self.num_input_channels, self.base_num_features, self.num_classes,
+                                   len(self.net_num_pool_op_kernel_sizes),
+                                   self.conv_per_stage, 2, conv_op, norm_op, norm_op_kwargs, dropout_op,
+                                   dropout_op_kwargs,
+                                   net_nonlin, net_nonlin_kwargs, True, False, lambda x: x, InitWeights_He(1e-2),
+                                   self.net_num_pool_op_kernel_sizes, self.net_conv_kernel_sizes, False, True, True)"""
+        self.network = ResTranUnet(img_size=self.patch_size,num_classes=self.num_classes, weight_std=False, deep_supervision=True)
+        """self.network = DAF3D(num_classes=self.num_classes, weight_std=False,deep_supervision=True)"""
 
-        self.network = PixelCL(num_classes=self.num_classes, deep_supervision=True,image_size=self.patch_size)
         if torch.cuda.is_available():
             self.network.cuda()
         self.network.inference_apply_nonlin = softmax_helper
 
     def initialize_optimizer_and_scheduler(self):
         assert self.network is not None, "self.initialize_network must be called first"
-        self.optimizer = torch.optim.Adam(self.network.parameters(), self.initial_lr, weight_decay=self.weight_decay
-                                         )
+        self.optimizer = torch.optim.SGD(self.network.parameters(), self.initial_lr, weight_decay=self.weight_decay,
+                                         momentum=0.99, nesterov=True)
         self.lr_scheduler = None
 
     def run_online_evaluation(self, output, target):
@@ -226,8 +251,9 @@ class pixelCLTrainerV2(pixelCLTrainer):
 
         if self.fp16:
             with autocast():
-
-                l = self.network(data)
+                output = self.network(data)
+                del data
+                l = self.loss(output, target)
 
             if do_backprop:
                 self.amp_grad_scaler.scale(l).backward()
@@ -236,16 +262,17 @@ class pixelCLTrainerV2(pixelCLTrainer):
                 self.amp_grad_scaler.step(self.optimizer)
                 self.amp_grad_scaler.update()
         else:
-
-            l =  self.network(data)
+            output = self.network(data)
+            del data
+            l = self.loss(output, target)
 
             if do_backprop:
                 l.backward()
                 torch.nn.utils.clip_grad_norm_(self.network.parameters(), 12)
                 self.optimizer.step()
 
-        """if run_online_evaluation:
-             self.run_online_evaluation(output, target)"""
+        if run_online_evaluation:
+            self.run_online_evaluation(output, target)
 
         del target
 
@@ -266,7 +293,7 @@ class pixelCLTrainerV2(pixelCLTrainer):
             # if fold==all then we use all images for training and validation
             tr_keys = val_keys = list(self.dataset.keys())
         else:
-            splits_file =  self.dataset_directory+"/"+ "splits_final.pkl"
+            splits_file = join(self.dataset_directory, "splits_final.pkl")
 
             # if the split file does not exist we need to create it
             if not isfile(splits_file):
@@ -386,80 +413,25 @@ class pixelCLTrainerV2(pixelCLTrainer):
             ep = epoch
         self.optimizer.param_groups[0]['lr'] = poly_lr(ep, self.max_num_epochs, self.initial_lr, 0.9)
         self.print_to_log_file("lr:", np.round(self.optimizer.param_groups[0]['lr'], decimals=6))
-    def maybe_save_checkpoint(self):
-        """
-        Saves a checkpoint every save_ever epochs.
-        :return:
-        """
-        if self.save_intermediate_checkpoints and (self.epoch % self.save_every == (self.save_every - 1)):
-            self.print_to_log_file("saving scheduled checkpoint file...")
-            if not self.save_latest_only:
-                self.save_checkpoint( self.output_folder+"/"+ "model_ep_%03.0d.model" % (self.epoch + 1))
-            self.save_checkpoint( self.output_folder+"/"+ "model_latest.model")
-            self.print_to_log_file("done")
-    def plot_progress(self):
-        """
-        Should probably by improved
-        :return:
-        """
-        try:
-            font = {'weight': 'normal',
-                    'size': 18}
 
-            matplotlib.rc('font', **font)
-
-            fig = plt.figure(figsize=(30, 24))
-            ax = fig.add_subplot(111)
-            ax2 = ax.twinx()
-
-            x_values = list(range(self.epoch + 1))
-
-            ax.plot(x_values, self.all_tr_losses, color='b', ls='-', label="loss_tr")
-
-            ax.plot(x_values, self.all_val_losses, color='r', ls='-', label="loss_val, train=False")
-
-            if len(self.all_val_losses_tr_mode) > 0:
-                ax.plot(x_values, self.all_val_losses_tr_mode, color='g', ls='-', label="loss_val, train=True")
-            if len(self.all_val_eval_metrics) == len(x_values):
-                ax2.plot(x_values, self.all_val_eval_metrics, color='g', ls='--', label="evaluation metric")
-
-            ax.set_xlabel("epoch")
-            ax.set_ylabel("loss")
-            ax2.set_ylabel("evaluation metric")
-            ax.legend()
-            ax2.legend(loc=9)
-
-            fig.savefig( self.output_folder+"/"+ "progress.png")
-            plt.close()
-        except IOError:
-            self.print_to_log_file("failed to plot: ", sys.exc_info())
     def on_epoch_end(self):
         """
         overwrite patient-based early stopping. Always run to 1000 epochs
         :return:
         """
-        #self.finish_online_evaluation()  # does not have to do anything, but can be used to update self.all_val_eval_
-        # metrics
-
-        self.plot_progress()
-
-        self.maybe_update_lr()
-        self.save_checkpoint( self.output_folder+"/"+ "model_latest.model")
-        #self.maybe_save_checkpoint()
-
-        self.update_eval_criterion_MA()
+        super().on_epoch_end()
         continue_training = self.epoch < self.max_num_epochs
 
         # it can rarely happen that the momentum of tuframeworkTrainerV2 is too high for some dataset. If at epoch 100 the
         # estimated validation Dice is still 0 then we reduce the momentum from 0.99 to 0.95
-        """if self.epoch == 100:
+        if self.epoch == 100:
             if self.all_val_eval_metrics[-1] == 0:
                 self.optimizer.param_groups[0]["momentum"] = 0.95
                 self.network.apply(InitWeights_He(1e-2))
                 self.print_to_log_file("At epoch 100, the mean foreground Dice was 0. This can be caused by a too "
                                        "high momentum. High momentum (0.99) is good for datasets where it works, but "
                                        "sometimes causes issues such as this one. Momentum has now been reduced to "
-                                       "0.95 and network weights have been reinitialized")"""
+                                       "0.95 and network weights have been reinitialized")
         return continue_training
 
     def run_training(self):

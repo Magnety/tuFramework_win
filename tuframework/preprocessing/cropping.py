@@ -157,7 +157,7 @@ class ImageCropper(object):
 
     def load_crop_save(self, case, case_identifier, overwrite_existing=False):
         try:
-            print(case_identifier)
+            #print(case_identifier)
             if overwrite_existing \
                     or (not os.path.isfile( self.output_folder+"/"+"%s.npz" % case_identifier)
                         or not os.path.isfile( self.output_folder+"/"+"%s.pkl" % case_identifier)) :
@@ -203,9 +203,9 @@ class ImageCropper(object):
 
         list_of_args = []
         for j, case in enumerate(list_of_files):
-            print("case:",case)
+            #print("case:",case)
             case_identifier = get_case_identifier(case)
-            print(" case_identifier :",  case_identifier )
+            #print(" case_identifier :",  case_identifier )
             list_of_args.append((case, case_identifier, overwrite_existing))
 
         p = Pool(self.num_threads)

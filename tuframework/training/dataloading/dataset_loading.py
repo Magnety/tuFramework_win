@@ -64,7 +64,8 @@ def unpack_dataset(folder, threads=default_num_threads, key="data"):
     :return:
     """
     p = Pool(threads)
-    npz_files = subfiles(folder, False, None, ".npz", True)
+    npz_files = subfiles(folder, True, None, ".npz", True)
+    print("unpack_dataset:npz_files:",npz_files)
     p.map(convert_to_npy, zip(npz_files, [key] * len(npz_files)))
     p.close()
     p.join()

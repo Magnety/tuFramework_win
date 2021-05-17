@@ -38,7 +38,7 @@ network_training_output_dir_base =base+"/tuFramework_trained_models"
 if base is not None:
     tuFramework_raw_data =base +"/tuFramework_raw_data"
     tuFramework_cropped_data = base +"/tuFramework_cropped_data"
-    maybe_mkdir_p(tuFramework_raw_data)
+    if not os.path.isdir(tuFramework_raw_data):os.makedirs(tuFramework_raw_data)
     if not os.path.isdir(tuFramework_cropped_data):os.makedirs(tuFramework_cropped_data)
 else:
     print("tuFramework_raw_data_base is not defined and nnU-Net can only be used on data for which preprocessed files "

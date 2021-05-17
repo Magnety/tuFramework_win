@@ -314,8 +314,8 @@ class GenericPreprocessor(object):
 
     def _run_internal(self, target_spacing, case_identifier, output_folder_stage, cropped_output_dir, force_separate_z,
                       all_classes):
-        print("_run:cropped_output_dir:",cropped_output_dir)
-        print("_run: case_identifier:", case_identifier)
+        #print("_run:cropped_output_dir:",cropped_output_dir)
+        #print("_run: case_identifier:", case_identifier)
 
         data, seg, properties = self.load_cropped(cropped_output_dir, case_identifier)
 
@@ -368,7 +368,7 @@ class GenericPreprocessor(object):
         print("npz folder:", input_folder_with_cropped_npz)
         print("output_folder:", output_folder)
         list_of_cropped_npz_files = subfiles(input_folder_with_cropped_npz, False, None, ".npz", True)
-        print("list_of_cropped_npz_files:",list_of_cropped_npz_files)
+        #print("list_of_cropped_npz_files:",list_of_cropped_npz_files)
         if not os.path.isdir(output_folder):
             os.makedirs(output_folder)
         num_stages = len(target_spacings)
@@ -384,7 +384,7 @@ class GenericPreprocessor(object):
         for i in range(num_stages):
             all_args = []
             output_folder_stage =  output_folder+"/"+ data_identifier + "_stage%d" % i
-            print("preprocessing.run:output_folder_stage:",output_folder_stage)
+            #print("preprocessing.run:output_folder_stage:",output_folder_stage)
             if not os.path.isdir(output_folder_stage):
                 os.makedirs(output_folder_stage)
             #if not os.path.isdir(output_folder_stage):

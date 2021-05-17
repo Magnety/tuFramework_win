@@ -15,10 +15,10 @@
 
 import argparse
 from batchgenerators.utilities.file_and_folder_operations import *
-from tuframework.pixelCL.default_configuration import get_default_configuration
+from tuframework.pixelCL.default_configuration_seg import get_default_configuration
 from tuframework.paths import default_plans_identifier
 from tuframework.training.cascade_stuff.predict_next_stage import predict_next_stage
-from tuframework.pixelCL.pixelCLTrainer import pixelCLTrainer
+from tuframework.pixelCL.pixelCL_seg_Trainer import pixelCL_seg_Trainer
 from tuframework.training.network_training.tuTrainerCascadeFullRes import tuframeworkTrainerCascadeFullRes
 from tuframework.training.network_training.tuTrainerV2_CascadeFullRes import tuframeworkTrainerV2CascadeFullRes
 from tuframework.utilities.task_name_id_conversion import convert_id_to_task_name
@@ -33,6 +33,8 @@ def main():
     parser.add_argument("-val", "--validation_only", help="use this if you want to only run the validation",
                         action="store_true")
     parser.add_argument("-c", "--continue_training", help="use this if you want to continue a training",
+                        action="store_true")
+    parser.add_argument("-pre", "--pretrain", help="use this if you want to pretrain",
                         action="store_true")
     parser.add_argument("-p", help="plans identifier. Only change this if you created a custom experiment planner",
                         default=default_plans_identifier, required=False)
@@ -81,11 +83,11 @@ def main():
     #                     help="force_separate_z resampling. Can be None, True or False. Testing purpose only. Hands off")
 
 
-    sys.argv=['run_training.py','pixelCL','pixelCLTrainerV2','8','all']
+    sys.argv=['run_training.py','pixelCL_seg','pixelCL_seg_TrainerV2','6','all','-pre']
 
     args = parser.parse_args()
 
-    os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+    os.environ["CUDA_VISIBLE_DEVICES"] = "1"
     task = args.task
 
     fold = args.fold
@@ -141,7 +143,7 @@ def main():
             "tuframeworkTrainerCascadeFullRes"
     else:
         assert issubclass(trainer_class,
-                          pixelCLTrainer), "network_trainer was found but is not derived from tuframeworkTrainer"
+                          pixelCL_seg_Trainer), "network_trainer was found but is not derived from tuframeworkTrainer"
 
     trainer = trainer_class(plans_file, fold, output_folder=output_folder_name, dataset_directory=dataset_directory,
                             batch_dice=batch_dice, stage=stage, unpack_data=decompress_data,
@@ -155,6 +157,8 @@ def main():
         trainer.save_final_checkpoint = False  # whether or not to save the final checkpoint
 
     trainer.initialize(not validation_only)
+    if args.pretrain:
+        trainer.load_checkpoint("/home/ubuntu/liuyiyao/tuFramework_data_raw_base/tuFramework_trained_models/tu/pixelCL/Task009_Spine_midpatch/pixelCLTrainerV2__tuPlansv2.1/all/model_latest.model",train=True)
 
     if find_lr:
         trainer.find_lr()
@@ -177,7 +181,7 @@ def main():
 
         if network == '3d_lowres':
             print("predicting segmentations for the next stage of the cascade")
-            predict_next_stage(trainer,dataset_directory+"/"+trainer.plans['data_identifier'] + "_stage%d" % 1)
+            predict_next_stage(trainer, join(dataset_directory, trainer.plans['data_identifier'] + "_stage%d" % 1))
 
 
 if __name__ == "__main__":

@@ -35,7 +35,7 @@ from tuframework.training.data_augmentation.default_data_augmentation import def
     default_2D_augmentation_params, get_default_augmentation, get_patch_size
 from tuframework.training.dataloading.dataset_loading import load_dataset, DataLoader3D, DataLoader2D, unpack_dataset
 from tuframework.training.loss_functions.dice_loss import DC_and_CE_loss
-from tuframework.training.network_training.network_trainer import NetworkTrainer
+from tuframework.pixelCL.network_trainer_seg import NetworkTrainer
 from tuframework.utilities.nd_softmax import softmax_helper
 from tuframework.utilities.tensor_utilities import sum_tensor
 from torch import nn
@@ -45,7 +45,8 @@ from torch.optim import lr_scheduler
 matplotlib.use("agg")
 
 
-class tuframeworkTrainer(NetworkTrainer):
+
+class pixelCL_seg_Trainer(NetworkTrainer):
     def __init__(self, plans_file, fold, output_folder=None, dataset_directory=None, batch_dice=True, stage=None,
                  unpack_data=True, deterministic=True, fp16=False):
         """
@@ -72,7 +73,7 @@ class tuframeworkTrainer(NetworkTrainer):
         IMPORTANT: If you inherit from tuframeworkTrainer and the init args change then you need to redefine self.init_args
         in your init accordingly. Otherwise checkpoints won't load properly!
         """
-        super(tuframeworkTrainer, self).__init__(deterministic, fp16)
+        super(pixelCL_seg_Trainer, self).__init__(deterministic, fp16)
         self.unpack_data = unpack_data
         self.init_args = (plans_file, fold, output_folder, dataset_directory, batch_dice, stage, unpack_data,
                           deterministic, fp16)
@@ -90,7 +91,7 @@ class tuframeworkTrainer(NetworkTrainer):
         # if we are running inference only then the self.dataset_directory is set (due to checkpoint loading) but it
         # irrelevant
         if self.dataset_directory is not None and isdir(self.dataset_directory):
-            self.gt_niftis_folder = self.dataset_directory+'/'+ "gt_segmentations"
+            self.gt_niftis_folder = join(self.dataset_directory, "gt_segmentations")
         else:
             self.gt_niftis_folder = None
 
@@ -143,11 +144,11 @@ class tuframeworkTrainer(NetworkTrainer):
                 assert fold == "all", "if self.fold is a string then it must be \'all\'"
                 if self.output_folder.endswith("%s" % str(self.fold)):
                     self.output_folder = self.output_folder_base
-                self.output_folder = self.output_folder+'/'+ "%s" % str(fold)
+                self.output_folder = join(self.output_folder, "%s" % str(fold))
             else:
                 if self.output_folder.endswith("fold_%s" % str(self.fold)):
                     self.output_folder = self.output_folder_base
-                self.output_folder = self.output_folder+'/'+ "fold_%s" % str(fold)
+                self.output_folder = join(self.output_folder, "fold_%s" % str(fold))
             self.fold = fold
 
     def setup_DA_params(self):
@@ -204,7 +205,8 @@ class tuframeworkTrainer(NetworkTrainer):
         self.setup_DA_params()
 
         if training:
-            self.folder_with_preprocessed_data = self.dataset_directory+'/'+ self.plans['data_identifier'] +"_stage%d" % self.stage
+            self.folder_with_preprocessed_data = join(self.dataset_directory, self.plans['data_identifier'] +
+                                                      "_stage%d" % self.stage)
 
             self.dl_tr, self.dl_val = self.get_basic_generators()
             if self.unpack_data:
@@ -282,7 +284,7 @@ class tuframeworkTrainer(NetworkTrainer):
             else:
                 g = hl.build_graph(self.network, torch.rand((1, self.num_input_channels, *self.patch_size)),
                                    transforms=None)
-            g.save(self.output_folder+'/'+ "network_architecture.pdf")
+            g.save(join(self.output_folder, "network_architecture.pdf"))
             del g
         except Exception as e:
             self.print_to_log_file("Unable to plot network architecture:")
@@ -306,13 +308,13 @@ class tuframeworkTrainer(NetworkTrainer):
         del dct['dataset']
         del dct['dataset_tr']
         del dct['dataset_val']
-        save_json(dct, self.output_folder+'/'+ "debug.json")
+        save_json(dct, join(self.output_folder, "debug.json"))
 
         import shutil
 
-        shutil.copy(self.plans_file, self.output_folder_base+'/'+ "plans.pkl")
+        shutil.copy(self.plans_file, join(self.output_folder_base, "plans.pkl"))
 
-        super(tuframeworkTrainer, self).run_training()
+        super(pixelCL_seg_Trainer, self).run_training()
 
     def load_plans_file(self):
         """
@@ -332,7 +334,7 @@ class tuframeworkTrainer(NetworkTrainer):
         stage_plans = self.plans['plans_per_stage'][self.stage]
         #self.batch_size = stage_plans['batch_size']
         #liuyiyao
-        self.batch_size = 72
+        self.batch_size = 8
         self.net_pool_per_axis = stage_plans['num_pool_per_axis']
         self.patch_size = np.array(stage_plans['patch_size']).astype(int)
         self.do_dummy_2D_aug = stage_plans['do_dummy_2D_data_aug']
@@ -429,7 +431,7 @@ class tuframeworkTrainer(NetworkTrainer):
                 preprocessor_name = "PreprocessorFor2D"
 
         print("using preprocessor", preprocessor_name)
-        preprocessor_class = recursive_find_python_class([tuframework.__path__[0]+"/"+ "preprocessing"],
+        preprocessor_class = recursive_find_python_class([join(tuframework.__path__[0], "preprocessing")],
                                                          preprocessor_name,
                                                          current_module="tuframework.preprocessing")
         assert preprocessor_class is not None, "Could not find preprocessor %s in tuframework.preprocessing" % \
@@ -554,7 +556,7 @@ class tuframeworkTrainer(NetworkTrainer):
             interpolation_order_z = segmentation_export_kwargs['interpolation_order_z']
 
         # predictions as they come from the network go here
-        output_folder = self.output_folder+"/"+ validation_folder_name
+        output_folder = join(self.output_folder, validation_folder_name)
         if not os.path.isdir(output_folder):os.makedirs(output_folder)
         # this is for debug purposes
         my_input_args = {'do_mirroring': do_mirroring,
@@ -568,7 +570,7 @@ class tuframeworkTrainer(NetworkTrainer):
                          'all_in_gpu': all_in_gpu,
                          'segmentation_export_kwargs': segmentation_export_kwargs,
                          }
-        save_json(my_input_args, output_folder+"/"+ "validation_args.json")
+        save_json(my_input_args, join(output_folder, "validation_args.json"))
 
         if do_mirroring:
             if not self.data_aug_params['do_mirror']:
@@ -585,8 +587,8 @@ class tuframeworkTrainer(NetworkTrainer):
         for k in self.dataset_val.keys():
             properties = load_pickle(self.dataset[k]['properties_file'])
             fname = properties['list_of_data_files'][0].split("/")[-1][:-12]
-            if overwrite or (not isfile(output_folder+"/"+ fname + ".nii.gz")) or \
-                    (save_softmax and not isfile(output_folder+"/"+ fname + ".npz")):
+            if overwrite or (not isfile(join(output_folder, fname + ".nii.gz"))) or \
+                    (save_softmax and not isfile(join(output_folder, fname + ".npz"))):
                 data = np.load(self.dataset[k]['data_file'])['data']
 
                 print(k, data.shape)
@@ -604,7 +606,7 @@ class tuframeworkTrainer(NetworkTrainer):
                 softmax_pred = softmax_pred.transpose([0] + [i + 1 for i in self.transpose_backward])
 
                 if save_softmax:
-                    softmax_fname = output_folder+"/"+fname + ".npz"
+                    softmax_fname = join(output_folder, fname + ".npz")
                 else:
                     softmax_fname = None
 
@@ -616,11 +618,11 @@ class tuframeworkTrainer(NetworkTrainer):
                 then be read (and finally deleted) by the Process. save_segmentation_nifti_from_softmax can take either
                 filename or np.ndarray and will handle this automatically"""
                 if np.prod(softmax_pred.shape) > (2e9 / 4 * 0.85):  # *0.85 just to be save
-                    np.save(output_folder+"/"+ fname + ".npy", softmax_pred)
-                    softmax_pred = output_folder+"/"+ fname + ".npy"
+                    np.save(join(output_folder, fname + ".npy"), softmax_pred)
+                    softmax_pred = join(output_folder, fname + ".npy")
 
                 results.append(export_pool.starmap_async(save_segmentation_nifti_from_softmax,
-                                                         ((softmax_pred,output_folder+"/"+fname + ".nii.gz",
+                                                         ((softmax_pred, join(output_folder, fname + ".nii.gz"),
                                                            properties, interpolation_order, self.regions_class_order,
                                                            None, None,
                                                            softmax_fname, None, force_separate_z,
@@ -629,8 +631,8 @@ class tuframeworkTrainer(NetworkTrainer):
                                                          )
                                )
 
-            pred_gt_tuples.append([output_folder+"/"+ fname + ".nii.gz",
-                                   self.gt_niftis_folder+"/"+ fname + ".nii.gz"])
+            pred_gt_tuples.append([join(output_folder, fname + ".nii.gz"),
+                                   join(self.gt_niftis_folder, fname + ".nii.gz")])
 
         _ = [i.get() for i in results]
         self.print_to_log_file("finished prediction")
@@ -640,7 +642,7 @@ class tuframeworkTrainer(NetworkTrainer):
         task = self.dataset_directory.split("/")[-1]
         job_name = self.experiment_name
         _ = aggregate_scores(pred_gt_tuples, labels=list(range(self.num_classes)),
-                             json_output_file=output_folder+"/"+ "summary.json",
+                             json_output_file=join(output_folder, "summary.json"),
                              json_name=job_name + " val tiled %s" % (str(use_sliding_window)),
                              json_author="Fabian",
                              json_task=task, num_threads=default_num_threads)
@@ -660,9 +662,8 @@ class tuframeworkTrainer(NetworkTrainer):
         # postprocesing to be better? In this case we need to consolidate. At the time the consolidation is going to be
         # done we won't know what self.gt_niftis_folder was, so now we copy all the niftis into a separate folder to
         # be used later
-        gt_nifti_folder = self.output_folder_base+"/"+ "gt_niftis"
-        if not os.path.isdir(gt_nifti_folder):
-            os.makedirs(gt_nifti_folder)
+        gt_nifti_folder = join(self.output_folder_base, "gt_niftis")
+        if not os.path.isdir(gt_nifti_folder):os.makedirs(gt_nifti_folder)
         for f in subfiles(self.gt_niftis_folder, suffix=".nii.gz"):
             success = False
             attempts = 0
@@ -725,7 +726,7 @@ class tuframeworkTrainer(NetworkTrainer):
         self.online_eval_fn = []
 
     def save_checkpoint(self, fname, save_optimizer=True):
-        super(tuframeworkTrainer, self).save_checkpoint(fname, save_optimizer)
+        super(pixelCL_seg_Trainer, self).save_checkpoint(fname, save_optimizer)
         info = OrderedDict()
         info['init'] = self.init_args
         info['name'] = self.__class__.__name__

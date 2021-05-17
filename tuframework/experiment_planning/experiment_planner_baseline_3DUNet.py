@@ -438,9 +438,9 @@ class ExperimentPlanner(object):
             num_threads = (default_num_threads, num_threads)
         elif self.plans['num_stages'] == 1 and isinstance(num_threads, (list, tuple)):
             num_threads = num_threads[-1]
-        print("run_preprocessing:'data_identifier'", self.plans['data_identifier'])
-        print("run_preprocessing:folder_with_cropped_data", self.folder_with_cropped_data)
-        print("run_preprocessing:preprocessed_output_folder",  self.preprocessed_output_folder)
+        #print("run_preprocessing:'data_identifier'", self.plans['data_identifier'])
+        #print("run_preprocessing:folder_with_cropped_data", self.folder_with_cropped_data)
+        #print("run_preprocessing:preprocessed_output_folder",  self.preprocessed_output_folder)
 
         preprocessor.run(target_spacings, self.folder_with_cropped_data, self.preprocessed_output_folder,
                          self.plans['data_identifier'], num_threads)
