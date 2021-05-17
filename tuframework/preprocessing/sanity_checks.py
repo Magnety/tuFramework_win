@@ -28,7 +28,7 @@ def verify_all_same_orientation(folder):
     :param folder:
     :return:
     """
-    nii_files = subfiles(folder, suffix=".nii.gz", join=True)
+    nii_files = subfiles(folder, suffix=".nii.gz", join=False)
     orientations = []
     for n in nii_files:
         img = nib.load(n)
@@ -98,10 +98,10 @@ def verify_dataset_integrity(folder):
     :param folder:
     :return:
     """
-    assert isfile(join(folder, "dataset.json")), "There needs to be a dataset.json file in folder, folder=%s" % folder
-    assert isdir(join(folder, "imagesTr")), "There needs to be a imagesTr subfolder in folder, folder=%s" % folder
-    assert isdir(join(folder, "labelsTr")), "There needs to be a labelsTr subfolder in folder, folder=%s" % folder
-    dataset = load_json(join(folder, "dataset.json"))
+    assert isfile( folder+"/"+ "dataset.json") , "There needs to be a dataset.json file in folder, folder=%s" % folder
+    assert isdir( folder+"/"+ "imagesTr") , "There needs to be a imagesTr subfolder in folder, folder=%s" % folder
+    assert isdir( folder+"/"+"labelsTr" ), "There needs to be a labelsTr subfolder in folder, folder=%s" % folder
+    dataset = load_json(folder+"/"+ "dataset.json")
     training_cases = dataset['training']
     num_modalities = len(dataset['modality'].keys())
     test_cases = dataset['test']
@@ -109,8 +109,8 @@ def verify_dataset_integrity(folder):
     expected_test_identifiers = [i.split("/")[-1][:-7] for i in test_cases]
 
     ## check training set
-    nii_files_in_imagesTr = subfiles((join(folder, "imagesTr")), suffix=".nii.gz", join=False)
-    nii_files_in_labelsTr = subfiles((join(folder, "labelsTr")), suffix=".nii.gz", join=False)
+    nii_files_in_imagesTr = subfiles(( folder+"/"+ "imagesTr" ), suffix=".nii.gz", join=False)
+    nii_files_in_labelsTr = subfiles(( folder+"/"+"labelsTr"  ), suffix=".nii.gz", join=False)
 
     label_files = []
     geometries_OK = True
@@ -123,9 +123,9 @@ def verify_dataset_integrity(folder):
     for c in expected_train_identifiers:
         print("checking case", c)
         # check if all files are present
-        expected_label_file = join(folder, "labelsTr", c + ".nii.gz")
+        expected_label_file =  folder+"/"+ "labelsTr"+"/"+ c + ".nii.gz"
         label_files.append(expected_label_file)
-        expected_image_files = [join(folder, "imagesTr", c + "_%04.0d.nii.gz" % i) for i in range(num_modalities)]
+        expected_image_files = [ folder+"/"+"imagesTr"+"/"+ c + "_%04.0d.nii.gz" % i  for i in range(num_modalities)]
         assert isfile(expected_label_file), "could not find label file for case %s. Expected file: \n%s" % (
             c, expected_label_file)
         assert all([isfile(i) for i in
@@ -195,11 +195,11 @@ def verify_dataset_integrity(folder):
     # check test set, but only if there actually is a test set
     if len(expected_test_identifiers) > 0:
         print("Verifying test set")
-        nii_files_in_imagesTs = subfiles((join(folder, "imagesTs")), suffix=".nii.gz", join=False)
+        nii_files_in_imagesTs = subfiles( (folder+"/"+ "imagesTs") , suffix=".nii.gz", join=False)
 
         for c in expected_test_identifiers:
             # check if all files are present
-            expected_image_files = [join(folder, "imagesTs", c + "_%04.0d.nii.gz" % i) for i in range(num_modalities)]
+            expected_image_files = [ folder+"/"+ "imagesTs"+"/"+ c + "_%04.0d.nii.gz" % i  for i in range(num_modalities)]
             assert all([isfile(i) for i in
                         expected_image_files]), "some image files are missing for case %s. Expected files:\n %s" % (
                 c, expected_image_files)
@@ -220,7 +220,7 @@ def verify_dataset_integrity(folder):
         assert len(
             nii_files_in_imagesTs) == 0, "there are training cases in imagesTs that are not listed in dataset.json: %s" % nii_files_in_imagesTr
 
-    all_same, unique_orientations = verify_all_same_orientation(join(folder, "imagesTr"))
+    all_same, unique_orientations = verify_all_same_orientation( folder+"/"+ "imagesTr" )
     if not all_same:
         print(
             "WARNING: Not all images in the dataset have the same axis ordering. We very strongly recommend you correct that by reorienting the data. fslreorient2std should do the trick")

@@ -56,7 +56,8 @@ class byolTrainerV2(tuframeworkTrainer):
         :return:
         """
         if not self.was_initialized:
-            maybe_mkdir_p(self.output_folder)
+            if not os.path.isdir(self.output_folder):
+                os.makedirs(self.output_folder)
 
             if force_load_plans or (self.plans is None):
                 self.load_plans_file()
@@ -82,8 +83,7 @@ class byolTrainerV2(tuframeworkTrainer):
             self.loss = MultipleOutputLoss2(self.loss, self.ds_loss_weights)
             ################# END ###################
 
-            self.folder_with_preprocessed_data = join(self.dataset_directory, self.plans['data_identifier'] +
-                                                      "_stage%d" % self.stage)
+            self.folder_with_preprocessed_data = self.dataset_directory+"/"+ self.plans['data_identifier'] + "_stage%d" % self.stage
             if training:
                 self.dl_tr, self.dl_val = self.get_basic_generators()
                 if self.unpack_data:
@@ -263,7 +263,7 @@ class byolTrainerV2(tuframeworkTrainer):
             # if fold==all then we use all images for training and validation
             tr_keys = val_keys = list(self.dataset.keys())
         else:
-            splits_file = join(self.dataset_directory, "splits_final.pkl")
+            splits_file =  self.dataset_directory+"/"+ "splits_final.pkl"
 
             # if the split file does not exist we need to create it
             if not isfile(splits_file):
@@ -391,8 +391,8 @@ class byolTrainerV2(tuframeworkTrainer):
         if self.save_intermediate_checkpoints and (self.epoch % self.save_every == (self.save_every - 1)):
             self.print_to_log_file("saving scheduled checkpoint file...")
             if not self.save_latest_only:
-                self.save_checkpoint(join(self.output_folder, "model_ep_%03.0d.model" % (self.epoch + 1)))
-            self.save_checkpoint(join(self.output_folder, "model_latest.model"))
+                self.save_checkpoint( self.output_folder+"/"+"model_ep_%03.0d.model" % (self.epoch + 1))
+            self.save_checkpoint( self.output_folder+"/"+ "model_latest.model")
             self.print_to_log_file("done")
     def plot_progress(self):
         """
@@ -426,7 +426,7 @@ class byolTrainerV2(tuframeworkTrainer):
             ax.legend()
             ax2.legend(loc=9)
 
-            fig.savefig(join(self.output_folder, "progress.png"))
+            fig.savefig( self.output_folder+"/"+ "progress.png")
             plt.close()
         except IOError:
             self.print_to_log_file("failed to plot: ", sys.exc_info())
@@ -441,7 +441,7 @@ class byolTrainerV2(tuframeworkTrainer):
         self.plot_progress()
 
         self.maybe_update_lr()
-        self.save_checkpoint(join(self.output_folder, "model_latest.model"))
+        self.save_checkpoint( self.output_folder+"/"+ "model_latest.model")
         #self.maybe_save_checkpoint()
 
         self.update_eval_criterion_MA()

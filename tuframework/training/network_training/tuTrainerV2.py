@@ -70,7 +70,8 @@ class tuframeworkTrainerV2(tuframeworkTrainer):
         :return:
         """
         if not self.was_initialized:
-            maybe_mkdir_p(self.output_folder)
+            if not os.path.isdir(self.output_folder):
+                os.makedirs(self.output_folder)
 
             if force_load_plans or (self.plans is None):
                 self.load_plans_file()
@@ -96,8 +97,7 @@ class tuframeworkTrainerV2(tuframeworkTrainer):
             self.loss = MultipleOutputLoss2(self.loss, self.ds_loss_weights)
             ################# END ###################
 
-            self.folder_with_preprocessed_data = join(self.dataset_directory, self.plans['data_identifier'] +
-                                                      "_stage%d" % self.stage)
+            self.folder_with_preprocessed_data = self.dataset_directory+"/"+ self.plans['data_identifier'] + "_stage%d" % self.stage
             if training:
                 self.dl_tr, self.dl_val = self.get_basic_generators()
                 if self.unpack_data:
@@ -304,7 +304,7 @@ class tuframeworkTrainerV2(tuframeworkTrainer):
             # if fold==all then we use all images for training and validation
             tr_keys = val_keys = list(self.dataset.keys())
         else:
-            splits_file = join(self.dataset_directory, "splits_final.pkl")
+            splits_file = self.dataset_directory+"/"+ "splits_final.pkl"
 
             # if the split file does not exist we need to create it
             if not isfile(splits_file):

@@ -158,11 +158,12 @@ def predict_cases(model, list_of_lists, output_filenames, folds, save_npz, num_t
     for o in output_filenames:
         dr, f = os.path.split(o)
         if len(dr) > 0:
-            maybe_mkdir_p(dr)
+            if not os.path.isdir(dr):
+                os.makedirs(dr)
         if not f.endswith(".nii.gz"):
             f, _ = os.path.splitext(f)
             f = f + ".nii.gz"
-        cleaned_output_files.append(join(dr, f))
+        cleaned_output_files.append(dr+"/"+ f)
 
     if not overwrite_existing:
         print("number of cases:", len(list_of_lists))
@@ -263,7 +264,7 @@ def predict_cases(model, list_of_lists, output_filenames, folds, save_npz, num_t
     # now apply postprocessing
     # first load the postprocessing properties if they are present. Else raise a well visible warning
     results = []
-    pp_file = join(model, "postprocessing.json")
+    pp_file =  model+"/"+ "postprocessing.json"
     if isfile(pp_file):
         print("postprocessing...")
         shutil.copy(pp_file, os.path.abspath(os.path.dirname(output_filenames[0])))
@@ -299,11 +300,12 @@ def predict_cases_fast(model, list_of_lists, output_filenames, folds, num_thread
     for o in output_filenames:
         dr, f = os.path.split(o)
         if len(dr) > 0:
-            maybe_mkdir_p(dr)
+            if not os.path.isdir(dr):
+                 os.makedirs(dr)
         if not f.endswith(".nii.gz"):
             f, _ = os.path.splitext(f)
             f = f + ".nii.gz"
-        cleaned_output_files.append(join(dr, f))
+        cleaned_output_files.append( dr+"/"+ f)
 
     if not overwrite_existing:
         print("number of cases:", len(list_of_lists))
@@ -401,7 +403,7 @@ def predict_cases_fast(model, list_of_lists, output_filenames, folds, num_thread
     # now apply postprocessing
     # first load the postprocessing properties if they are present. Else raise a well visible warning
     results = []
-    pp_file = join(model, "postprocessing.json")
+    pp_file =  model+"/"+ "postprocessing.json"
     if isfile(pp_file):
         print("postprocessing...")
         shutil.copy(pp_file, os.path.dirname(output_filenames[0]))
@@ -436,11 +438,12 @@ def predict_cases_fastest(model, list_of_lists, output_filenames, folds, num_thr
     for o in output_filenames:
         dr, f = os.path.split(o)
         if len(dr) > 0:
-            maybe_mkdir_p(dr)
+            if not os.path.isdir(dr):
+                os.makedirs(dr)
         if not f.endswith(".nii.gz"):
             f, _ = os.path.splitext(f)
             f = f + ".nii.gz"
-        cleaned_output_files.append(join(dr, f))
+        cleaned_output_files.append( dr+"/"+ f)
 
     if not overwrite_existing:
         print("number of cases:", len(list_of_lists))
@@ -517,7 +520,7 @@ def predict_cases_fastest(model, list_of_lists, output_filenames, folds, num_thr
     # now apply postprocessing
     # first load the postprocessing properties if they are present. Else raise a well visible warning
     results = []
-    pp_file = join(model, "postprocessing.json")
+    pp_file =  model+"/"+"postprocessing.json"
     if isfile(pp_file):
         print("postprocessing...")
         shutil.copy(pp_file, os.path.dirname(output_filenames[0]))
@@ -553,7 +556,7 @@ def check_input_folder_and_return_caseIDs(input_folder, expected_num_modalities)
     for c in maybe_case_ids:
         for n in range(expected_num_modalities):
             expected_output_file = c + "_%04.0d.nii.gz" % n
-            if not isfile(join(input_folder, expected_output_file)):
+            if not isfile( input_folder+"/"+ expected_output_file) :
                 missing.append(expected_output_file)
             else:
                 remaining.remove(expected_output_file)
@@ -599,23 +602,24 @@ def predict_from_folder(model: str, input_folder: str, output_folder: str, folds
     :param overwrite_existing: if not None then it will be overwritten with whatever is in there. None is default (no overwrite)
     :return:
     """
-    maybe_mkdir_p(output_folder)
-    shutil.copy(join(model, 'plans.pkl'), output_folder)
+    if not os.path.isdir(output_folder):
+        os.makedirs(output_folder)
+    shutil.copy( model+"/"+ 'plans.pkl' , output_folder)
 
-    assert isfile(join(model, "plans.pkl")), "Folder with saved model weights must contain a plans.pkl file"
-    expected_num_modalities = load_pickle(join(model, "plans.pkl"))['num_modalities']
+    assert isfile( model+"/"+ "plans.pkl" ), "Folder with saved model weights must contain a plans.pkl file"
+    expected_num_modalities = load_pickle( model+"/"+ "plans.pkl") ['num_modalities']
 
     # check input folder integrity
     case_ids = check_input_folder_and_return_caseIDs(input_folder, expected_num_modalities)
 
-    output_files = [join(output_folder, i + ".nii.gz") for i in case_ids]
+    output_files = [ output_folder+"/"+ i + ".nii.gz"  for i in case_ids]
     all_files = subfiles(input_folder, suffix=".nii.gz", join=False, sort=True)
-    list_of_lists = [[join(input_folder, i) for i in all_files if i[:len(j)].startswith(j) and
+    list_of_lists = [[ input_folder+"/"+ i  for i in all_files if i[:len(j)].startswith(j) and
                       len(i) == (len(j) + 12)] for j in case_ids]
 
     if lowres_segmentations is not None:
         assert isdir(lowres_segmentations), "if lowres_segmentations is not None then it must point to a directory"
-        lowres_segmentations = [join(lowres_segmentations, i + ".nii.gz") for i in case_ids]
+        lowres_segmentations = [ lowres_segmentations+"/"+ i + ".nii.gz"  for i in case_ids]
         assert all([isfile(i) for i in lowres_segmentations]), "not all lowres_segmentations files are present. " \
                                                                "(I was searching for case_id.nii.gz in that folder)"
         lowres_segmentations = lowres_segmentations[part_id::num_parts]

@@ -31,7 +31,7 @@ class ExperimentPlannerIso(ExperimentPlanner):
     """
     def __init__(self, folder_with_cropped_data, preprocessed_output_folder):
         super().__init__(folder_with_cropped_data, preprocessed_output_folder)
-        self.plans_fname = join(self.preprocessed_output_folder, "tuframeworkPlans" + "fixedisoPatchesInmm_plans_3D.pkl")
+        self.plans_fname =  self.preprocessed_output_folder+"/"+ "tuframeworkPlans" + "fixedisoPatchesInmm_plans_3D.pkl"
         self.data_identifier = "tuframework_isoPatchesInmm"
 
     def get_properties_for_stage(self, current_spacing, original_spacing, original_shape, num_cases,

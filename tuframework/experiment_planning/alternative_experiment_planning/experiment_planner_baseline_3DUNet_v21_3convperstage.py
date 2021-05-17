@@ -31,8 +31,7 @@ class ExperimentPlanner3D_v21_3cps(ExperimentPlanner3D_v21):
     """
     def __init__(self, folder_with_cropped_data, preprocessed_output_folder):
         super(ExperimentPlanner3D_v21_3cps, self).__init__(folder_with_cropped_data, preprocessed_output_folder)
-        self.plans_fname = join(self.preprocessed_output_folder,
-                                "tuframeworkPlansv2.1_3cps_plans_3D.pkl")
+        self.plans_fname = self.preprocessed_output_folder+"/"+"tuframeworkPlansv2.1_3cps_plans_3D.pkl"
         self.unet_base_num_features = 32
         self.conv_per_stage = 3
 

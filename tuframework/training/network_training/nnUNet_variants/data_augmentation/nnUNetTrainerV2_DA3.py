@@ -25,7 +25,7 @@ from tuframework.training.loss_functions.deep_supervision import MultipleOutputL
 from tuframework.training.network_training.tuTrainerV2 import tuframeworkTrainerV2, maybe_mkdir_p
 from tuframework.utilities.nd_softmax import softmax_helper
 from torch import nn
-
+import os
 
 class tuframeworkTrainerV2_DA3(tuframeworkTrainerV2):
     def setup_DA_params(self):
@@ -94,7 +94,8 @@ class tuframeworkTrainerV2_DA3(tuframeworkTrainerV2):
 
     def initialize(self, training=True, force_load_plans=False):
         if not self.was_initialized:
-            maybe_mkdir_p(self.output_folder)
+            if not os.path.isdir(self.output_folder):
+                os.makedirs(self.output_folder)
 
             if force_load_plans or (self.plans is None):
                 self.load_plans_file()
@@ -120,8 +121,7 @@ class tuframeworkTrainerV2_DA3(tuframeworkTrainerV2):
             self.loss = MultipleOutputLoss2(self.loss, self.ds_loss_weights)
             ################# END ###################
 
-            self.folder_with_preprocessed_data = join(self.dataset_directory, self.plans['data_identifier'] +
-                                                      "_stage%d" % self.stage)
+            self.folder_with_preprocessed_data =self.dataset_directory+"/"+ self.plans['data_identifier'] +"_stage%d" % self.stage
             if training:
                 self.dl_tr, self.dl_val = self.get_basic_generators()
                 if self.unpack_data:

@@ -17,11 +17,12 @@ from tuframework.paths import network_training_output_dir
 from batchgenerators.utilities.file_and_folder_operations import *
 
 if __name__ == "__main__":
-    summary_output_folder = join(network_training_output_dir, "summary_jsons_fold0_new")
-    maybe_mkdir_p(summary_output_folder)
+    summary_output_folder =  network_training_output_dir+"/"+ "summary_jsons_fold0_new"
+    if not os.path.isdir(summary_output_folder):
+        os.makedirs(summary_output_folder)
     summarize2(['all'], output_dir=summary_output_folder, folds=(0,))
 
-    results_csv = join(network_training_output_dir, "summary_fold0.csv")
+    results_csv =  network_training_output_dir+"/"+"summary_fold0.csv"
 
     summary_files = subfiles(summary_output_folder, suffix='.json', join=False)
 
@@ -38,17 +39,18 @@ if __name__ == "__main__":
                 plans = n2
                 validation_folder = "none"
             folds = folds[:-len('.json')]
-            results = load_json(join(summary_output_folder, s))
+            results = load_json( summary_output_folder+"/"+s)
             results_mean = results['results']['mean']['mean']['Dice']
             results_median = results['results']['median']['mean']['Dice']
             f.write("%s,%s,%s,%s,%s,%02.4f,%02.4f\n" % (task,
                                             network, trainer, validation_folder, plans, results_mean, results_median))
 
-    summary_output_folder = join(network_training_output_dir, "summary_jsons_new")
-    maybe_mkdir_p(summary_output_folder)
+    summary_output_folder =  network_training_output_dir+"/"+ "summary_jsons_new"
+    if not os.path.isdir(summary_output_folder):
+        os.makedirs(summary_output_folder)
     summarize2(['all'], output_dir=summary_output_folder)
 
-    results_csv = join(network_training_output_dir, "summary_allFolds.csv")
+    results_csv =  network_training_output_dir+"/"+ "summary_allFolds.csv"
 
     summary_files = subfiles(summary_output_folder, suffix='.json', join=False)
 
@@ -65,7 +67,7 @@ if __name__ == "__main__":
                 plans = n2
                 validation_folder = "none"
             folds = folds[:-len('.json')]
-            results = load_json(join(summary_output_folder, s))
+            results = load_json( summary_output_folder+"/"+ s )
             results_mean = results['results']['mean']['mean']['Dice']
             results_median = results['results']['median']['mean']['Dice']
             f.write("%s,%s,%s,%s,%s,%02.4f,%02.4f\n" % (task,

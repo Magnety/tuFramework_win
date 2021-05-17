@@ -33,9 +33,9 @@ def crawl_and_remove_hidden_from_decathlon(folder):
                                                      "folder that starts with TaskXX and has the subfolders imagesTr, " \
                                                      "labelsTr and imagesTs"
     _ = [os.remove(i) for i in subfiles(folder, prefix=".")]
-    _ = [os.remove(i) for i in subfiles(join(folder, 'imagesTr'), prefix=".")]
-    _ = [os.remove(i) for i in subfiles(join(folder, 'labelsTr'), prefix=".")]
-    _ = [os.remove(i) for i in subfiles(join(folder, 'imagesTs'), prefix=".")]
+    _ = [os.remove(i) for i in subfiles( folder+"/"+'imagesTr' , prefix=".")]
+    _ = [os.remove(i) for i in subfiles( folder+"/"+ 'labelsTr'  , prefix=".")]
+    _ = [os.remove(i) for i in subfiles( folder+"/"+ 'imagesTs' , prefix=".")]
 
 
 def main():

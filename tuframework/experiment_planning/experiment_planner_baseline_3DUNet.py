@@ -33,17 +33,17 @@ class ExperimentPlanner(object):
     def __init__(self, folder_with_cropped_data, preprocessed_output_folder):
         self.folder_with_cropped_data = folder_with_cropped_data
         self.preprocessed_output_folder = preprocessed_output_folder
-        self.list_of_cropped_npz_files = subfiles(self.folder_with_cropped_data, True, None, ".npz", True)
+        self.list_of_cropped_npz_files = subfiles(self.folder_with_cropped_data, False, None, ".npz", True)
 
         self.preprocessor_name = "GenericPreprocessor"
 
-        assert isfile(join(self.folder_with_cropped_data, "dataset_properties.pkl")), \
+        assert isfile(self.folder_with_cropped_data+"/"+ "dataset_properties.pkl"), \
             "folder_with_cropped_data must contain dataset_properties.pkl"
-        self.dataset_properties = load_pickle(join(self.folder_with_cropped_data, "dataset_properties.pkl"))
+        self.dataset_properties = load_pickle(self.folder_with_cropped_data+"/"+"dataset_properties.pkl")
 
         self.plans_per_stage = OrderedDict()
         self.plans = OrderedDict()
-        self.plans_fname = join(self.preprocessed_output_folder, "tuframeworkPlans" + "fixed_plans_3D.pkl")
+        self.plans_fname = self.preprocessed_output_folder+"/"+ "tuframeworkPlans" + "fixed_plans_3D.pkl"
         self.data_identifier = default_data_identifier
 
         self.transpose_forward = [0, 1, 2]
@@ -369,11 +369,11 @@ class ExperimentPlanner(object):
         return schemes
 
     def save_properties_of_cropped(self, case_identifier, properties):
-        with open(join(self.folder_with_cropped_data, "%s.pkl" % case_identifier), 'wb') as f:
+        with open(self.folder_with_cropped_data+"/"+ "%s.pkl" % case_identifier, 'wb') as f:
             pickle.dump(properties, f)
 
     def load_properties_of_cropped(self, case_identifier):
-        with open(join(self.folder_with_cropped_data, "%s.pkl" % case_identifier), 'rb') as f:
+        with open(self.folder_with_cropped_data+"/"+ "%s.pkl" % case_identifier, 'rb') as f:
             properties = pickle.load(f)
         return properties
 
@@ -420,14 +420,14 @@ class ExperimentPlanner(object):
             self.save_properties_of_cropped(case_identifier, properties)
 
     def run_preprocessing(self, num_threads):
-        if os.path.isdir(join(self.preprocessed_output_folder, "gt_segmentations")):
-            shutil.rmtree(join(self.preprocessed_output_folder, "gt_segmentations"))
-        shutil.copytree(join(self.folder_with_cropped_data, "gt_segmentations"),
-                        join(self.preprocessed_output_folder, "gt_segmentations"))
+        if os.path.isdir(self.preprocessed_output_folder+"/"+"gt_segmentations"):
+            shutil.rmtree(self.preprocessed_output_folder+"/"+ "gt_segmentations")
+        shutil.copytree(self.folder_with_cropped_data+"/"+"gt_segmentations",
+                        self.preprocessed_output_folder+"/"+"gt_segmentations")
         normalization_schemes = self.plans['normalization_schemes']
         use_nonzero_mask_for_normalization = self.plans['use_mask_for_norm']
         intensityproperties = self.plans['dataset_properties']['intensityproperties']
-        preprocessor_class = recursive_find_python_class([join(tuframework.__path__[0], "preprocessing")],
+        preprocessor_class = recursive_find_python_class([tuframework.__path__[0]+"/"+ "preprocessing"],
                                                          self.preprocessor_name, current_module="tuframework.preprocessing")
         assert preprocessor_class is not None
         preprocessor = preprocessor_class(normalization_schemes, use_nonzero_mask_for_normalization,
@@ -438,6 +438,10 @@ class ExperimentPlanner(object):
             num_threads = (default_num_threads, num_threads)
         elif self.plans['num_stages'] == 1 and isinstance(num_threads, (list, tuple)):
             num_threads = num_threads[-1]
+        print("run_preprocessing:'data_identifier'", self.plans['data_identifier'])
+        print("run_preprocessing:folder_with_cropped_data", self.folder_with_cropped_data)
+        print("run_preprocessing:preprocessed_output_folder",  self.preprocessed_output_folder)
+
         preprocessor.run(target_spacings, self.folder_with_cropped_data, self.preprocessed_output_folder,
                          self.plans['data_identifier'], num_threads)
 
@@ -468,17 +472,18 @@ if __name__ == "__main__":
     for t in tasks:
         try:
             print("\n\n\n", t)
-            cropped_out_dir = os.path.join(tuFramework_cropped_data, t)
-            preprocessing_output_dir_this_task = os.path.join(preprocessing_output_dir, t)
-            splitted_4d_output_dir_task = os.path.join(tuFramework_raw_data, t)
+            cropped_out_dir = tuFramework_cropped_data+"/"+ t
+            preprocessing_output_dir_this_task = preprocessing_output_dir+"/"+t
+            splitted_4d_output_dir_task = tuFramework_raw_data+"/"+t
             lists, modalities = create_lists_from_splitted_dataset(splitted_4d_output_dir_task)
 
             dataset_analyzer = DatasetAnalyzer(cropped_out_dir, overwrite=False)
             _ = dataset_analyzer.analyze_dataset()  # this will write output files that will be used by the ExperimentPlanner
 
-            maybe_mkdir_p(preprocessing_output_dir_this_task)
-            shutil.copy(join(cropped_out_dir, "dataset_properties.pkl"), preprocessing_output_dir_this_task)
-            shutil.copy(join(tuFramework_raw_data, t, "dataset.json"), preprocessing_output_dir_this_task)
+            if not os.path.isdir(preprocessing_output_dir_this_task):
+                os.makedirs(preprocessing_output_dir_this_task)
+            shutil.copy(cropped_out_dir+"/"+"dataset_properties.pkl", preprocessing_output_dir_this_task)
+            shutil.copy(tuFramework_raw_data +"/"+t+"/"+"dataset.json", preprocessing_output_dir_this_task)
 
             threads = (tl, tf)
 

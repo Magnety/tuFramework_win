@@ -19,8 +19,8 @@ from tuframework.paths import network_training_output_dir
 
 if __name__ == "__main__":
     # run collect_all_fold0_results_and_summarize_in_one_csv.py first
-    summary_files_dir = join(network_training_output_dir, "summary_jsons_new")
-    output_file = join(network_training_output_dir, "summary_structseg_5folds.csv")
+    summary_files_dir = network_training_output_dir+"/"+ "summary_jsons_new"
+    output_file =  network_training_output_dir+"/"+"summary_structseg_5folds.csv"
 
     folds = (0, 1, 2, 3, 4)
     folds_str = ""
@@ -106,12 +106,12 @@ if __name__ == "__main__":
                 f.write("%s," % name)
                 for dataset in datasets.keys():
                     for configuration in datasets[dataset]:
-                        summary_file = join(summary_files_dir, "%s__%s__%s__%s__%s__%s.json" % (dataset, configuration, trainer, p, expected_validation_folder, folds_str))
+                        summary_file =   summary_files_dir+"/"+ "%s__%s__%s__%s__%s__%s.json" % (dataset, configuration, trainer, p, expected_validation_folder, folds_str)
                         if not isfile(summary_file):
-                            summary_file = join(summary_files_dir, "%s__%s__%s__%s__%s__%s.json" % (dataset, configuration, trainer, p, alternative_validation_folder, folds_str))
+                            summary_file =  summary_files_dir +"/"+ "%s__%s__%s__%s__%s__%s.json" % (dataset, configuration, trainer, p, alternative_validation_folder, folds_str)
                             if not isfile(summary_file):
-                                summary_file = join(summary_files_dir, "%s__%s__%s__%s__%s__%s.json" % (
-                                dataset, configuration, trainer, p, alternative_alternative_validation_folder, folds_str))
+                                summary_file =  summary_files_dir+"/"+ "%s__%s__%s__%s__%s__%s.json" % (
+                                dataset, configuration, trainer, p, alternative_alternative_validation_folder, folds_str)
                                 if not isfile(summary_file):
                                     all_present = False
                                     print(name, dataset, configuration, "has missing summary file")

@@ -11,7 +11,7 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
-
+import os
 from collections import OrderedDict
 from batchgenerators.augmentations.utils import resize_segmentation
 from tuframework.configuration import default_num_threads, RESAMPLING_SEPARATE_Z_ANISO_THRESHOLD
@@ -215,10 +215,10 @@ class GenericPreprocessor(object):
 
     @staticmethod
     def load_cropped(cropped_output_dir, case_identifier):
-        all_data = np.load(os.path.join(cropped_output_dir, "%s.npz" % case_identifier))['data']
+        all_data = np.load(cropped_output_dir+"/"+ "%s.npz" % case_identifier)['data']
         data = all_data[:-1].astype(np.float32)
         seg = all_data[-1:]
-        with open(os.path.join(cropped_output_dir, "%s.pkl" % case_identifier), 'rb') as f:
+        with open( cropped_output_dir+"/"+ "%s.pkl" % case_identifier , 'rb') as f:
             properties = pickle.load(f)
         return data, seg, properties
 
@@ -314,6 +314,9 @@ class GenericPreprocessor(object):
 
     def _run_internal(self, target_spacing, case_identifier, output_folder_stage, cropped_output_dir, force_separate_z,
                       all_classes):
+        print("_run:cropped_output_dir:",cropped_output_dir)
+        print("_run: case_identifier:", case_identifier)
+
         data, seg, properties = self.load_cropped(cropped_output_dir, case_identifier)
 
         data = data.transpose((0, *[i + 1 for i in self.transpose_forward]))
@@ -344,10 +347,10 @@ class GenericPreprocessor(object):
             print(c, target_num_samples)
         properties['class_locations'] = class_locs
 
-        print("saving: ", os.path.join(output_folder_stage, "%s.npz" % case_identifier))
-        np.savez_compressed(os.path.join(output_folder_stage, "%s.npz" % case_identifier),
+        print("saving: ",  output_folder_stage+"/"+ "%s.npz" % case_identifier)
+        np.savez_compressed( output_folder_stage+"/"+"%s.npz" % case_identifier ,
                             data=all_data.astype(np.float32))
-        with open(os.path.join(output_folder_stage, "%s.pkl" % case_identifier), 'wb') as f:
+        with open( output_folder_stage+"/"+"%s.pkl" % case_identifier , 'wb') as f:
             pickle.dump(properties, f)
 
     def run(self, target_spacings, input_folder_with_cropped_npz, output_folder, data_identifier,
@@ -364,8 +367,10 @@ class GenericPreprocessor(object):
         print("Initializing to run preprocessing")
         print("npz folder:", input_folder_with_cropped_npz)
         print("output_folder:", output_folder)
-        list_of_cropped_npz_files = subfiles(input_folder_with_cropped_npz, True, None, ".npz", True)
-        maybe_mkdir_p(output_folder)
+        list_of_cropped_npz_files = subfiles(input_folder_with_cropped_npz, False, None, ".npz", True)
+        print("list_of_cropped_npz_files:",list_of_cropped_npz_files)
+        if not os.path.isdir(output_folder):
+            os.makedirs(output_folder)
         num_stages = len(target_spacings)
         if not isinstance(num_threads, (list, tuple, np.ndarray)):
             num_threads = [num_threads] * num_stages
@@ -374,12 +379,16 @@ class GenericPreprocessor(object):
 
         # we need to know which classes are present in this dataset so that we can precompute where these classes are
         # located. This is needed for oversampling foreground
-        all_classes = load_pickle(join(input_folder_with_cropped_npz, 'dataset_properties.pkl'))['all_classes']
+        all_classes = load_pickle( input_folder_with_cropped_npz+"/"+ 'dataset_properties.pkl') ['all_classes']
 
         for i in range(num_stages):
             all_args = []
-            output_folder_stage = os.path.join(output_folder, data_identifier + "_stage%d" % i)
-            maybe_mkdir_p(output_folder_stage)
+            output_folder_stage =  output_folder+"/"+ data_identifier + "_stage%d" % i
+            print("preprocessing.run:output_folder_stage:",output_folder_stage)
+            if not os.path.isdir(output_folder_stage):
+                os.makedirs(output_folder_stage)
+            #if not os.path.isdir(output_folder_stage):
+                #os.makedirs(output_folder_stage)
             spacing = target_spacings[i]
             for j, case in enumerate(list_of_cropped_npz_files):
                 case_identifier = get_case_identifier_from_npz(case)
@@ -577,19 +586,21 @@ class PreprocessorFor2D(GenericPreprocessor):
         print("Initializing to run preprocessing")
         print("npz folder:", input_folder_with_cropped_npz)
         print("output_folder:", output_folder)
-        list_of_cropped_npz_files = subfiles(input_folder_with_cropped_npz, True, None, ".npz", True)
+        list_of_cropped_npz_files = subfiles(input_folder_with_cropped_npz, False, None, ".npz", True)
         assert len(list_of_cropped_npz_files) != 0, "set list of files first"
-        maybe_mkdir_p(output_folder)
+        if not os.path.isdir(output_folder):
+            os.makedirs(output_folder)
         all_args = []
         num_stages = len(target_spacings)
 
         # we need to know which classes are present in this dataset so that we can precompute where these classes are
         # located. This is needed for oversampling foreground
-        all_classes = load_pickle(join(input_folder_with_cropped_npz, 'dataset_properties.pkl'))['all_classes']
+        all_classes = load_pickle(input_folder_with_cropped_npz+"/"+ 'dataset_properties.pkl')['all_classes']
 
         for i in range(num_stages):
-            output_folder_stage = os.path.join(output_folder, data_identifier + "_stage%d" % i)
-            maybe_mkdir_p(output_folder_stage)
+            output_folder_stage =  output_folder+"/"+ data_identifier + "_stage%d" % i
+            if not os.path.isdir(output_folder_stage):
+                os.makedirs(output_folder_stage)
             spacing = target_spacings[i]
             for j, case in enumerate(list_of_cropped_npz_files):
                 case_identifier = get_case_identifier_from_npz(case)

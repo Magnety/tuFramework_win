@@ -106,16 +106,16 @@ def main():
 
             if disable_postprocessing:
                 # we need to collect the predicted niftis from the 5-fold cv and evaluate them against the ground truth
-                cv_niftis_folder = join(output_folder, 'cv_niftis_raw')
+                cv_niftis_folder =  output_folder+"/"+ 'cv_niftis_raw'
 
-                if not isfile(join(cv_niftis_folder, 'summary.json')):
+                if not isfile( cv_niftis_folder+"/"+ 'summary.json' ):
                     print(t, m, ': collecting niftis from 5-fold cv')
                     if isdir(cv_niftis_folder):
                         shutil.rmtree(cv_niftis_folder)
 
                     collect_cv_niftis(output_folder, cv_niftis_folder, validation_folder, folds)
 
-                    niftis_gt = subfiles(join(output_folder, "gt_niftis"), suffix='.nii.gz', join=False)
+                    niftis_gt = subfiles( output_folder+"/"+"gt_niftis" , suffix='.nii.gz', join=False)
                     niftis_cv = subfiles(cv_niftis_folder, suffix='.nii.gz', join=False)
                     if not all([i in niftis_gt for i in niftis_cv]):
                         raise AssertionError("It does not seem like you trained all the folds! Train " \
@@ -124,18 +124,18 @@ def main():
                                                                                             len(niftis_cv), niftis_cv))
 
                     # load a summary file so that we can know what class labels to expect
-                    summary_fold0 = load_json(join(output_folder, "fold_%d" % folds[0], validation_folder,
-                                                   "summary.json"))['results']['mean']
+                    summary_fold0 = load_json( output_folder+"/"+"fold_%d" % folds[0]+"/"+validation_folder+"/"+
+                                                   "summary.json") ['results']['mean']
                     # read classes from summary.json
                     classes = tuple((int(i) for i in summary_fold0.keys()))
 
                     # evaluate the cv niftis
                     print(t, m, ': evaluating 5-fold cv results')
-                    evaluate_folder(join(output_folder, "gt_niftis"), cv_niftis_folder, classes)
+                    evaluate_folder( output_folder+"/"+ "gt_niftis" , cv_niftis_folder, classes)
 
             else:
-                postprocessing_json = join(output_folder, "postprocessing.json")
-                cv_niftis_folder = join(output_folder, "cv_niftis_raw")
+                postprocessing_json = output_folder+"/"+ "postprocessing.json"
+                cv_niftis_folder =  output_folder+"/"+ "cv_niftis_raw"
 
                 # we need cv_niftis_postprocessed to know the single model performance. And we need the
                 # postprocessing_json. If either of those is missing, rerun consolidate_folds
@@ -147,7 +147,7 @@ def main():
                 assert isdir(cv_niftis_folder), "Folder with niftis from CV missing, expected: %s" % cv_niftis_folder
 
             # obtain mean foreground dice
-            summary_file = join(cv_niftis_folder, "summary.json")
+            summary_file =  cv_niftis_folder+"/"+ "summary.json"
             results[m] = get_mean_foreground_dice(summary_file)
             foreground_mean(summary_file)
             all_results[m] = load_json(summary_file)['results']['mean']
@@ -163,8 +163,9 @@ def main():
                     trainer_m2 = trc if m2 == "3d_cascade_fullres" else tr
 
                     ensemble_name = "ensemble_" + m1 + "__" + trainer_m1 + "__" + pl + "--" + m2 + "__" + trainer_m2 + "__" + pl
-                    output_folder_base = join(network_training_output_dir, "ensembles", id_task_mapping[t], ensemble_name)
-                    maybe_mkdir_p(output_folder_base)
+                    output_folder_base =  network_training_output_dir+"/"+"ensembles"+"/"+id_task_mapping[t]+"/"+ ensemble_name
+                    if not os.path.isdir(output_folder_base):
+                        os.makedirs(output_folder_base)
 
                     network1_folder = get_output_folder_name(m1, id_task_mapping[t], trainer_m1, pl)
                     network2_folder = get_output_folder_name(m2, id_task_mapping[t], trainer_m2, pl)
@@ -174,8 +175,8 @@ def main():
                     # ensembling will automatically do postprocessingget_foreground_mean
 
                     # now get result of ensemble
-                    results[ensemble_name] = get_mean_foreground_dice(join(output_folder_base, "ensembled_raw", "summary.json"))
-                    summary_file = join(output_folder_base, "ensembled_raw", "summary.json")
+                    results[ensemble_name] = get_mean_foreground_dice( output_folder_base+"/"+ "ensembled_raw"+"/"+ "summary.json" )
+                    summary_file = output_folder_base +"/"+ "ensembled_raw", "summary.json"
                     foreground_mean(summary_file)
                     all_results[ensemble_name] = load_json(summary_file)['results']['mean']
 
@@ -203,7 +204,7 @@ def main():
                                    id_task_mapping[t] + "\n"
 
                     if not disable_postprocessing:
-                        predict_str += "tuframework_ensemble -f OUTPUT_FOLDER_MODEL1 OUTPUT_FOLDER_MODEL2 -o OUTPUT_FOLDER -pp " + join(network_training_output_dir, "ensembles", id_task_mapping[t], k, "postprocessing.json") + "\n"
+                        predict_str += "tuframework_ensemble -f OUTPUT_FOLDER_MODEL1 OUTPUT_FOLDER_MODEL2 -o OUTPUT_FOLDER -pp " +  network_training_output_dir+"/"+"ensembles"+"/"+ id_task_mapping[t] +"/"+ k+"/"+ "postprocessing.json"  + "\n"
                     else:
                         predict_str += "tuframework_ensemble -f OUTPUT_FOLDER_MODEL1 OUTPUT_FOLDER_MODEL2 -o OUTPUT_FOLDER\n"
                 else:
@@ -211,13 +212,14 @@ def main():
                                    id_task_mapping[t] + "\n"
                 print(predict_str)
 
-        summary_folder = join(network_training_output_dir, "ensembles", id_task_mapping[t])
-        maybe_mkdir_p(summary_folder)
-        with open(join(summary_folder, "prediction_commands.txt"), 'w') as f:
+        summary_folder =  network_training_output_dir+"/"+ "ensembles"+"/"+ id_task_mapping[t]
+        if not os.path.isdir(summary_folder):
+            os.makedirs(summary_folder)
+        with open( summary_folder+"/"+ "prediction_commands.txt" , 'w') as f:
             f.write(predict_str)
 
         num_classes = len([i for i in all_results[best_model].keys() if i != 'mean'])
-        with open(join(summary_folder, "summary.csv"), 'w') as f:
+        with open( summary_folder+"/"+ "summary.csv" , 'w') as f:
             f.write("model")
             for c in range(1, num_classes):
                 f.write(",class%d" % c)

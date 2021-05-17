@@ -41,11 +41,11 @@ def main():
     parser.add_argument("-no_pp", action="store_true",
                         help="Set this flag if you dont want to run the preprocessing. If this is set then this script "
                              "will only run the experiment planning and create the plans file")
-    parser.add_argument("-tl", type=int, required=False, default=8,
+    parser.add_argument("-tl", type=int, required=False, default=4,
                         help="Number of processes used for preprocessing the low resolution data for the 3D low "
                              "resolution U-Net. This can be larger than -tf. Don't overdo it or you will run out of "
                              "RAM")
-    parser.add_argument("-tf", type=int, required=False, default=8,
+    parser.add_argument("-tf", type=int, required=False, default=4,
                         help="Number of processes used for preprocessing the full resolution data of the 2D U-Net and "
                              "3D U-Net. Don't overdo it or you will run out of RAM")
     parser.add_argument("--verify_dataset_integrity", required=False, default=False, action="store_true",
@@ -76,13 +76,13 @@ def main():
 
 
         if args.verify_dataset_integrity:
-            verify_dataset_integrity(join(tuFramework_raw_data, task_name))
+            verify_dataset_integrity( tuFramework_raw_data+"/"+task_name )
 
         crop(task_name, False, tf)
 
         tasks.append(task_name)
 
-    search_in = join(tuframework.__path__[0], "experiment_planning")
+    search_in = tuframework.__path__[0]+"/"+ "experiment_planning"
 
     if planner_name3d is not None:
         planner_3d = recursive_find_python_class([search_in], planner_name3d, current_module="tuframework.experiment_planning")
@@ -102,24 +102,25 @@ def main():
 
     for t in tasks:
         print("\n\n\n", t)
-        cropped_out_dir = os.path.join(tuFramework_cropped_data, t)
-        preprocessing_output_dir_this_task = os.path.join(preprocessing_output_dir, t)
+        cropped_out_dir =tuFramework_cropped_data+"/"+ t
+        preprocessing_output_dir_this_task =  preprocessing_output_dir+"/"+ t
         #splitted_4d_output_dir_task = os.path.join(tuFramework_raw_data, t)
         #lists, modalities = create_lists_from_splitted_dataset(splitted_4d_output_dir_task)
 
         # we need to figure out if we need the intensity propoerties. We collect them only if one of the modalities is CT
-        dataset_json = load_json(join(cropped_out_dir, 'dataset.json'))
+        dataset_json = load_json( cropped_out_dir+"/"+ 'dataset.json')
         modalities = list(dataset_json["modality"].values())
         collect_intensityproperties = True if (("CT" in modalities) or ("ct" in modalities)) else False
         dataset_analyzer = DatasetAnalyzer(cropped_out_dir, overwrite=False, num_processes=tf)  # this class creates the fingerprint
         _ = dataset_analyzer.analyze_dataset(collect_intensityproperties)  # this will write output files that will be used by the ExperimentPlanner
 
 
-        #maybe_mkdir_p(preprocessing_output_dir_this_task)
+        #if not os.path.isdir(preprocessing_output_dir_this_task):
+            #os.makedirs(preprocessing_output_dir_this_task)
         if not os.path.isdir(preprocessing_output_dir_this_task):
             os.makedirs(preprocessing_output_dir_this_task)
-        shutil.copy(join(cropped_out_dir, "dataset_properties.pkl"), preprocessing_output_dir_this_task)
-        shutil.copy(join(tuFramework_raw_data, t, "dataset.json"), preprocessing_output_dir_this_task)
+        shutil.copy( cropped_out_dir+"/"+ "dataset_properties.pkl" , preprocessing_output_dir_this_task)
+        shutil.copy( tuFramework_raw_data+"/"+ t +"/"+ "dataset.json" , preprocessing_output_dir_this_task)
 
         threads = (tl, tf)
 

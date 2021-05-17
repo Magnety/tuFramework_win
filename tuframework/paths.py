@@ -31,15 +31,15 @@ base = "D:\\tuframework_data"
 preprocessing_output_dir = os.environ['tuframework_preprocessed'] if "tuframework_preprocessed" in os.environ.keys() else None
 network_training_output_dir_base = os.path.join(os.environ['RESULTS_FOLDER']) if "RESULTS_FOLDER" in os.environ.keys() else None
 """
-base = "/home/ubuntu/liuyiyao/tuFramework_data_raw_base"
+base = "G:/tuFramework_data_raw_base"
 preprocessing_output_dir =base+"/tuFramework_preprocessed"
 network_training_output_dir_base =base+"/tuFramework_trained_models"
 
 if base is not None:
-    tuFramework_raw_data = join(base, "tuFramework_raw_data")
-    tuFramework_cropped_data = join(base, "tuFramework_cropped_data")
+    tuFramework_raw_data =base +"/tuFramework_raw_data"
+    tuFramework_cropped_data = base +"/tuFramework_cropped_data"
     maybe_mkdir_p(tuFramework_raw_data)
-    maybe_mkdir_p(tuFramework_cropped_data)
+    if not os.path.isdir(tuFramework_cropped_data):os.makedirs(tuFramework_cropped_data)
 else:
     print("tuFramework_raw_data_base is not defined and nnU-Net can only be used on data for which preprocessed files "
           "are already present on your system. nnU-Net cannot be used for experiment planning and preprocessing like "
@@ -47,7 +47,7 @@ else:
     tuFramework_cropped_data = tuFramework_raw_data = None
 
 if preprocessing_output_dir is not None:
-    maybe_mkdir_p(preprocessing_output_dir)
+    if not os.path.isdir(preprocessing_output_dir):os.makedirs(preprocessing_output_dir)
 
 else:
     print("tuframework_preprocessed is not defined and nnU-Net can not be used for preprocessing "
@@ -55,8 +55,8 @@ else:
     preprocessing_output_dir = None
 
 if network_training_output_dir_base is not None:
-    network_training_output_dir = join(network_training_output_dir_base, my_output_identifier)
-    maybe_mkdir_p(network_training_output_dir)
+    network_training_output_dir = network_training_output_dir_base+'/'+ my_output_identifier
+    if not os.path.isdir(network_training_output_dir):os.makedirs(network_training_output_dir)
 else:
     print("RESULTS_FOLDER is not defined and nnU-Net cannot be used for training or "
           "inference. If this is not intended behavior, please read documentation/setting_up_paths.md for information on how to set this "

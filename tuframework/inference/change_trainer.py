@@ -23,12 +23,12 @@ def pretend_to_be_tuframeworkTrainer(folder, checkpoints=("model_best.model.pkl"
 def pretend_to_be_other_trainer(folder, new_trainer_name, checkpoints=("model_best.model.pkl", "model_final_checkpoint.model.pkl")):
     folds = subdirs(folder, prefix="fold_", join=False)
 
-    if isdir(join(folder, 'all')):
+    if isdir(folder+"/"+'all'):
         folds.append('all')
 
     for c in checkpoints:
         for f in folds:
-            checkpoint_file = join(folder, f, c)
+            checkpoint_file = folder+"/"+ f+"/"+ c
             if isfile(checkpoint_file):
                 a = load_pickle(checkpoint_file)
                 a['name'] = new_trainer_name

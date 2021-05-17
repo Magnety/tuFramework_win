@@ -24,13 +24,13 @@ from subprocess import call
 
 
 def copy_fold(in_folder: str, out_folder: str):
-    shutil.copy(join(in_folder, "debug.json"), join(out_folder, "debug.json"))
-    shutil.copy(join(in_folder, "model_final_checkpoint.model"), join(out_folder, "model_final_checkpoint.model"))
-    shutil.copy(join(in_folder, "model_final_checkpoint.model.pkl"),
-                join(out_folder, "model_final_checkpoint.model.pkl"))
-    shutil.copy(join(in_folder, "progress.png"), join(out_folder, "progress.png"))
-    if isfile(join(in_folder, "network_architecture.pdf")):
-        shutil.copy(join(in_folder, "network_architecture.pdf"), join(out_folder, "network_architecture.pdf"))
+    shutil.copy(in_folder+"/"+ "debug.json", out_folder+"/"+ "debug.json")
+    shutil.copy(in_folder+"/"+ "model_final_checkpoint.model", out_folder+"/"+ "model_final_checkpoint.model")
+    shutil.copy(in_folder+"/"+ "model_final_checkpoint.model.pkl",
+                out_folder+"/"+ "model_final_checkpoint.model.pkl")
+    shutil.copy(in_folder+"/"+ "progress.png", out_folder+"/"+ "progress.png")
+    if isfile(in_folder+"/"+ "network_architecture.pdf"):
+        shutil.copy(in_folder+"/"+ "network_architecture.pdf", out_folder+"/"+ "network_architecture.pdf")
 
 
 def copy_model(directory: str, output_directory: str):
@@ -41,17 +41,18 @@ def copy_model(directory: str, output_directory: str):
     :return:
     """
     expected_folders = ["fold_%d" % i for i in range(5)]
-    assert all([isdir(join(directory, i)) for i in expected_folders]), "not all folds present"
+    assert all([isdir(directory+"/"+i) for i in expected_folders]), "not all folds present"
 
-    assert isfile(join(directory, "plans.pkl")), "plans.pkl missing"
-    assert isfile(join(directory, "postprocessing.json")), "postprocessing.json missing"
+    assert isfile(directory+"/"+"plans.pkl"), "plans.pkl missing"
+    assert isfile(directory+"/"+ "postprocessing.json"), "postprocessing.json missing"
 
     for e in expected_folders:
-        maybe_mkdir_p(join(output_directory, e))
-        copy_fold(join(directory, e), join(output_directory, e))
+        if not os.path.isdir(output_directory+"/"+e):
+            os.makedirs(output_directory+"/"+e)
+        copy_fold(directory+"/"+ e, output_directory+"/"+ e)
 
-    shutil.copy(join(directory, "plans.pkl"), join(output_directory, "plans.pkl"))
-    shutil.copy(join(directory, "postprocessing.json"), join(output_directory, "postprocessing.json"))
+    shutil.copy(directory+"/"+ "plans.pkl", output_directory+"/"+ "plans.pkl")
+    shutil.copy(directory+"/"+ "postprocessing.json", output_directory+"/"+ "postprocessing.json")
 
 
 def copy_pretrained_models_for_task(task_name: str, output_directory: str,
@@ -64,15 +65,16 @@ def copy_pretrained_models_for_task(task_name: str, output_directory: str,
 
     for m in models:
         to = trainer_output_dir_cascade if m == "3d_cascade_fullres" else trainer_output_dir
-        expected_output_folder = join(network_training_output_dir, m, task_name, to)
+        expected_output_folder =  network_training_output_dir+"/"+ m+"/"+ task_name+"/"+ to
         if not isdir(expected_output_folder):
             if m == "3d_lowres" or m == "3d_cascade_fullres":
                 print("Task", task_name, "does not seem to have the cascade")
                 continue
             else:
                 raise RuntimeError("missing folder! %s" % expected_output_folder)
-        output_here = join(output_directory, m, task_name, to)
-        maybe_mkdir_p(output_here)
+        output_here = output_directory+"/"+ m+"/"+ task_name+"/"+ to
+        if not os.path.isdir(output_here):
+            os.makedirs(output_here)
         copy_model(expected_output_folder, output_here)
 
 
@@ -93,7 +95,7 @@ def check_if_valid(ensemble: str, valid_models, valid_trainers, valid_plans):
 def copy_ensembles(taskname, output_folder, valid_models=('2d', '3d_fullres', '3d_lowres', '3d_cascade_fullres'),
                    valid_trainers=(default_trainer, default_cascade_trainer),
                    valid_plans=(default_plans_identifier,)):
-    ensemble_dir = join(network_training_output_dir, 'ensembles', taskname)
+    ensemble_dir = network_training_output_dir+"/"+ 'ensembles'+"/"+ taskname
     if not isdir(ensemble_dir):
         print("No ensemble directory found for task", taskname)
         return
@@ -103,12 +105,14 @@ def copy_ensembles(taskname, output_folder, valid_models=('2d', '3d_fullres', '3
         v = check_if_valid(s, valid_models, valid_trainers, valid_plans)
         if v:
             valid.append(s)
-    output_ensemble = join(output_folder, 'ensembles', taskname)
-    maybe_mkdir_p(output_ensemble)
+    output_ensemble =  output_folder +"/"+ 'ensembles'+"/"+ taskname
+    if not os.path.isdir(output_ensemble):
+        os.makedirs(output_ensemble)
     for v in valid:
-        this_output = join(output_ensemble, v)
-        maybe_mkdir_p(this_output)
-        shutil.copy(join(ensemble_dir, v, 'postprocessing.json'), this_output)
+        this_output =  output_ensemble+"/"+ v
+        if not os.path.isdir(this_output):
+            os.makedirs(this_output)
+        shutil.copy( ensemble_dir+"/"+ v+"/"+ 'postprocessing.json' , this_output)
 
 
 def compress_everything(output_base, num_processes=8):
@@ -117,7 +121,7 @@ def compress_everything(output_base, num_processes=8):
     tasknames = [i.split('/')[-1] for i in tasks]
     args = []
     for t, tn in zip(tasks, tasknames):
-        args.append((join(output_base, tn + ".zip"), join(output_base, t)))
+        args.append(( output_base+"/"+ tn + ".zip" ,  output_base+"/"+ t) )
     p.starmap(compress_folder, args)
     p.close()
     p.join()
@@ -128,7 +132,7 @@ def compress_folder(zip_file, folder):
     zipf = zipfile.ZipFile(zip_file, 'w', zipfile.ZIP_DEFLATED)
     for root, dirs, files in os.walk(folder):
         for file in files:
-            zipf.write(join(root, file), os.path.relpath(join(root, file), folder))
+            zipf.write( root+"/"+ file , os.path.relpath( root+"/"+ file , folder))
 
 
 def export_one_task(taskname, models, output_folder, tuframework_trainer=default_trainer,
@@ -137,7 +141,7 @@ def export_one_task(taskname, models, output_folder, tuframework_trainer=default
     copy_pretrained_models_for_task(taskname, output_folder, models, tuframework_trainer, tuframework_trainer_cascade,
                                     plans_identifier)
     copy_ensembles(taskname, output_folder, models, (tuframework_trainer, tuframework_trainer_cascade), (plans_identifier,))
-    compress_folder(join(output_folder, taskname + '.zip'), join(output_folder, taskname))
+    compress_folder( output_folder+"/"+ taskname + '.zip'  ,  output_folder+"/"+ taskname)
 
 
 def export_pretrained_model(task_name: str, output_file: str,
@@ -152,7 +156,7 @@ def export_pretrained_model(task_name: str, output_file: str,
 
     for m in models:
         to = trainer_output_dir_cascade if m == "3d_cascade_fullres" else trainer_output_dir
-        expected_output_folder = join(network_training_output_dir, m, task_name, to)
+        expected_output_folder = network_training_output_dir+"/"+ m+"/"+ task_name+"/"+  to
         if not isdir(expected_output_folder):
             if strict:
                 raise RuntimeError("Task %s is missing the model %s" % (task_name, m))
@@ -160,42 +164,42 @@ def export_pretrained_model(task_name: str, output_file: str,
                 continue
 
         expected_folders = ["fold_%d" % i if i != 'all' else i for i in folds]
-        assert all([isdir(join(expected_output_folder, i)) for i in expected_folders]), "not all requested folds " \
+        assert all([isdir( expected_output_folder+"/"+ i) for i in expected_folders]), "not all requested folds " \
                                                                                         "present, " \
                                                                                         "Task %s model %s" % \
                                                                                         (task_name, m)
 
-        assert isfile(join(expected_output_folder, "plans.pkl")), "plans.pkl missing, Task %s model %s" % (task_name, m)
+        assert isfile( expected_output_folder+"/"+ "plans.pkl") , "plans.pkl missing, Task %s model %s" % (task_name, m)
 
         for e in expected_folders:
-            zipf.write(join(expected_output_folder, e, "debug.json"),
-                       os.path.relpath(join(expected_output_folder, e, "debug.json"),
+            zipf.write( expected_output_folder+"/"+ e+"/"+ "debug.json" ,
+                       os.path.relpath( expected_output_folder+"/"+ e+"/"+"debug.json" ,
                                        network_training_output_dir))
-            zipf.write(join(expected_output_folder, e, "model_final_checkpoint.model"),
-                       os.path.relpath(join(expected_output_folder, e, "model_final_checkpoint.model"),
+            zipf.write( expected_output_folder+"/"+ e+"/"+ "model_final_checkpoint.model" ,
+                       os.path.relpath( expected_output_folder+"/"+ e+"/"+"model_final_checkpoint.model" ,
                                        network_training_output_dir))
-            zipf.write(join(expected_output_folder, e, "model_final_checkpoint.model.pkl"),
-                       os.path.relpath(join(expected_output_folder, e, "model_final_checkpoint.model.pkl"),
+            zipf.write( expected_output_folder+"/"+e+"/"+ "model_final_checkpoint.model.pkl" ,
+                       os.path.relpath( expected_output_folder+"/"+ e+"/"+ "model_final_checkpoint.model.pkl" ,
                                        network_training_output_dir))
-            zipf.write(join(expected_output_folder, e, "progress.png"),
-                       os.path.relpath(join(expected_output_folder, e, "progress.png"), network_training_output_dir))
-            if isfile(join(expected_output_folder, e, "network_architecture.pdf")):
-                zipf.write(join(expected_output_folder, e, "network_architecture.pdf"),
-                           os.path.relpath(join(expected_output_folder, e, "network_architecture.pdf"),
+            zipf.write( expected_output_folder+"/"+ e+"/"+ "progress.png" ,
+                       os.path.relpath( expected_output_folder+"/"+e+"/"+ "progress.png" , network_training_output_dir))
+            if isfile( expected_output_folder+"/"+ e+"/"+ "network_architecture.pdf" ):
+                zipf.write( expected_output_folder+"/"+e+"/"+ "network_architecture.pdf" ,
+                           os.path.relpath( expected_output_folder+"/"+e+"/"+ "network_architecture.pdf" ,
                                            network_training_output_dir))
 
-        zipf.write(join(expected_output_folder, "plans.pkl"),
-                   os.path.relpath(join(expected_output_folder, "plans.pkl"), network_training_output_dir))
-        if not isfile(join(expected_output_folder, "postprocessing.json")):
+        zipf.write( expected_output_folder+"/"+ "plans.pkl" ,
+                   os.path.relpath( expected_output_folder+"/"+ "plans.pkl" , network_training_output_dir))
+        if not isfile( expected_output_folder+"/"+ "postprocessing.json") :
             if strict:
                 raise RuntimeError('postprocessing.json missing. Run tuframework_determine_postprocessing or disable strict')
             else:
                 print('WARNING: postprocessing.json missing')
         else:
-            zipf.write(join(expected_output_folder, "postprocessing.json"),
-                       os.path.relpath(join(expected_output_folder, "postprocessing.json"), network_training_output_dir))
+            zipf.write( expected_output_folder+"/"+ "postprocessing.json" ,
+                       os.path.relpath( expected_output_folder+"/"+ "postprocessing.json"  , network_training_output_dir))
 
-    ensemble_dir = join(network_training_output_dir, 'ensembles', task_name)
+    ensemble_dir =  network_training_output_dir+"/"+ 'ensembles'+"/"+ task_name
     if not isdir(ensemble_dir):
         print("No ensemble directory found for task", task_name)
         return
@@ -206,8 +210,8 @@ def export_pretrained_model(task_name: str, output_file: str,
         if v:
             valid.append(s)
     for v in valid:
-        zipf.write(join(ensemble_dir, v, 'postprocessing.json'),
-                   os.path.relpath(join(ensemble_dir, v, 'postprocessing.json'),
+        zipf.write( ensemble_dir+"/"+v+"/"+ 'postprocessing.json' ,
+                   os.path.relpath( ensemble_dir+"/"+ v+"/"+ 'postprocessing.json' ,
                                    network_training_output_dir))
     zipf.close()
 
@@ -264,8 +268,9 @@ def export_for_paper():
             models = ("2d", "3d_lowres", "3d_fullres", "3d_cascade_fullres")
         taskname = convert_id_to_task_name(t)
         print(taskname)
-        output_folder = join(output_base, taskname)
-        maybe_mkdir_p(output_folder)
+        output_folder =  output_base+"/"+ taskname
+        if not os.path.isdir(output_folder):
+            os.makedirs(output_folder)
         copy_pretrained_models_for_task(taskname, output_folder, models)
         copy_ensembles(taskname, output_folder)
     compress_everything(output_base, 8)

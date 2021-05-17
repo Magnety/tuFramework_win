@@ -64,7 +64,7 @@ def unpack_dataset(folder, threads=default_num_threads, key="data"):
     :return:
     """
     p = Pool(threads)
-    npz_files = subfiles(folder, True, None, ".npz", True)
+    npz_files = subfiles(folder, False, None, ".npz", True)
     p.map(convert_to_npy, zip(npz_files, [key] * len(npz_files)))
     p.close()
     p.join()
@@ -72,7 +72,7 @@ def unpack_dataset(folder, threads=default_num_threads, key="data"):
 
 def pack_dataset(folder, threads=default_num_threads, key="data"):
     p = Pool(threads)
-    npy_files = subfiles(folder, True, None, ".npy", True)
+    npy_files = subfiles(folder, False, None, ".npy", True)
     p.map(save_as_npz, zip(npy_files, [key] * len(npy_files)))
     p.close()
     p.join()
@@ -80,7 +80,7 @@ def pack_dataset(folder, threads=default_num_threads, key="data"):
 
 def delete_npy(folder):
     case_identifiers = get_case_identifiers(folder)
-    npy_files = [join(folder, i + ".npy") for i in case_identifiers]
+    npy_files = [ folder+"/"+i + ".npy"  for i in case_identifiers]
     npy_files = [i for i in npy_files if isfile(i)]
     for n in npy_files:
         os.remove(n)
@@ -94,13 +94,13 @@ def load_dataset(folder, num_cases_properties_loading_threshold=1000):
     dataset = OrderedDict()
     for c in case_identifiers:
         dataset[c] = OrderedDict()
-        dataset[c]['data_file'] = join(folder, "%s.npz" % c)
+        dataset[c]['data_file'] =  folder+"/"+ "%s.npz" % c
 
         # dataset[c]['properties'] = load_pickle(join(folder, "%s.pkl" % c))
-        dataset[c]['properties_file'] = join(folder, "%s.pkl" % c)
+        dataset[c]['properties_file'] =  folder+"/"+ "%s.pkl" % c
 
         if dataset[c].get('seg_from_prev_stage_file') is not None:
-            dataset[c]['seg_from_prev_stage_file'] = join(folder, "%s_segs.npz" % c)
+            dataset[c]['seg_from_prev_stage_file'] =  folder+"/"+ "%s_segs.npz" % c
 
     if len(case_identifiers) <= num_cases_properties_loading_threshold:
         print('loading all case properties')
@@ -595,9 +595,9 @@ class DataLoader2D(SlimDataLoaderBase):
 
 if __name__ == "__main__":
     t = "Task002_Heart"
-    p = join(preprocessing_output_dir, t, "stage1")
+    p =  preprocessing_output_dir+"/"+ t+"/"+ "stage1"
     dataset = load_dataset(p)
-    with open(join(join(preprocessing_output_dir, t), "plans_stage1.pkl"), 'rb') as f:
+    with open(  preprocessing_output_dir+"/"+ t +"/"+ "plans_stage1.pkl" , 'rb') as f:
         plans = pickle.load(f)
     unpack_dataset(p)
     dl = DataLoader3D(dataset, (32, 32, 32), (32, 32, 32), 2, oversample_foreground_percent=0.33)

@@ -37,13 +37,15 @@ class DatasetAnalyzer(object):
         self.folder_with_cropped_data = folder_with_cropped_data
         self.sizes = self.spacings = None
         self.patient_identifiers = get_patient_identifiers_from_cropped_files(self.folder_with_cropped_data)
-        assert isfile(join(self.folder_with_cropped_data, "dataset.json")), \
+        assert isfile( self.folder_with_cropped_data+"/"+ "dataset.json" ), \
             "dataset.json needs to be in folder_with_cropped_data"
-        self.props_per_case_file = join(self.folder_with_cropped_data, "props_per_case.pkl")
-        self.intensityproperties_file = join(self.folder_with_cropped_data, "intensityproperties.pkl")
+        self.props_per_case_file =  self.folder_with_cropped_data+"/"+ "props_per_case.pkl"
+        self.intensityproperties_file =  self.folder_with_cropped_data+"/"+ "intensityproperties.pkl"
 
     def load_properties_of_cropped(self, case_identifier):
-        with open(join(self.folder_with_cropped_data, "%s.pkl" % case_identifier), 'rb') as f:
+        print("folder_with_cropped_data:",self.folder_with_cropped_data)
+        print("case_identifier:",case_identifier)
+        with open( self.folder_with_cropped_data+"/"+ "%s.pkl" % case_identifier , 'rb') as f:
             properties = pickle.load(f)
         return properties
 
@@ -74,7 +76,7 @@ class DatasetAnalyzer(object):
         return volume_per_class, region_volume_per_class
 
     def _get_unique_labels(self, patient_identifier):
-        seg = np.load(join(self.folder_with_cropped_data, patient_identifier) + ".npz")['data'][-1]
+        seg = np.load( self.folder_with_cropped_data+"/"+ patient_identifier + ".npz")['data'][-1]
         unique_classes = np.unique(seg)
         return unique_classes
 
@@ -86,8 +88,8 @@ class DatasetAnalyzer(object):
         4) check if all in one region
         :return:
         """
-        seg = np.load(join(self.folder_with_cropped_data, patient_identifier) + ".npz")['data'][-1]
-        pkl = load_pickle(join(self.folder_with_cropped_data, patient_identifier) + ".pkl")
+        seg = np.load( self.folder_with_cropped_data+"/"+ patient_identifier  + ".npz")['data'][-1]
+        pkl = load_pickle( self.folder_with_cropped_data+"/"+ patient_identifier  + ".pkl")
         vol_per_voxel = np.prod(pkl['itk_spacing'])
 
         # ad 1)
@@ -107,7 +109,7 @@ class DatasetAnalyzer(object):
         return unique_classes, all_in_one_region, volume_per_class, region_sizes
 
     def get_classes(self):
-        datasetjson = load_json(join(self.folder_with_cropped_data, "dataset.json"))
+        datasetjson = load_json( self.folder_with_cropped_data+"/"+ "dataset.json")
         return datasetjson['labels']
 
     def analyse_segmentations(self):
@@ -143,7 +145,7 @@ class DatasetAnalyzer(object):
         return sizes, spacings
 
     def get_modalities(self):
-        datasetjson = load_json(join(self.folder_with_cropped_data, "dataset.json"))
+        datasetjson = load_json( self.folder_with_cropped_data+"/"+ "dataset.json")
         modalities = datasetjson["modality"]
         modalities = {int(k): modalities[k] for k in modalities.keys()}
         return modalities
@@ -159,7 +161,7 @@ class DatasetAnalyzer(object):
         return size_reduction
 
     def _get_voxels_in_foreground(self, patient_identifier, modality_id):
-        all_data = np.load(join(self.folder_with_cropped_data, patient_identifier) + ".npz")['data']
+        all_data = np.load( self.folder_with_cropped_data+"/"+ patient_identifier  + ".npz")['data']
         modality = all_data[modality_id]
         mask = all_data[-1] > 0
         voxels = list(modality[mask][::10]) # no need to take every voxel
@@ -252,5 +254,5 @@ class DatasetAnalyzer(object):
         dataset_properties['intensityproperties'] = intensityproperties
         dataset_properties['size_reductions'] = size_reductions  # {patient_id: size_reduction}
 
-        save_pickle(dataset_properties, join(self.folder_with_cropped_data, "dataset_properties.pkl"))
+        save_pickle(dataset_properties,  self.folder_with_cropped_data+"/"+ "dataset_properties.pkl")
         return dataset_properties

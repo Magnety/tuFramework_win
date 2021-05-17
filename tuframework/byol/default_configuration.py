@@ -37,12 +37,12 @@ def get_default_configuration(network, task, network_trainer, plans_identifier=d
     assert network in ['2d', '3d_lowres', 'byol', '3d_cascade_fullres'], \
         "network can only be one of the following: \'3d\', \'3d_lowres\', \'3d_fullres\', \'3d_cascade_fullres\'"
 
-    dataset_directory = join(preprocessing_output_dir, task)
+    dataset_directory =  preprocessing_output_dir+"/"+ task
 
     if network == '2d':
-        plans_file = join(preprocessing_output_dir, task, plans_identifier + "_plans_2D.pkl")
+        plans_file =  preprocessing_output_dir+"/"+ task+"/"+ plans_identifier + "_plans_2D.pkl"
     else:
-        plans_file = join(preprocessing_output_dir, task, plans_identifier + "_plans_3D.pkl")
+        plans_file =  preprocessing_output_dir+"/"+ task+"/"+ plans_identifier + "_plans_3D.pkl"
 
     plans = load_pickle(plans_file)
     possible_stages = list(plans['plans_per_stage'].keys())
@@ -59,7 +59,7 @@ def get_default_configuration(network, task, network_trainer, plans_identifier=d
     trainer_class = recursive_find_python_class([join(*search_in)], network_trainer,
                                                 current_module=base_module)
 
-    output_folder_name = join(network_training_output_dir, network, task, network_trainer + "__" + plans_identifier)
+    output_folder_name =  network_training_output_dir+"/"+ network+"/"+ task+"/"+ network_trainer + "__" + plans_identifier
 
     print("###############################################")
     print("I am running the following tuframework: %s" % network)
@@ -75,6 +75,6 @@ def get_default_configuration(network, task, network_trainer, plans_identifier=d
         batch_dice = False
         print("I am using sample dice + CE loss")
 
-    print("\nI am using data from this folder: ", join(dataset_directory, plans['data_identifier']))
+    print("\nI am using data from this folder: ",  dataset_directory+"/"+ plans['data_identifier'])
     print("###############################################")
     return plans_file, output_folder_name, dataset_directory, batch_dice, stage, trainer_class

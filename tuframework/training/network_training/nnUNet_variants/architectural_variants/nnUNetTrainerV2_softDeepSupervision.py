@@ -48,7 +48,8 @@ class tuframeworkTrainerV2_softDeepSupervision(tuframeworkTrainerV2):
         :return:
         """
         if not self.was_initialized:
-            maybe_mkdir_p(self.output_folder)
+            if not os.path.isdir(self.output_folder):
+                os.makedirs(self.output_folder)
 
             if force_load_plans or (self.plans is None):
                 self.load_plans_file()
@@ -78,8 +79,7 @@ class tuframeworkTrainerV2_softDeepSupervision(tuframeworkTrainerV2):
             #self.loss = MultipleOutputLoss2(self.loss, weights)
             ################# END ###################
 
-            self.folder_with_preprocessed_data = join(self.dataset_directory, self.plans['data_identifier'] +
-                                                      "_stage%d" % self.stage)
+            self.folder_with_preprocessed_data = self.dataset_directory+"/"+ self.plans['data_identifier'] +"_stage%d" % self.stage
             if training:
                 self.dl_tr, self.dl_val = self.get_basic_generators()
                 if self.unpack_data:

@@ -220,7 +220,7 @@ def download_and_install_from_url(url):
     import os
     home = os.path.expanduser('~')
     random_number = int(time() * 1e7)
-    tempfile = join(home, '.tuframeworkdownload_%s' % str(random_number))
+    tempfile =  home+"/"+ '.tuframeworkdownload_%s' % str(random_number)
 
     try:
         with open(tempfile, 'wb') as f:

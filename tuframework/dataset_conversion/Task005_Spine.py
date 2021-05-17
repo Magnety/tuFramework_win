@@ -22,15 +22,15 @@ if __name__ == "__main__":
     """
     This is the KiTS dataset after Nick fixed all the labels that had errors. Downloaded on Jan 6th 2020    
     """
-    base = "/home/ubuntu/liuyiyao/Data/Spine_format"
-    task_id = 6
-    task_name = "Spine"
+    base =  r"G:\pre_Data\Spine"
+    task_id = 8
+    task_name = "Spine_bigpacth"
     foldername = "Task%03.0d_%s" % (task_id, task_name)
 
-    out_base = join(tuFramework_raw_data, foldername)
-    imagestr = join(out_base, "imagesTr")
-    imagests = join(out_base, "imagesTs")
-    labelstr = join(out_base, "labelsTr")
+    out_base =  tuFramework_raw_data+"/"+ foldername
+    imagestr = out_base+"/"+ "imagesTr"
+    imagests =  out_base+"/"+ "imagesTs"
+    labelstr =  out_base+"/"+ "labelsTr"
     if not os.path.isdir(imagestr):
         os.makedirs(imagestr)
     if not os.path.isdir(imagests):
@@ -46,17 +46,17 @@ if __name__ == "__main__":
     test_patients = all_cases[:]
 
     for p in train_patients:
-        curr = join(base, p)
-        label_file = join(curr, "segmentation.nii.gz")
-        image_file = join(curr, "imaging.nii.gz")
-        shutil.copy(image_file, join(imagestr, p + "_0000.nii.gz"))
-        shutil.copy(label_file, join(labelstr, p + ".nii.gz"))
+        curr = base+"/"+ p
+        label_file =  curr+"/"+"segmentation.nii.gz"
+        image_file =  curr+"/"+ "imaging.nii.gz"
+        shutil.copy(image_file, imagestr+"/"+ p + "_0000.nii.gz")
+        shutil.copy(label_file,  labelstr+"/"+ p + ".nii.gz")
         train_patient_names.append(p)
 
     for p in test_patients:
-        curr = join(base, p)
-        image_file = join(curr, "imaging.nii.gz")
-        shutil.copy(image_file, join(imagests, p + "_0000.nii.gz"))
+        curr =  base+"/"+ p
+        image_file =  curr+"/"+ "imaging.nii.gz"
+        shutil.copy(image_file,  imagests+"/"+ p + "_0000.nii.gz" )
         test_patient_names.append(p)
 
     json_dict = {}
@@ -99,4 +99,4 @@ if __name__ == "__main__":
                              train_patient_names]
     json_dict['test'] = ["./imagesTs/%s.nii.gz" % i.split("/")[-1] for i in test_patient_names]
 
-    save_json(json_dict, os.path.join(out_base, "dataset.json"))
+    save_json(json_dict,  out_base+"/"+"dataset.json")

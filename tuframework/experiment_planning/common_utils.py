@@ -25,7 +25,7 @@ def split_4d_nifti(filename, output_folder):
     dim = img_itk.GetDimension()
     file_base = filename.split("/")[-1]
     if dim == 3:
-        shutil.copy(filename, join(output_folder, file_base[:-7] + "_0000.nii.gz"))
+        shutil.copy(filename, output_folder+"/"+ file_base[:-7] + "_0000.nii.gz")
         return
     elif dim != 4:
         raise RuntimeError("Unexpected dimensionality: %d of file %s, cannot split" % (dim, filename))
@@ -44,7 +44,7 @@ def split_4d_nifti(filename, output_folder):
             img_itk_new.SetSpacing(spacing)
             img_itk_new.SetOrigin(origin)
             img_itk_new.SetDirection(direction)
-            sitk.WriteImage(img_itk_new, join(output_folder, file_base[:-7] + "_%04.0d.nii.gz" % i))
+            sitk.WriteImage(img_itk_new, output_folder+"/"+file_base[:-7] + "_%04.0d.nii.gz" % i)
 
 
 def get_pool_and_conv_props_poolLateV2(patch_size, min_feature_map_size, max_numpool, spacing):

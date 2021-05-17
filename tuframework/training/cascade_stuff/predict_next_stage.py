@@ -44,8 +44,9 @@ def resample_and_save(predicted, target_shape, output_file, force_separate_z=Fal
 
 
 def predict_next_stage(trainer, stage_to_be_predicted_folder):
-    output_folder = join(pardir(trainer.output_folder), "pred_next_stage")
-    maybe_mkdir_p(output_folder)
+    output_folder = pardir(trainer.output_folder)+"/"+ "pred_next_stage"
+    if not os.path.isdir(output_folder):
+        os.makedirs(output_folder)
 
     if 'segmentation_export_params' in trainer.plans.keys():
         force_separate_z = trainer.plans['segmentation_export_params']['force_separate_z']
@@ -69,10 +70,10 @@ def predict_next_stage(trainer, stage_to_be_predicted_folder):
             mirror_axes=trainer.data_aug_params['mirror_axes'], mixed_precision=trainer.fp16)[1]
 
         data_file_nofolder = data_file.split("/")[-1]
-        data_file_nextstage = join(stage_to_be_predicted_folder, data_file_nofolder)
+        data_file_nextstage =  stage_to_be_predicted_folder+"/"+ data_file_nofolder
         data_nextstage = np.load(data_file_nextstage)['data']
         target_shp = data_nextstage.shape[1:]
-        output_file = join(output_folder, data_file_nextstage.split("/")[-1][:-4] + "_segFromPrevStage.npz")
+        output_file = output_folder+"/"+ data_file_nextstage.split("/")[-1][:-4] + "_segFromPrevStage.npz"
 
         if np.prod(predicted_probabilities.shape) > (2e9 / 4 * 0.85):  # *0.85 just to be save
             np.save(output_file[:-4] + ".npy", predicted_probabilities)
@@ -110,7 +111,7 @@ if __name__ == "__main__":
     plans_file, folder_with_preprocessed_data, output_folder_name, dataset_directory, batch_dice, stage = \
         get_default_configuration("3d_lowres", task)
 
-    trainer_class = recursive_find_python_class([join(tuframework.__path__[0], "training", "network_training")],
+    trainer_class = recursive_find_python_class([ tuframework.__path__[0]+"/"+ "training", "network_training" ],
                                                 trainerclass,
                                                 "tuframework.training.network_training")
 
@@ -128,8 +129,9 @@ if __name__ == "__main__":
     trainer.do_split()
     trainer.load_best_checkpoint(train=False)
 
-    stage_to_be_predicted_folder = join(dataset_directory, trainer.plans['data_identifier'] + "_stage%d" % 1)
-    output_folder = join(pardir(trainer.output_folder), "pred_next_stage")
-    maybe_mkdir_p(output_folder)
+    stage_to_be_predicted_folder =  dataset_directory+"/"+ trainer.plans['data_identifier'] + "_stage%d" % 1
+    output_folder = pardir(trainer.output_folder)+"/"+ "pred_next_stage"
+    if not os.path.isdir(output_folder):
+        os.makedirs(output_folder)
 
     predict_next_stage(trainer, stage_to_be_predicted_folder)

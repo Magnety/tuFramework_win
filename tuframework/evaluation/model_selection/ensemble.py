@@ -40,11 +40,11 @@ def ensemble(training_output_folder1, training_output_folder2, output_folder, ta
     print("\nEnsembling folders\n", training_output_folder1, "\n", training_output_folder2)
 
     output_folder_base = output_folder
-    output_folder = join(output_folder_base, "ensembled_raw")
+    output_folder =  output_folder_base+"/"+ "ensembled_raw"
 
     # only_keep_largest_connected_component is the same for all stages
-    dataset_directory = join(preprocessing_output_dir, task)
-    plans = load_pickle(join(training_output_folder1, "plans.pkl"))  # we need this only for the labels
+    dataset_directory =  preprocessing_output_dir+"/"+ task
+    plans = load_pickle( training_output_folder1+"/"+"plans.pkl" )  # we need this only for the labels
 
     files1 = []
     files2 = []
@@ -52,12 +52,12 @@ def ensemble(training_output_folder1, training_output_folder2, output_folder, ta
     out_files = []
     gt_segmentations = []
 
-    folder_with_gt_segs = join(dataset_directory, "gt_segmentations")
+    folder_with_gt_segs =  dataset_directory+"/"+"gt_segmentations"
     # in the correct shape and we need the original geometry to restore the niftis
 
     for f in folds:
-        validation_folder_net1 = join(training_output_folder1, "fold_%d" % f, validation_folder)
-        validation_folder_net2 = join(training_output_folder2, "fold_%d" % f, validation_folder)
+        validation_folder_net1 =  training_output_folder1+"/"+ "fold_%d" % f+"/"+ validation_folder
+        validation_folder_net2 = training_output_folder2+"/"+ "fold_%d" % f +"/"+ validation_folder
 
         if not isdir(validation_folder_net1):
             raise AssertionError("Validation directory missing: %s. Please rerun validation with `tuframework_train CONFIG TRAINER TASK FOLD -val --npz`" % validation_folder_net1)
@@ -65,9 +65,9 @@ def ensemble(training_output_folder1, training_output_folder2, output_folder, ta
             raise AssertionError("Validation directory missing: %s. Please rerun validation with `tuframework_train CONFIG TRAINER TASK FOLD -val --npz`" % validation_folder_net2)
 
         # we need to ensure the validation was successful. We can verify this via the presence of the summary.json file
-        if not isfile(join(validation_folder_net1, 'summary.json')):
+        if not isfile( validation_folder_net1+"/"+ 'summary.json' ):
             raise AssertionError("Validation directory incomplete: %s. Please rerun validation with `tuframework_train CONFIG TRAINER TASK FOLD -val --npz`" % validation_folder_net1)
-        if not isfile(join(validation_folder_net2, 'summary.json')):
+        if not isfile( validation_folder_net2+"/"+ 'summary.json' ):
             raise AssertionError("Validation directory missing: %s. Please rerun validation with `tuframework_train CONFIG TRAINER TASK FOLD -val --npz`" % validation_folder_net2)
 
         patient_identifiers1_npz = [i[:-4] for i in subfiles(validation_folder_net1, False, None, 'npz', True)]
@@ -87,37 +87,39 @@ def ensemble(training_output_folder1, training_output_folder2, output_folder, ta
 
         assert all([i == j for i, j in zip(patient_identifiers1_npz, patient_identifiers2_npz)]), "npz filenames do not match. This should not happen."
 
-        maybe_mkdir_p(output_folder)
+        if not os.path.isdir(output_folder):
+            os.makedirs(output_folder)
 
         for p in patient_identifiers1_npz:
-            files1.append(join(validation_folder_net1, p + '.npz'))
-            files2.append(join(validation_folder_net2, p + '.npz'))
-            property_files.append(join(validation_folder_net1, p) + ".pkl")
-            out_files.append(join(output_folder, p + ".nii.gz"))
-            gt_segmentations.append(join(folder_with_gt_segs, p + ".nii.gz"))
+            files1.append( validation_folder_net1+"/"+ p + '.npz')
+            files2.append( validation_folder_net2+"/"+p + '.npz')
+            property_files.append( validation_folder_net1+"/"+ p  + ".pkl")
+            out_files.append(  output_folder+"/"+ p + ".nii.gz")
+            gt_segmentations.append( folder_with_gt_segs+"/"+ p + ".nii.gz")
 
     p = Pool(default_num_threads)
     p.map(merge, zip(files1, files2, property_files, out_files))
     p.close()
     p.join()
 
-    if not isfile(join(output_folder, "summary.json")) and len(out_files) > 0:
+    if not isfile( output_folder+"/"+ "summary.json" ) and len(out_files) > 0:
         aggregate_scores(tuple(zip(out_files, gt_segmentations)), labels=plans['all_classes'],
-                     json_output_file=join(output_folder, "summary.json"), json_task=task,
+                     json_output_file= output_folder+"/"+ "summary.json" , json_task=task,
                      json_name=task + "__" + output_folder_base.split("/")[-1], num_threads=default_num_threads)
 
-    if allow_ensembling and not isfile(join(output_folder_base, "postprocessing.json")):
+    if allow_ensembling and not isfile( output_folder_base+"/"+ "postprocessing.json" ):
         # now lets also look at postprocessing. We cannot just take what we determined in cross-validation and apply it
         # here because things may have changed and may also be too inconsistent between the two networks
         determine_postprocessing(output_folder_base, folder_with_gt_segs, "ensembled_raw", "temp",
                                  "ensembled_postprocessed", default_num_threads, dice_threshold=0)
 
-        out_dir_all_json = join(network_training_output_dir, "summary_jsons")
-        json_out = load_json(join(output_folder_base, "ensembled_postprocessed", "summary.json"))
+        out_dir_all_json = network_training_output_dir+"/"+ "summary_jsons"
+        json_out = load_json( output_folder_base+"/"+ "ensembled_postprocessed"+"/"+"summary.json")
 
         json_out["experiment_name"] = output_folder_base.split("/")[-1]
-        save_json(json_out, join(output_folder_base, "ensembled_postprocessed", "summary.json"))
+        save_json(json_out, output_folder_base+"/"+"ensembled_postprocessed"+"/"+"summary.json")
 
-        maybe_mkdir_p(out_dir_all_json)
-        shutil.copy(join(output_folder_base, "ensembled_postprocessed", "summary.json"),
-                    join(out_dir_all_json, "%s__%s.json" % (task, output_folder_base.split("/")[-1])))
+        if not os.path.isdir(out_dir_all_json):
+            os.makedirs(out_dir_all_json)
+        shutil.copy( output_folder_base+"/"+ "ensembled_postprocessed"+"/"+ "summary.json" ,
+                     out_dir_all_json+"/"+ "%s__%s.json" % (task, output_folder_base.split("/")[-1]))

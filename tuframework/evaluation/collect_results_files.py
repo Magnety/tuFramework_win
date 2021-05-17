@@ -31,13 +31,13 @@ def crawl_and_copy(current_folder, out_folder, prefix="fabian_", suffix="ummary.
     f = [i for i in f if i.endswith(suffix)]
     if current_folder.find("fold0") != -1:
         for fl in f:
-            shutil.copy(os.path.join(current_folder, fl), os.path.join(out_folder, prefix+fl))
+            shutil.copy(current_folder+"/"+fl,out_folder+"/"+ prefix+fl)
     for su in s:
         if prefix == "":
             add = su
         else:
             add = "__" + su
-        crawl_and_copy(os.path.join(current_folder, su), out_folder, prefix=prefix+add)
+        crawl_and_copy(current_folder+"/"+ su, out_folder, prefix=prefix+add)
 
 
 if __name__ == "__main__":

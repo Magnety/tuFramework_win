@@ -37,11 +37,11 @@ def get_output_folder_name(model: str, task: str = None, trainer: str = None, pl
     else:
         tr_dir = network_training_output_dir
 
-    current = join(tr_dir, model)
+    current =  tr_dir+"/"+ model
     if task is not None:
-        current = join(current, task)
+        current =  current+"/"+ task
         if trainer is not None and plans is not None:
-            current = join(current, trainer + "__" + plans)
+            current =  current+"/"+ trainer + "__" + plans
             if fold is not None:
-                current = join(current, "fold_%d" % fold)
+                current = current+"/"+ "fold_%d" % fold
     return current

@@ -54,12 +54,14 @@ def merge_files(files, properties_files, out_file, override, store_npz):
 
 
 def merge(folders, output_folder, threads, override=True, postprocessing_file=None, store_npz=False):
-    maybe_mkdir_p(output_folder)
+    if not os.path.isdir(output_folder):
+         os.makedirs(output_folder)
 
     if postprocessing_file is not None:
         output_folder_orig = deepcopy(output_folder)
-        output_folder = join(output_folder, 'not_postprocessed')
-        maybe_mkdir_p(output_folder)
+        output_folder =  output_folder+"/"+ 'not_postprocessed'
+        if not os.path.isdir(output_folder):
+            os.makedirs(output_folder)
     else:
         output_folder_orig = None
 
@@ -69,18 +71,18 @@ def merge(folders, output_folder, threads, override=True, postprocessing_file=No
     patient_ids = np.unique(patient_ids)
 
     for f in folders:
-        assert all([isfile(join(f, i + ".npz")) for i in patient_ids]), "Not all patient npz are available in " \
+        assert all([isfile( f+"/"+ i + ".npz")  for i in patient_ids]), "Not all patient npz are available in " \
                                                                         "all folders"
-        assert all([isfile(join(f, i + ".pkl")) for i in patient_ids]), "Not all patient pkl are available in " \
+        assert all([isfile( f+"/"+ i + ".pkl")  for i in patient_ids]), "Not all patient pkl are available in " \
                                                                         "all folders"
 
     files = []
     property_files = []
     out_files = []
     for p in patient_ids:
-        files.append([join(f, p + ".npz") for f in folders])
-        property_files.append([join(f, p + ".pkl") for f in folders])
-        out_files.append(join(output_folder, p + ".nii.gz"))
+        files.append([ f+"/"+ p + ".npz"  for f in folders])
+        property_files.append([ f+"/"+ p + ".pkl"  for f in folders])
+        out_files.append( output_folder+"/"+ p + ".nii.gz")
 
     p = Pool(threads)
     p.starmap(merge_files, zip(files, property_files, out_files, [override] * len(out_files), [store_npz] * len(out_files)))

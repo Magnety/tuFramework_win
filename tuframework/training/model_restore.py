@@ -34,7 +34,7 @@ def recursive_find_python_class(folder, trainer_name, current_module):
         for importer, modname, ispkg in pkgutil.iter_modules(folder):
             if ispkg:
                 next_current_module = current_module + "." + modname
-                tr = recursive_find_python_class([join(folder[0], modname)], trainer_name, current_module=next_current_module)
+                tr = recursive_find_python_class([ folder[0]+"/"+ modname ], trainer_name, current_module=next_current_module)
             if tr is not None:
                 break
 
@@ -56,7 +56,7 @@ def restore_model(pkl_file, checkpoint=None, train=False, fp16=None):
     info = load_pickle(pkl_file)
     init = info['init']
     name = info['name']
-    search_in = join(tuframework.__path__[0], "training", "network_training")
+    search_in =  tuframework.__path__[0]+"/"+ "training"+"/"+ "network_training"
     tr = recursive_find_python_class([search_in], name, current_module="tuframework.training.network_training")
 
     if tr is None:
@@ -65,7 +65,7 @@ def restore_model(pkl_file, checkpoint=None, train=False, fp16=None):
         """
         try:
             import meddec
-            search_in = join(meddec.__path__[0], "model_training")
+            search_in =  meddec.__path__[0]+"/"+ "model_training"
             tr = recursive_find_python_class([search_in], name, current_module="meddec.model_training")
         except ImportError:
             pass
@@ -101,7 +101,7 @@ def restore_model(pkl_file, checkpoint=None, train=False, fp16=None):
 
 
 def load_best_model_for_inference(folder):
-    checkpoint = join(folder, "model_best.model")
+    checkpoint = folder+"/"+ "model_best.model"
     pkl_file = checkpoint + ".pkl"
     return restore_model(pkl_file, checkpoint, False)
 
@@ -119,16 +119,16 @@ def load_model_and_checkpoint_files(folder, folds=None, mixed_precision=None, ch
     :return:
     """
     if isinstance(folds, str):
-        folds = [join(folder, "all")]
+        folds = [ folder+"/"+ "all" ]
         assert isdir(folds[0]), "no output folder for fold %s found" % folds
     elif isinstance(folds, (list, tuple)):
         if len(folds) == 1 and folds[0] == "all":
-            folds = [join(folder, "all")]
+            folds = [ folder+"/"+ "all" ]
         else:
-            folds = [join(folder, "fold_%d" % i) for i in folds]
+            folds = [ folder+"/"+ "fold_%d" % i  for i in folds]
         assert all([isdir(i) for i in folds]), "list of folds specified but not all output folders are present"
     elif isinstance(folds, int):
-        folds = [join(folder, "fold_%d" % folds)]
+        folds = [folder+"/"+ "fold_%d" % folds]
         assert all([isdir(i) for i in folds]), "output folder missing for fold %d" % folds
     elif folds is None:
         print("folds is None so we will automatically look for output folders (not using \'all\'!)")
@@ -137,12 +137,12 @@ def load_model_and_checkpoint_files(folder, folds=None, mixed_precision=None, ch
     else:
         raise ValueError("Unknown value for folds. Type: %s. Expected: list of int, int, str or None", str(type(folds)))
 
-    trainer = restore_model(join(folds[0], "%s.model.pkl" % checkpoint_name), fp16=mixed_precision)
+    trainer = restore_model( folds[0]+"/"+ "%s.model.pkl" % checkpoint_name , fp16=mixed_precision)
     trainer.output_folder = folder
     trainer.output_folder_base = folder
     trainer.update_fold(0)
     trainer.initialize(False)
-    all_best_model_files = [join(i, "%s.model" % checkpoint_name) for i in folds]
+    all_best_model_files = [ i+"/"+ "%s.model" % checkpoint_name  for i in folds]
     print("using the following model files: ", all_best_model_files)
     all_params = [torch.load(i, map_location=torch.device('cpu')) for i in all_best_model_files]
     return trainer, all_params

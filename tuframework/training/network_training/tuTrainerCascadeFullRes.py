@@ -45,8 +45,7 @@ class tuframeworkTrainerCascadeFullRes(tuframeworkTrainer):
             task = self.output_folder.split("/")[-3]
             plans_identifier = self.output_folder.split("/")[-2].split("__")[-1]
 
-            folder_with_segs_prev_stage = join(network_training_output_dir, "3d_lowres",
-                                               task, previous_trainer + "__" + plans_identifier, "pred_next_stage")
+            folder_with_segs_prev_stage =  network_training_output_dir+"/"+ "3d_lowres"+"/"+task+"/"+ previous_trainer + "__" + plans_identifier+"/"+ "pred_next_stage"
             if not isdir(folder_with_segs_prev_stage):
                 raise RuntimeError(
                     "Cannot run final stage of cascade. Run corresponding 3d_lowres first and predict the "
@@ -60,16 +59,13 @@ class tuframeworkTrainerCascadeFullRes(tuframeworkTrainer):
     def do_split(self):
         super(tuframeworkTrainerCascadeFullRes, self).do_split()
         for k in self.dataset:
-            self.dataset[k]['seg_from_prev_stage_file'] = join(self.folder_with_segs_from_prev_stage,
-                                                               k + "_segFromPrevStage.npz")
+            self.dataset[k]['seg_from_prev_stage_file'] =  self.folder_with_segs_from_prev_stage+"/"+ k + "_segFromPrevStage.npz"
             assert isfile(self.dataset[k]['seg_from_prev_stage_file']), \
                 "seg from prev stage missing: %s" % (self.dataset[k]['seg_from_prev_stage_file'])
         for k in self.dataset_val:
-            self.dataset_val[k]['seg_from_prev_stage_file'] = join(self.folder_with_segs_from_prev_stage,
-                                                                   k + "_segFromPrevStage.npz")
+            self.dataset_val[k]['seg_from_prev_stage_file'] = self.folder_with_segs_from_prev_stage+"/"+k + "_segFromPrevStage.npz"
         for k in self.dataset_tr:
-            self.dataset_tr[k]['seg_from_prev_stage_file'] = join(self.folder_with_segs_from_prev_stage,
-                                                                  k + "_segFromPrevStage.npz")
+            self.dataset_tr[k]['seg_from_prev_stage_file'] =  self.folder_with_segs_from_prev_stage+"/"+k + "_segFromPrevStage.npz"
 
     def get_basic_generators(self):
         self.load_dataset()
@@ -120,8 +116,7 @@ class tuframeworkTrainerCascadeFullRes(tuframeworkTrainer):
 
         self.setup_DA_params()
 
-        self.folder_with_preprocessed_data = join(self.dataset_directory, self.plans['data_identifier'] +
-                                                  "_stage%d" % self.stage)
+        self.folder_with_preprocessed_data =  self.dataset_directory+"/"+ self.plans['data_identifier'] + "_stage%d" % self.stage
         if training:
             self.setup_DA_params()
 
@@ -177,8 +172,9 @@ class tuframeworkTrainerCascadeFullRes(tuframeworkTrainer):
             interpolation_order = segmentation_export_kwargs['interpolation_order']
             interpolation_order_z = segmentation_export_kwargs['interpolation_order_z']
 
-        output_folder = join(self.output_folder, validation_folder_name)
-        maybe_mkdir_p(output_folder)
+        output_folder =  self.output_folder +"/"+ validation_folder_name
+        if not os.path.isdir(output_folder):
+            os.makedirs(output_folder)
 
         if do_mirroring:
             mirror_axes = self.data_aug_params['mirror_axes']
@@ -197,8 +193,7 @@ class tuframeworkTrainerCascadeFullRes(tuframeworkTrainer):
             data = np.load(self.dataset[k]['data_file'])['data']
 
             # concat segmentation of previous step
-            seg_from_prev_stage = np.load(join(self.folder_with_segs_from_prev_stage,
-                                               k + "_segFromPrevStage.npz"))['data'][None]
+            seg_from_prev_stage = np.load( self.folder_with_segs_from_prev_stage+"/"+k + "_segFromPrevStage.npz" )['data'][None]
 
             print(data.shape)
             data[-1][data[-1] == -1] = 0
@@ -220,7 +215,7 @@ class tuframeworkTrainerCascadeFullRes(tuframeworkTrainer):
             fname = properties['list_of_data_files'][0].split("/")[-1][:-12]
 
             if save_softmax:
-                softmax_fname = join(output_folder, fname + ".npz")
+                softmax_fname =  output_folder+"/"+ fname + ".npz"
             else:
                 softmax_fname = None
 
@@ -236,7 +231,7 @@ class tuframeworkTrainerCascadeFullRes(tuframeworkTrainer):
                 softmax_pred = fname + ".npy"
 
             results.append(export_pool.starmap_async(save_segmentation_nifti_from_softmax,
-                                                     ((softmax_pred, join(output_folder, fname + ".nii.gz"),
+                                                     ((softmax_pred,  output_folder+"/"+fname + ".nii.gz" ,
                                                        properties, interpolation_order, self.regions_class_order,
                                                        None, None,
                                                        softmax_fname, None, force_separate_z,
@@ -245,15 +240,15 @@ class tuframeworkTrainerCascadeFullRes(tuframeworkTrainer):
                                                      )
                            )
 
-            pred_gt_tuples.append([join(output_folder, fname + ".nii.gz"),
-                                   join(self.gt_niftis_folder, fname + ".nii.gz")])
+            pred_gt_tuples.append([ output_folder+"/"+ fname + ".nii.gz" ,
+                                    self.gt_niftis_folder+"/"+fname + ".nii.gz"  ])
 
         _ = [i.get() for i in results]
 
         task = self.dataset_directory.split("/")[-1]
         job_name = self.experiment_name
         _ = aggregate_scores(pred_gt_tuples, labels=list(range(self.num_classes)),
-                             json_output_file=join(output_folder, "summary.json"), json_name=job_name,
+                             json_output_file= output_folder+"/"+ "summary.json" , json_name=job_name,
                              json_author="Fabian", json_description="",
                              json_task=task)
 
@@ -272,8 +267,9 @@ class tuframeworkTrainerCascadeFullRes(tuframeworkTrainer):
         # postprocesing to be better? In this case we need to consolidate. At the time the consolidation is going to be
         # done we won't know what self.gt_niftis_folder was, so now we copy all the niftis into a separate folder to
         # be used later
-        gt_nifti_folder = join(self.output_folder_base, "gt_niftis")
-        maybe_mkdir_p(gt_nifti_folder)
+        gt_nifti_folder =  self.output_folder_base+"/"+ "gt_niftis"
+        if not os.path.isdir(gt_nifti_folder):
+            os.makedirs(gt_nifti_folder)
         for f in subfiles(self.gt_niftis_folder, suffix=".nii.gz"):
             success = False
             attempts = 0

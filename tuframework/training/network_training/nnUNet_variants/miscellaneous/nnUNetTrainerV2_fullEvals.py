@@ -66,8 +66,9 @@ class tuframeworkTrainerV2_fullEvals(tuframeworkTrainerV2):
             self.do_split()
 
         # predictions as they come from the network go here
-        output_folder = join(self.output_folder, validation_folder_name)
-        maybe_mkdir_p(output_folder)
+        output_folder = self.output_folder+"/"+ validation_folder_name
+        if not os.path.isdir(output_folder):
+             os.makedirs(output_folder)
 
         # this is for debug purposes
         my_input_args = {'do_mirroring': do_mirroring,
@@ -83,7 +84,7 @@ class tuframeworkTrainerV2_fullEvals(tuframeworkTrainerV2):
                          'interpolation_order': interpolation_order,
                          'interpolation_order_z': interpolation_order_z,
                          }
-        save_json(my_input_args, join(output_folder, "validation_args.json"))
+        save_json(my_input_args, output_folder+"/"+"validation_args.json")
 
         if do_mirroring:
             if not self.data_aug_params['do_mirror']:
@@ -98,8 +99,8 @@ class tuframeworkTrainerV2_fullEvals(tuframeworkTrainerV2):
         for k in self.dataset_val.keys():
             properties = load_pickle(self.dataset[k]['properties_file'])
             fname = properties['list_of_data_files'][0].split("/")[-1][:-12]
-            if overwrite or (not isfile(join(output_folder, fname + ".nii.gz"))) or \
-                    (save_softmax and not isfile(join(output_folder, fname + ".npz"))):
+            if overwrite or (not isfile(output_folder+"/"+ fname + ".nii.gz")) or \
+                    (save_softmax and not isfile(output_folder+"/"+ fname + ".npz")):
                 data = np.load(self.dataset[k]['data_file'])['data']
 
                 #print(k, data.shape)
@@ -118,12 +119,12 @@ class tuframeworkTrainerV2_fullEvals(tuframeworkTrainerV2):
                 # softmax_pred = softmax_pred.transpose([0] + [i + 1 for i in self.transpose_backward])
 
                 if save_softmax:
-                    softmax_fname = join(output_folder, fname + ".npz")
+                    softmax_fname = output_folder+"/"+ fname + ".npz"
                 else:
                     softmax_fname = None
 
                 results.append(export_pool.starmap_async(save_segmentation_nifti_from_softmax,
-                                                         ((softmax_pred, join(output_folder, fname + ".nii.gz"),
+                                                         ((softmax_pred, output_folder+"/"+ fname + ".nii.gz",
                                                            properties, interpolation_order, None, None, None,
                                                            softmax_fname, None, force_separate_z,
                                                            interpolation_order_z, False),
@@ -139,7 +140,7 @@ class tuframeworkTrainerV2_fullEvals(tuframeworkTrainerV2):
 
         # this writes a csv file into output_folder
         evaluate_regions(output_folder, self.gt_niftis_folder, self.evaluation_regions)
-        csv_file = np.loadtxt(join(output_folder, 'summary.csv'), skiprows=1, dtype=str, delimiter=',')[:, 1:]
+        csv_file = np.loadtxt(output_folder+"/"+ 'summary.csv', skiprows=1, dtype=str, delimiter=',')[:, 1:]
 
         # these are the values that are compute with np.nanmean aggregation
         whole, core, enhancing = csv_file[-4, :].astype(float)
@@ -183,7 +184,7 @@ class tuframeworkTrainerV2_fullEvals(tuframeworkTrainerV2):
 
             if here >= target:
                 self.print_to_log_file("I am done!")
-                self.save_checkpoint(join(self.output_folder, "model_final_checkpoint.model"))
+                self.save_checkpoint(self.output_folder+"/"+"model_final_checkpoint.model")
                 return_value = False # this triggers early stopping
 
         ret_old = super().on_epoch_end()

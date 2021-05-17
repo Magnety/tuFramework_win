@@ -117,7 +117,7 @@ def crop_to_nonzero(data, seg=None, nonzero_label=-1):
 
 
 def get_patient_identifiers_from_cropped_files(folder):
-    return [i.split("/")[-1][:-4] for i in subfiles(folder, join=True, suffix=".npz")]
+    return [i.split("/")[-1][:-4] for i in subfiles(folder, join=False, suffix=".npz")]
 
 
 class ImageCropper(object):
@@ -133,7 +133,8 @@ class ImageCropper(object):
         self.num_threads = num_threads
 
         if self.output_folder is not None:
-            maybe_mkdir_p(self.output_folder)
+            if not os.path.isdir(self.output_folder):
+                 os.makedirs(self.output_folder)
 
     @staticmethod
     def crop(data, properties, seg=None):
@@ -158,14 +159,14 @@ class ImageCropper(object):
         try:
             print(case_identifier)
             if overwrite_existing \
-                    or (not os.path.isfile(os.path.join(self.output_folder, "%s.npz" % case_identifier))
-                        or not os.path.isfile(os.path.join(self.output_folder, "%s.pkl" % case_identifier))):
+                    or (not os.path.isfile( self.output_folder+"/"+"%s.npz" % case_identifier)
+                        or not os.path.isfile( self.output_folder+"/"+"%s.pkl" % case_identifier)) :
 
                 data, seg, properties = self.crop_from_list_of_files(case[:-1], case[-1])
 
                 all_data = np.vstack((data, seg))
-                np.savez_compressed(os.path.join(self.output_folder, "%s.npz" % case_identifier), data=all_data)
-                with open(os.path.join(self.output_folder, "%s.pkl" % case_identifier), 'wb') as f:
+                np.savez_compressed( self.output_folder+"/"+"%s.npz" % case_identifier , data=all_data)
+                with open( self.output_folder+"/"+ "%s.pkl" % case_identifier , 'wb') as f:
                     pickle.dump(properties, f)
         except Exception as e:
             print("Exception in", case_identifier, ":")
@@ -173,7 +174,7 @@ class ImageCropper(object):
             raise e
 
     def get_list_of_cropped_files(self):
-        return subfiles(self.output_folder, join=True, suffix=".npz")
+        return subfiles(self.output_folder, join=False, suffix=".npz")
 
     def get_patient_identifiers_from_cropped_files(self):
         return [i.split("/")[-1][:-4] for i in self.get_list_of_cropped_files()]
@@ -190,8 +191,9 @@ class ImageCropper(object):
         if output_folder is not None:
             self.output_folder = output_folder
 
-        output_folder_gt = os.path.join(self.output_folder, "gt_segmentations")
-        #maybe_mkdir_p(output_folder_gt)
+        output_folder_gt =  self.output_folder+"/"+ "gt_segmentations"
+        #if not os.path.isdir(output_folder_gt):
+        #os.makedirs(output_folder_gt)
         if not os.path.isdir(output_folder_gt):
             os.makedirs(output_folder_gt)
 
@@ -201,7 +203,9 @@ class ImageCropper(object):
 
         list_of_args = []
         for j, case in enumerate(list_of_files):
+            print("case:",case)
             case_identifier = get_case_identifier(case)
+            print(" case_identifier :",  case_identifier )
             list_of_args.append((case, case_identifier, overwrite_existing))
 
         p = Pool(self.num_threads)
@@ -210,10 +214,10 @@ class ImageCropper(object):
         p.join()
 
     def load_properties(self, case_identifier):
-        with open(os.path.join(self.output_folder, "%s.pkl" % case_identifier), 'rb') as f:
+        with open(  self.output_folder+"/"+ "%s.pkl" % case_identifier , 'rb') as f:
             properties = pickle.load(f)
         return properties
 
     def save_properties(self, case_identifier, properties):
-        with open(os.path.join(self.output_folder, "%s.pkl" % case_identifier), 'wb') as f:
+        with open( self.output_folder+"/"+ "%s.pkl" % case_identifier , 'wb') as f:
             pickle.dump(properties, f)

@@ -29,8 +29,8 @@ from tuframework.preprocessing.cropping import ImageCropper
 
 
 def split_4d(input_folder, num_processes=default_num_threads, overwrite_task_output_id=None):
-    assert isdir(join(input_folder, "imagesTr")) and isdir(join(input_folder, "labelsTr")) and \
-           isfile(join(input_folder, "dataset.json")), \
+    assert isdir( input_folder+"/"+ "imagesTr" ) and isdir(input_folder+"/"+ "labelsTr")  and \
+           isfile( input_folder+"/"+ "dataset.json") , \
         "The input folder must be a valid Task folder from the Medical Segmentation Decathlon with at least the " \
         "imagesTr and labelsTr subfolders and the dataset.json file"
 
@@ -50,7 +50,7 @@ def split_4d(input_folder, num_processes=default_num_threads, overwrite_task_out
 
     task_name = full_task_name[7:]
 
-    output_folder = join(tuFramework_raw_data, "Task%03.0d_" % overwrite_task_output_id + task_name)
+    output_folder =  tuFramework_raw_data+"/"+ "Task%03.0d_" % overwrite_task_output_id + task_name
 
     if isdir(output_folder):
         shutil.rmtree(output_folder)
@@ -58,31 +58,32 @@ def split_4d(input_folder, num_processes=default_num_threads, overwrite_task_out
     files = []
     output_dirs = []
 
-    maybe_mkdir_p(output_folder)
+    if not os.path.isdir(output_folder):
+        os.makedirs(output_folder)
     for subdir in ["imagesTr", "imagesTs"]:
-        curr_out_dir = join(output_folder, subdir)
+        curr_out_dir = output_folder+"/"+subdir
         if not isdir(curr_out_dir):
             os.mkdir(curr_out_dir)
-        curr_dir = join(input_folder, subdir)
-        nii_files = [join(curr_dir, i) for i in os.listdir(curr_dir) if i.endswith(".nii.gz")]
+        curr_dir = input_folder+"/"+subdir
+        nii_files = [ curr_dir+"/"+ i  for i in os.listdir(curr_dir) if i.endswith(".nii.gz")]
         nii_files.sort()
         for n in nii_files:
             files.append(n)
             output_dirs.append(curr_out_dir)
 
-    shutil.copytree(join(input_folder, "labelsTr"), join(output_folder, "labelsTr"))
+    shutil.copytree( input_folder+"/"+ "labelsTr" , output_folder+"/"+ "labelsTr" )
 
     p = Pool(num_processes)
     p.starmap(split_4d_nifti, zip(files, output_dirs))
     p.close()
     p.join()
-    shutil.copy(join(input_folder, "dataset.json"), output_folder)
+    shutil.copy( input_folder+"/"+ "dataset.json" , output_folder)
 
 
 def create_lists_from_splitted_dataset(base_folder_splitted):
     lists = []
 
-    json_file = join(base_folder_splitted, "dataset.json")
+    json_file =  base_folder_splitted+"/"+ "dataset.json"
     with open(json_file) as jsn:
         d = json.load(jsn)
         training_files = d['training']
@@ -90,9 +91,8 @@ def create_lists_from_splitted_dataset(base_folder_splitted):
     for tr in training_files:
         cur_pat = []
         for mod in range(num_modalities):
-            cur_pat.append(join(base_folder_splitted, "imagesTr", tr['image'].split("/")[-1][:-7] +
-                                "_%04.0d.nii.gz" % mod))
-        cur_pat.append(join(base_folder_splitted, "labelsTr", tr['label'].split("/")[-1]))
+            cur_pat.append( base_folder_splitted+"/"+ "imagesTr"+"/"+ tr['image'].split("/")[-1][:-7] + "_%04.0d.nii.gz" % mod)
+        cur_pat.append( base_folder_splitted+"/"+ "labelsTr"+"/"+ tr['label'].split("/")[-1])
         lists.append(cur_pat)
     return lists, {int(i): d['modality'][str(i)] for i in d['modality'].keys()}
 
@@ -106,7 +106,7 @@ def create_lists_from_splitted_dataset_folder(folder):
     caseIDs = get_caseIDs_from_splitted_dataset_folder(folder)
     list_of_lists = []
     for f in caseIDs:
-        list_of_lists.append(subfiles(folder, prefix=f, suffix=".nii.gz", join=True, sort=True))
+        list_of_lists.append(subfiles(folder, prefix=f, suffix=".nii.gz", join=False, sort=True))
     return list_of_lists
 
 
@@ -120,23 +120,25 @@ def get_caseIDs_from_splitted_dataset_folder(folder):
 
 
 def crop(task_string, override=False, num_threads=default_num_threads):
-    cropped_out_dir = join(tuFramework_cropped_data, task_string)
-    maybe_mkdir_p(cropped_out_dir)
+    cropped_out_dir =  tuFramework_cropped_data+"/"+ task_string
+    if not os.path.isdir(cropped_out_dir):
+        os.makedirs(cropped_out_dir)
 
     if override and isdir(cropped_out_dir):
         shutil.rmtree(cropped_out_dir)
-        maybe_mkdir_p(cropped_out_dir)
+        if not os.path.isdir(cropped_out_dir):
+            os.makedirs(cropped_out_dir)
 
-    splitted_4d_output_dir_task = join(tuFramework_raw_data, task_string)
+    splitted_4d_output_dir_task =  tuFramework_raw_data+"/"+ task_string
     lists, _ = create_lists_from_splitted_dataset(splitted_4d_output_dir_task)
 
     imgcrop = ImageCropper(num_threads, cropped_out_dir)
     imgcrop.run_cropping(lists, overwrite_existing=override)
-    shutil.copy(join(tuFramework_raw_data, task_string, "dataset.json"), cropped_out_dir)
+    shutil.copy( tuFramework_raw_data+"/"+ task_string+"/"+ "dataset.json" , cropped_out_dir)
 
 
 def analyze_dataset(task_string, override=False, collect_intensityproperties=True, num_processes=default_num_threads):
-    cropped_out_dir = join(tuFramework_cropped_data, task_string)
+    cropped_out_dir = tuFramework_cropped_data+"/"+task_string
     dataset_analyzer = DatasetAnalyzer(cropped_out_dir, overwrite=override, num_processes=num_processes)
     _ = dataset_analyzer.analyze_dataset(collect_intensityproperties)
 
@@ -145,12 +147,13 @@ def plan_and_preprocess(task_string, processes_lowres=default_num_threads, proce
     from tuframework.experiment_planning.experiment_planner_baseline_2DUNet import ExperimentPlanner2D
     from tuframework.experiment_planning.experiment_planner_baseline_3DUNet import ExperimentPlanner
 
-    preprocessing_output_dir_this_task_train = join(preprocessing_output_dir, task_string)
-    cropped_out_dir = join(tuFramework_cropped_data, task_string)
-    maybe_mkdir_p(preprocessing_output_dir_this_task_train)
+    preprocessing_output_dir_this_task_train =  preprocessing_output_dir+"/"+ task_string
+    cropped_out_dir =  tuFramework_cropped_data+"/"+ task_string
+    if not os.path.isdir(preprocessing_output_dir_this_task_train):
+        os.makedirs(preprocessing_output_dir_this_task_train)
 
-    shutil.copy(join(cropped_out_dir, "dataset_properties.pkl"), preprocessing_output_dir_this_task_train)
-    shutil.copy(join(tuFramework_raw_data, task_string, "dataset.json"), preprocessing_output_dir_this_task_train)
+    shutil.copy( cropped_out_dir+"/"+ "dataset_properties.pkl" , preprocessing_output_dir_this_task_train)
+    shutil.copy( tuFramework_raw_data+"/"+ task_string+"/"+"dataset.json" , preprocessing_output_dir_this_task_train)
 
     exp_planner = ExperimentPlanner(cropped_out_dir, preprocessing_output_dir_this_task_train)
     exp_planner.plan_experiment()
@@ -174,7 +177,7 @@ def plan_and_preprocess(task_string, processes_lowres=default_num_threads, proce
                   if i.split("/")[-1].find("stage") != -1]
         for s in stages:
             print(s.split("/")[-1])
-            list_of_npz_files = subfiles(s, True, None, ".npz", True)
+            list_of_npz_files = subfiles(s, False, None, ".npz", True)
             list_of_pkl_files = [i[:-4]+".pkl" for i in list_of_npz_files]
             all_classes = []
             for pk in list_of_pkl_files:

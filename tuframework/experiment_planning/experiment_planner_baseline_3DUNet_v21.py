@@ -31,8 +31,7 @@ class ExperimentPlanner3D_v21(ExperimentPlanner):
     def __init__(self, folder_with_cropped_data, preprocessed_output_folder):
         super(ExperimentPlanner3D_v21, self).__init__(folder_with_cropped_data, preprocessed_output_folder)
         self.data_identifier = "tuData_plans_v2.1"
-        self.plans_fname = join(self.preprocessed_output_folder,
-                                "tuPlansv2.1_plans_3D.pkl")
+        self.plans_fname = self.preprocessed_output_folder+"/"+"tuPlansv2.1_plans_3D.pkl"
         self.unet_base_num_features = 32
 
     def get_target_spacing(self):
@@ -168,9 +167,9 @@ class ExperimentPlanner3D_v21(ExperimentPlanner):
         plan = {
             'batch_size': batch_size,
             'num_pool_per_axis': network_num_pool_per_axis,
-            'patch_size': input_patch_size,
+            #'patch_size': input_patch_size,
             #liuyiyao
-            #'patch_size': (8,128,128),
+            'patch_size': (8,192,192),
             'median_patient_size_in_voxels': new_median_shape,
             'current_spacing': current_spacing,
             'original_spacing': original_spacing,

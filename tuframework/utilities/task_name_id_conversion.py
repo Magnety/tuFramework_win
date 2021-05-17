@@ -38,8 +38,8 @@ def convert_id_to_task_name(task_id: int):
     candidates_trained_models = []
     if network_training_output_dir is not None:
         for m in ['2d', '3d_lowres', '3d_fullres', '3d_cascade_fullres']:
-            if isdir(join(network_training_output_dir, m)):
-                candidates_trained_models += subdirs(join(network_training_output_dir, m), prefix=startswith, join=False)
+            if isdir( network_training_output_dir+"/"+ m) :
+                candidates_trained_models += subdirs( network_training_output_dir+"/"+ m , prefix=startswith, join=False)
 
     all_candidates = candidates_cropped + candidates_preprocessed + candidates_raw + candidates_trained_models
     unique_candidates = np.unique(all_candidates)

@@ -56,7 +56,8 @@ class tuframeworkTrainerV2BraTSRegions_DA3_BN(tuframeworkTrainerV2_DA3_BN):
 
     def initialize(self, training=True, force_load_plans=False):
         if not self.was_initialized:
-            maybe_mkdir_p(self.output_folder)
+            if not os.path.isdir(self.output_folder):
+                os.makedirs(self.output_folder)
 
             if force_load_plans or (self.plans is None):
                 self.load_plans_file()
@@ -82,8 +83,7 @@ class tuframeworkTrainerV2BraTSRegions_DA3_BN(tuframeworkTrainerV2_DA3_BN):
             self.loss = MultipleOutputLoss2(self.loss, self.ds_loss_weights)
             ################# END ###################
 
-            self.folder_with_preprocessed_data = join(self.dataset_directory, self.plans['data_identifier'] +
-                                                      "_stage%d" % self.stage)
+            self.folder_with_preprocessed_data =  self.dataset_directory+"/"+self.plans['data_identifier'] +  "_stage%d" % self.stage)
             if training:
                 self.dl_tr, self.dl_val = self.get_basic_generators()
                 if self.unpack_data:
@@ -129,7 +129,7 @@ class tuframeworkTrainerV2BraTSRegions_DA3_BN(tuframeworkTrainerV2_DA3_BN):
                          all_in_gpu=all_in_gpu, segmentation_export_kwargs=segmentation_export_kwargs,
                          run_postprocessing_on_folds=run_postprocessing_on_folds)
         # run brats specific validation
-        output_folder = join(self.output_folder, validation_folder_name)
+        output_folder =  self.output_folder+"/"+ validation_folder_name
         evaluate_regions(output_folder, self.gt_niftis_folder, self.regions)
 
     def run_online_evaluation(self, output, target):

@@ -31,7 +31,7 @@ mean_scores = OrderedDict()
 for t in task_descriptors:
     mean_scores[t] = OrderedDict()
 
-json_files = subfiles(folder, True, None, ".json", True)
+json_files = subfiles(folder, False, None, ".json", True)
 json_files = [i for i in json_files if not i.split("/")[-1].startswith(".")]  # stupid mac
 for j in json_files:
     with open(j, 'r') as f:
@@ -69,7 +69,7 @@ for i in mean_scores.keys():
             foreground_values = [mean_scores[i][n][m] for n in tasks]
             new_res['results']['mean']["mean"][m] = np.nanmean(foreground_values)
         output_fname = i.replace(" ", "_") + "_globalMean.json"
-        with open(os.path.join(folder, output_fname), 'w') as f:
+        with open(folder+"/"+ output_fname, 'w') as f:
             json.dump(new_res, f)
     except AssertionError:
         print("could not process experiment %s" % i)

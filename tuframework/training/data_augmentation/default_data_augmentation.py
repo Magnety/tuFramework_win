@@ -235,9 +235,9 @@ if __name__ == "__main__":
     import pickle
 
     t = "Task002_Heart"
-    p = os.path.join(preprocessing_output_dir, t)
+    p = preprocessing_output_dir+"/"+ t
     dataset = load_dataset(p, 0)
-    with open(os.path.join(p, "plans.pkl"), 'rb') as f:
+    with open(p+"/"+ "plans.pkl", 'rb') as f:
         plans = pickle.load(f)
 
     basic_patch_size = get_patch_size(np.array(plans['stage_properties'][0].patch_size),

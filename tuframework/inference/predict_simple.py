@@ -191,10 +191,9 @@ def main():
                                                 "inference of the cascade, custom values for part_id and num_parts " \
                                                 "are not supported. If you wish to have multiple parts, please " \
                                                 "run the 3d_lowres inference first (separately)"
-        model_folder_name = join(network_training_output_dir, "3d_lowres", task_name, trainer_class_name + "__" +
-                                  args.plans_identifier)
+        model_folder_name =  network_training_output_dir+"/"+ "3d_lowres"+"/"+ task_name+"/"+ trainer_class_name + "__" + args.plans_identifier
         assert isdir(model_folder_name), "model output folder not found. Expected: %s" % model_folder_name
-        lowres_output_folder = join(output_folder, "3d_lowres_predictions")
+        lowres_output_folder =  output_folder+"/"+ "3d_lowres_predictions"
         predict_from_folder(model_folder_name, input_folder, lowres_output_folder, folds, False,
                             num_threads_preprocessing, num_threads_nifti_save, None, part_id, num_parts, not disable_tta,
                             overwrite_existing=overwrite_existing, mode=mode, overwrite_all_in_gpu=all_in_gpu,
@@ -209,8 +208,7 @@ def main():
     else:
         trainer = trainer_class_name
 
-    model_folder_name = join(network_training_output_dir, model, task_name, trainer + "__" +
-                              args.plans_identifier)
+    model_folder_name =  network_training_output_dir+"/"+ model+"/"+ task_name+"/"+ trainer + "__" + args.plans_identifier
     print("using model stored in ", model_folder_name)
     assert isdir(model_folder_name), "model output folder not found. Expected: %s" % model_folder_name
 

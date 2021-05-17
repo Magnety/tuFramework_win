@@ -64,8 +64,8 @@ def evaluate_regions(folder_predicted: str, folder_gt: str, regions: dict, proce
     files_in_pred.sort()
 
     # run for all cases
-    full_filenames_gt = [join(folder_gt, i) for i in files_in_pred]
-    full_filenames_pred = [join(folder_predicted, i) for i in files_in_pred]
+    full_filenames_gt = [folder_gt+"/"+ i for i in files_in_pred]
+    full_filenames_pred = [folder_predicted+"/"+ i for i in files_in_pred]
 
     p = Pool(processes)
     res = p.starmap(evaluate_case, zip(full_filenames_pred, full_filenames_gt, [list(regions.values())] * len(files_in_gt)))
@@ -73,7 +73,7 @@ def evaluate_regions(folder_predicted: str, folder_gt: str, regions: dict, proce
     p.join()
 
     all_results = {r: [] for r in region_names}
-    with open(join(folder_predicted, 'summary.csv'), 'w') as f:
+    with open(folder_predicted+"/"+ 'summary.csv', 'w') as f:
         f.write("casename")
         for r in region_names:
             f.write(",%s" % r)

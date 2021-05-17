@@ -92,7 +92,8 @@ class tuframeworkTrainerV2BraTSRegions(tuframeworkTrainerV2):
         :return:
         """
         if not self.was_initialized:
-            maybe_mkdir_p(self.output_folder)
+            if not os.path.isdir(self.output_folder):
+                os.makedirs(self.output_folder)
 
             if force_load_plans or (self.plans is None):
                 self.load_plans_file()
@@ -118,8 +119,7 @@ class tuframeworkTrainerV2BraTSRegions(tuframeworkTrainerV2):
             self.loss = MultipleOutputLoss2(self.loss, self.ds_loss_weights)
             ################# END ###################
 
-            self.folder_with_preprocessed_data = join(self.dataset_directory, self.plans['data_identifier'] +
-                                                      "_stage%d" % self.stage)
+            self.folder_with_preprocessed_data =  self.dataset_directory+"/"+ self.plans['data_identifier'] + "_stage%d" % self.stage
             if training:
                 self.dl_tr, self.dl_val = self.get_basic_generators()
                 if self.unpack_data:
@@ -162,7 +162,7 @@ class tuframeworkTrainerV2BraTSRegions(tuframeworkTrainerV2):
                                all_in_gpu=all_in_gpu, segmentation_export_kwargs=segmentation_export_kwargs,
                                run_postprocessing_on_folds=run_postprocessing_on_folds)
         # run brats specific validation
-        output_folder = join(self.output_folder, validation_folder_name)
+        output_folder =  self.output_folder+"/"+ validation_folder_name
         evaluate_regions(output_folder, self.gt_niftis_folder, self.regions)
 
     def run_online_evaluation(self, output, target):
@@ -228,7 +228,8 @@ class tuframeworkTrainerV2BraTSRegions_DDP(tuframeworkTrainerV2_DDP):
         :return:
         """
         if not self.was_initialized:
-            maybe_mkdir_p(self.output_folder)
+            if not os.path.isdir(self.output_folder):
+                os.makedirs(self.output_folder)
 
             if force_load_plans or (self.plans is None):
                 self.load_plans_file()
@@ -237,8 +238,7 @@ class tuframeworkTrainerV2BraTSRegions_DDP(tuframeworkTrainerV2_DDP):
 
             self.setup_DA_params()
 
-            self.folder_with_preprocessed_data = join(self.dataset_directory, self.plans['data_identifier'] +
-                                                      "_stage%d" % self.stage)
+            self.folder_with_preprocessed_data =  self.dataset_directory+"/"+ self.plans['data_identifier'] +  "_stage%d" % self.stage
             if training:
                 self.dl_tr, self.dl_val = self.get_basic_generators()
                 if self.unpack_data:
@@ -251,12 +251,12 @@ class tuframeworkTrainerV2BraTSRegions_DDP(tuframeworkTrainerV2_DDP):
                         npz_files = subfiles(self.folder_with_preprocessed_data, suffix=".npz", join=False)
                         case_ids = [i[:-4] for i in npz_files]
                         all_present = all(
-                            [isfile(join(self.folder_with_preprocessed_data, i + ".npy")) for i in case_ids])
+                            [isfile( self.folder_with_preprocessed_data+"/"+i + ".npy" ) for i in case_ids])
                         while not all_present:
                             print("worker", self.local_rank, "is waiting for unpacking")
                             sleep(3)
                             all_present = all(
-                                [isfile(join(self.folder_with_preprocessed_data, i + ".npy")) for i in case_ids])
+                                [isfile( self.folder_with_preprocessed_data+"/"+ i + ".npy" ) for i in case_ids])
                         # there is some slight chance that there may arise some error because dataloader are loading a file
                         # that is still being written by worker 0. We ignore this for now an address it only if it becomes
                         # relevant
@@ -319,7 +319,7 @@ class tuframeworkTrainerV2BraTSRegions_DDP(tuframeworkTrainerV2_DDP):
                                all_in_gpu=all_in_gpu, segmentation_export_kwargs=segmentation_export_kwargs,
                                run_postprocessing_on_folds=run_postprocessing_on_folds)
         # run brats specific validation
-        output_folder = join(self.output_folder, validation_folder_name)
+        output_folder =  self.output_folder+"/"+ validation_folder_name
         evaluate_regions(output_folder, self.gt_niftis_folder, self.regions)
 
     def run_iteration(self, data_generator, do_backprop=True, run_online_evaluation=False):

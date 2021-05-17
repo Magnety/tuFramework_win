@@ -20,8 +20,9 @@ import numpy as np
 
 
 def summarize(tasks, models=('2d', '3d_lowres', '3d_fullres', '3d_cascade_fullres'),
-              output_dir=join(network_training_output_dir, "summary_jsons"), folds=(0, 1, 2, 3, 4)):
-    maybe_mkdir_p(output_dir)
+              output_dir= network_training_output_dir+"/"+ "summary_jsons" , folds=(0, 1, 2, 3, 4)):
+    if not os.path.isdir(output_dir):
+        os.makedirs(output_dir)
 
     if len(tasks) == 1 and tasks[0] == "all":
         tasks = list(range(999))
@@ -31,26 +32,26 @@ def summarize(tasks, models=('2d', '3d_lowres', '3d_fullres', '3d_cascade_fullre
     for model in models:
         for t in tasks:
             t = int(t)
-            if not isdir(join(network_training_output_dir, model)):
+            if not isdir( network_training_output_dir+"/"+model ):
                 continue
-            task_name = subfolders(join(network_training_output_dir, model), prefix="Task%03.0d" % t, join=False)
+            task_name = subfolders( network_training_output_dir+"/"+ model, prefix="Task%03.0d" % t, join=False)
             if len(task_name) != 1:
                 print("did not find unique output folder for network %s and task %s" % (model, t))
                 continue
             task_name = task_name[0]
-            out_dir_task = join(network_training_output_dir, model, task_name)
+            out_dir_task =  network_training_output_dir+"/"+ model+"/"+ task_name
 
             model_trainers = subdirs(out_dir_task, join=False)
             for trainer in model_trainers:
                 if trainer.startswith("fold"):
                     continue
-                out_dir = join(out_dir_task, trainer)
+                out_dir =  out_dir_task+"/"+  trainer
 
                 validation_folders = []
                 for fld in folds:
-                    d = join(out_dir, "fold%d"%fld)
+                    d =  out_dir+"/"+ "fold%d"%fld
                     if not isdir(d):
-                        d = join(out_dir, "fold_%d"%fld)
+                        d =  out_dir+"/"+"fold_%d"%fld
                         if not isdir(d):
                             break
                     validation_folders += subfolders(d, prefix="validation", join=False)
@@ -59,20 +60,20 @@ def summarize(tasks, models=('2d', '3d_lowres', '3d_fullres', '3d_cascade_fullre
                     ok = True
                     metrics = OrderedDict()
                     for fld in folds:
-                        d = join(out_dir, "fold%d"%fld)
+                        d =  out_dir+"/"+ "fold%d"%fld
                         if not isdir(d):
-                            d = join(out_dir, "fold_%d"%fld)
+                            d =  out_dir+"/"+ "fold_%d"%fld
                             if not isdir(d):
                                 ok = False
                                 break
-                        validation_folder = join(d, v)
+                        validation_folder =  d+"/"+ v
 
-                        if not isfile(join(validation_folder, "summary.json")):
+                        if not isfile( validation_folder+"/"+ "summary.json") :
                             print("summary.json missing for net %s task %s fold %d" % (model, task_name, fld))
                             ok = False
                             break
 
-                        metrics_tmp = load_json(join(validation_folder, "summary.json"))["results"]["mean"]
+                        metrics_tmp = load_json( validation_folder+"/"+ "summary.json" )["results"]["mean"]
                         for l in metrics_tmp.keys():
                             if metrics.get(l) is None:
                                 metrics[l] = OrderedDict()
@@ -92,15 +93,16 @@ def summarize(tasks, models=('2d', '3d_lowres', '3d_fullres', '3d_cascade_fullre
                         json_out["description"] = model + " " + task_name + " all folds summary"
                         json_out["name"] = model + " " + task_name + " all folds summary"
                         json_out["experiment_name"] = model
-                        save_json(json_out, join(out_dir, "summary_allFolds__%s.json" % v))
-                        save_json(json_out, join(output_dir, "%s__%s__%s__%s.json" % (task_name, model, trainer, v)))
-                        foreground_mean(join(out_dir, "summary_allFolds__%s.json" % v))
-                        foreground_mean(join(output_dir, "%s__%s__%s__%s.json" % (task_name, model, trainer, v)))
+                        save_json(json_out,  out_dir+"/"+ "summary_allFolds__%s.json" % v)
+                        save_json(json_out,  output_dir+"/"+ "%s__%s__%s__%s.json" % (task_name, model, trainer, v))
+                        foreground_mean( out_dir+"/"+ "summary_allFolds__%s.json" % v)
+                        foreground_mean( output_dir+"/"+ "%s__%s__%s__%s.json" % (task_name, model, trainer, v) )
 
 
 def summarize2(task_ids, models=('2d', '3d_lowres', '3d_fullres', '3d_cascade_fullres'),
-               output_dir=join(network_training_output_dir, "summary_jsons"), folds=(0, 1, 2, 3, 4)):
-    maybe_mkdir_p(output_dir)
+               output_dir= network_training_output_dir+"/"+ "summary_jsons" , folds=(0, 1, 2, 3, 4)):
+    if not os.path.isdir(output_dir):
+        os.makedirs(output_dir)
 
     if len(task_ids) == 1 and task_ids[0] == "all":
         task_ids = list(range(999))
@@ -109,24 +111,24 @@ def summarize2(task_ids, models=('2d', '3d_lowres', '3d_fullres', '3d_cascade_fu
 
     for model in models:
         for t in task_ids:
-            if not isdir(join(network_training_output_dir, model)):
+            if not isdir( network_training_output_dir+"/"+ model) :
                 continue
-            task_name = subfolders(join(network_training_output_dir, model), prefix="Task%03.0d" % t, join=False)
+            task_name = subfolders( network_training_output_dir+"/"+ model , prefix="Task%03.0d" % t, join=False)
             if len(task_name) != 1:
                 print("did not find unique output folder for network %s and task %s" % (model, t))
                 continue
             task_name = task_name[0]
-            out_dir_task = join(network_training_output_dir, model, task_name)
+            out_dir_task =  network_training_output_dir+"/"+ model+"/"+ task_name
 
             model_trainers = subdirs(out_dir_task, join=False)
             for trainer in model_trainers:
                 if trainer.startswith("fold"):
                     continue
-                out_dir = join(out_dir_task, trainer)
+                out_dir =  out_dir_task+"/"+trainer
 
                 validation_folders = []
                 for fld in folds:
-                    fold_output_dir = join(out_dir, "fold_%d"%fld)
+                    fold_output_dir = out_dir+"/"+"fold_%d"%fld
                     if not isdir(fold_output_dir):
                         continue
                     validation_folders += subfolders(fold_output_dir, prefix="validation", join=False)
@@ -140,25 +142,25 @@ def summarize2(task_ids, models=('2d', '3d_lowres', '3d_fullres', '3d_cascade_fu
                     metrics['median'] = OrderedDict()
                     metrics['all'] = OrderedDict()
                     for fld in folds:
-                        fold_output_dir = join(out_dir, "fold_%d"%fld)
+                        fold_output_dir =  out_dir+"/"+ "fold_%d"%fld
 
                         if not isdir(fold_output_dir):
                             print("fold missing", model, task_name, trainer, fld)
                             ok = False
                             break
-                        validation_folder = join(fold_output_dir, v)
+                        validation_folder =  fold_output_dir+"/"+ v
 
                         if not isdir(validation_folder):
                             print("validation folder missing", model, task_name, trainer, fld, v)
                             ok = False
                             break
 
-                        if not isfile(join(validation_folder, "summary.json")):
+                        if not isfile(  validation_folder+"/"+ "summary.json"  ):
                             print("summary.json missing", model, task_name, trainer, fld, v)
                             ok = False
                             break
 
-                        all_metrics = load_json(join(validation_folder, "summary.json"))["results"]
+                        all_metrics = load_json( validation_folder+"/"+ "summary.json" )["results"]
                         # we now need to get the mean and median metrics. We use the mean metrics just to get the
                         # names of computed metics, we ignore the precomputed mean and do it ourselfes again
                         mean_metrics = all_metrics["mean"]
@@ -196,8 +198,8 @@ def summarize2(task_ids, models=('2d', '3d_lowres', '3d_fullres', '3d_cascade_fu
                         json_out["description"] = model + " " + task_name + "summary folds" + str(folds)
                         json_out["name"] = model + " " + task_name + "summary folds" + str(folds)
                         json_out["experiment_name"] = model
-                        save_json(json_out, join(output_dir, "%s__%s__%s__%s__%s.json" % (task_name, model, trainer, v, fold_string)))
-                        foreground_mean2(join(output_dir, "%s__%s__%s__%s__%s.json" % (task_name, model, trainer, v, fold_string)))
+                        save_json(json_out,  output_dir+"/"+ "%s__%s__%s__%s__%s.json" % (task_name, model, trainer, v, fold_string) )
+                        foreground_mean2( output_dir+"/"+"%s__%s__%s__%s__%s.json" % (task_name, model, trainer, v, fold_string))
 
 
 def foreground_mean2(filename):
@@ -232,5 +234,5 @@ if __name__ == "__main__":
     models = args.models
 
     folds = args.folds
-    summarize2(tasks, models, folds=folds, output_dir=join(network_training_output_dir, "summary_jsons_new"))
+    summarize2(tasks, models, folds=folds, output_dir= network_training_output_dir+"/"+ "summary_jsons_new")
 

@@ -55,7 +55,8 @@ class tuframeworkTrainerNoDA(tuframeworkTrainer):
         :return:
         """
 
-        maybe_mkdir_p(self.output_folder)
+        if not os.path.isdir(self.output_folder):
+            os.makedirs(self.output_folder)
 
         if force_load_plans or (self.plans is None):
             self.load_plans_file()
@@ -64,8 +65,7 @@ class tuframeworkTrainerNoDA(tuframeworkTrainer):
 
         self.setup_DA_params()
 
-        self.folder_with_preprocessed_data = join(self.dataset_directory, self.plans['data_identifier'] +
-                                                  "_stage%d" % self.stage)
+        self.folder_with_preprocessed_data = self.dataset_directory+"/"+ self.plans['data_identifier'] +"_stage%d" % self.stage
         if training:
             self.dl_tr, self.dl_val = self.get_basic_generators()
             if self.unpack_data:

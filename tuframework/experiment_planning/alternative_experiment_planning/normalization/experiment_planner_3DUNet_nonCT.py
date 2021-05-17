@@ -27,7 +27,7 @@ class ExperimentPlannernonCT(ExperimentPlanner):
     def __init__(self, folder_with_cropped_data, preprocessed_output_folder):
         super(ExperimentPlannernonCT, self).__init__(folder_with_cropped_data, preprocessed_output_folder)
         self.data_identifier = "tuframework_nonCT"
-        self.plans_fname = join(self.preprocessed_output_folder, "tuframeworkPlans" + "nonCT_plans_3D.pkl")
+        self.plans_fname = self.preprocessed_output_folder+"/"+"tuframeworkPlans" + "nonCT_plans_3D.pkl"
 
     def determine_normalization_scheme(self):
         schemes = OrderedDict()

@@ -177,7 +177,7 @@ def main():
 
         if network == '3d_lowres':
             print("predicting segmentations for the next stage of the cascade")
-            predict_next_stage(trainer, join(dataset_directory, trainer.plans['data_identifier'] + "_stage%d" % 1))
+            predict_next_stage(trainer,dataset_directory+"/"+trainer.plans['data_identifier'] + "_stage%d" % 1)
 
 
 if __name__ == "__main__":

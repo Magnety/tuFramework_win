@@ -55,7 +55,7 @@ def write_plans_to_file(f, plans_file, stage=0, do_linebreak_at_end=True, overri
 
 
 if __name__ == "__main__":
-    summarize((1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 24, 27), output_dir=join(network_training_output_dir, "summary_fold0"), folds=(0,))
+    summarize((1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 24, 27), output_dir= network_training_output_dir+"/"+ "summary_fold0" , folds=(0,))
     base_dir = os.environ['RESULTS_FOLDER']
     tuframeworks = ['tuframeworkV2', 'tuframeworkV2_zspacing']
     task_ids = list(range(99))
@@ -64,26 +64,26 @@ if __name__ == "__main__":
         for i in task_ids:
             for tuframework in tuframeworks:
                 try:
-                    summary_folder = join(base_dir, tuframework, "summary_fold0")
+                    summary_folder =  base_dir+"/"+ tuframework+"/"+ "summary_fold0"
                     if isdir(summary_folder):
                         summary_files = subfiles(summary_folder, join=False, prefix="Task%03.0d_" % i, suffix=".json", sort=True)
                         for s in summary_files:
                             tmp = s.split("__")
                             trainer = tmp[2]
 
-                            expected_output_folder = join(base_dir, tuframework, tmp[1], tmp[0], tmp[2].split(".")[0])
+                            expected_output_folder =  base_dir+"/"+ tuframework+"/"+ tmp[1]+"/"+ tmp[0]+"/"+tmp[2].split(".")[0]
                             name = tmp[0] + "__" + tuframework + "__" + tmp[1] + "__" + tmp[2].split(".")[0]
-                            global_dice_json = join(base_dir, tuframework, tmp[1], tmp[0], tmp[2].split(".")[0], "fold_0", "validation_tiledTrue_doMirror_True", "global_dice.json")
+                            global_dice_json =  base_dir+"/"+ tuframework+"/"+ tmp[1]+"/"+ tmp[0]+"/"+ tmp[2].split(".")[0]+"/"+ "fold_0"+"/"+ "validation_tiledTrue_doMirror_True"+"/"+ "global_dice.json"
 
                             if not isdir(expected_output_folder) or len(tmp) > 3:
                                 if len(tmp) == 2:
                                     continue
-                                expected_output_folder = join(base_dir, tuframework, tmp[1], tmp[0], tmp[2] + "__" + tmp[3].split(".")[0])
+                                expected_output_folder =  base_dir+"/"+ tuframework+"/"+ tmp[1]+"/"+ tmp[0]+"/"+ tmp[2] + "__" + tmp[3].split(".")[0]
                                 name = tmp[0] + "__" + tuframework + "__" + tmp[1] + "__" + tmp[2] + "__" + tmp[3].split(".")[0]
-                                global_dice_json = join(base_dir, tuframework, tmp[1], tmp[0], tmp[2] + "__" + tmp[3].split(".")[0], "fold_0", "validation_tiledTrue_doMirror_True", "global_dice.json")
+                                global_dice_json =  base_dir+"/"+ tuframework+"/"+ tmp[1]+"/"+ tmp[0]+"/"+ tmp[2] + "__" + tmp[3].split(".")[0]+"/"+"fold_0"+"/"+ "validation_tiledTrue_doMirror_True"+"/"+ "global_dice.json"
 
                             assert isdir(expected_output_folder), "expected output dir not found"
-                            plans_file = join(expected_output_folder, "plans.pkl")
+                            plans_file =  expected_output_folder+"/"+"plans.pkl"
                             assert isfile(plans_file)
 
                             plans = load_pickle(plans_file)
@@ -101,7 +101,7 @@ if __name__ == "__main__":
 
                             write_plans_to_file(f, plans_file, stage, False, name)
                             # now read and add result to end of line
-                            results = load_json(join(summary_folder, s))
+                            results = load_json( summary_folder+"/"+ s )
                             mean_dc = results['results']['mean']['mean']['Dice']
                             f.write(";%03.3f" % mean_dc)
                             f.write(";%03.3f\n" % mn_glob_dc)

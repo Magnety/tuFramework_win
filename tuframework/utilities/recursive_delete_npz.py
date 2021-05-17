@@ -19,12 +19,12 @@ import os
 
 
 def recursive_delete_npz(current_directory: str):
-    npz_files = subfiles(current_directory, join=True, suffix=".npz")
+    npz_files = subfiles(current_directory, join=False, suffix=".npz")
     npz_files = [i for i in npz_files if not i.endswith("segFromPrevStage.npz")] # to be extra safe
     _ = [os.remove(i) for i in npz_files]
     for d in subdirs(current_directory, join=False):
         if d != "pred_next_stage":
-            recursive_delete_npz(join(current_directory, d))
+            recursive_delete_npz( current_directory+"/"+ d)
 
 
 if __name__ == "__main__":

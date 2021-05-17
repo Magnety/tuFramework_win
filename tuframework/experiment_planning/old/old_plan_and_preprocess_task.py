@@ -80,7 +80,7 @@ if __name__ == "__main__":
             analyze_dataset(t, override=override, collect_intensityproperties=True, num_processes=processes_lowres)
             plan_and_preprocess(t, processes_lowres, processes_fullres, no_preprocessing)
     else:
-        if not use_splitted or not isdir(join(tuFramework_raw_data, task)):
+        if not use_splitted or not isdir(tuFramework_raw_data+"/"+ task):
             print("splitting task ", task)
             split_4d(task)
 

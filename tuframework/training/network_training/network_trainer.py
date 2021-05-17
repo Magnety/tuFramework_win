@@ -151,7 +151,7 @@ class NetworkTrainer(object):
         This is a suggestion for if your dataset is a dictionary (my personal standard)
         :return:
         """
-        splits_file = join(self.dataset_directory, "splits_final.pkl")
+        splits_file = self.dataset_directory+'/'+"splits_final.pkl"
         if not isfile(splits_file):
             self.print_to_log_file("Creating new split...")
             splits = []
@@ -216,7 +216,7 @@ class NetworkTrainer(object):
             ax.legend()
             ax2.legend(loc=9)
 
-            fig.savefig(join(self.output_folder, "progress.png"))
+            fig.savefig(self.output_folder+'/'+ "progress.png")
             plt.close()
         except IOError:
             self.print_to_log_file("failed to plot: ", sys.exc_info())
@@ -230,11 +230,11 @@ class NetworkTrainer(object):
             args = ("%s:" % dt_object, *args)
 
         if self.log_file is None:
-            maybe_mkdir_p(self.output_folder)
+            if not os.path.isdir(self.output_folder):
+                os.makedirs(self.output_folder)
             timestamp = datetime.now()
-            self.log_file = join(self.output_folder, "training_log_%d_%d_%d_%02.0d_%02.0d_%02.0d.txt" %
-                                 (timestamp.year, timestamp.month, timestamp.day, timestamp.hour, timestamp.minute,
-                                  timestamp.second))
+            self.log_file = self.output_folder+'/'+ "training_log_%d_%d_%d_%02.0d_%02.0d_%02.0d.txt" %(timestamp.year, timestamp.month, timestamp.day, timestamp.hour, timestamp.minute,
+                                  timestamp.second)
             with open(self.log_file, 'w') as f:
                 f.write("Starting... \n")
         successful = False
@@ -290,24 +290,24 @@ class NetworkTrainer(object):
     def load_best_checkpoint(self, train=True):
         if self.fold is None:
             raise RuntimeError("Cannot load best checkpoint if self.fold is None")
-        if isfile(join(self.output_folder, "model_best.model")):
-            self.load_checkpoint(join(self.output_folder, "model_best.model"), train=train)
+        if isfile(self.output_folder+'/'+"model_best.model"):
+            self.load_checkpoint(self.output_folder+'/'+ "model_best.model", train=train)
         else:
             self.print_to_log_file("WARNING! model_best.model does not exist! Cannot load best checkpoint. Falling "
                                    "back to load_latest_checkpoint")
             self.load_latest_checkpoint(train)
 
     def load_latest_checkpoint(self, train=True):
-        if isfile(join(self.output_folder, "model_final_checkpoint.model")):
-            return self.load_checkpoint(join(self.output_folder, "model_final_checkpoint.model"), train=train)
-        if isfile(join(self.output_folder, "model_latest.model")):
-            return self.load_checkpoint(join(self.output_folder, "model_latest.model"), train=train)
-        if isfile(join(self.output_folder, "model_best.model")):
+        if isfile(self.output_folder+'/'+"model_final_checkpoint.model"):
+            return self.load_checkpoint(self.output_folder+'/'+"model_final_checkpoint.model", train=train)
+        if isfile(self.output_folder+'/'+ "model_latest.model"):
+            return self.load_checkpoint(self.output_folder+'/'+ "model_latest.model", train=train)
+        if isfile(self.output_folder+'/'+ "model_best.model"):
             return self.load_best_checkpoint(train)
         raise RuntimeError("No checkpoint found")
 
     def load_final_checkpoint(self, train=False):
-        filename = join(self.output_folder, "model_final_checkpoint.model")
+        filename = self.output_folder+'/'+ "model_final_checkpoint.model"
         if not isfile(filename):
             raise RuntimeError("Final checkpoint not found. Expected: %s. Please finish the training first." % filename)
         return self.load_checkpoint(filename, train=train)
@@ -422,7 +422,8 @@ class NetworkTrainer(object):
 
         self._maybe_init_amp()
 
-        maybe_mkdir_p(self.output_folder)        
+        if not os.path.isdir(self.output_folder):
+            os.makedirs(self.output_folder)
         self.plot_network_architecture()
 
         if cudnn.benchmark and cudnn.deterministic:
@@ -493,12 +494,12 @@ class NetworkTrainer(object):
 
         self.epoch -= 1  # if we don't do this we can get a problem with loading model_final_checkpoint.
 
-        if self.save_final_checkpoint: self.save_checkpoint(join(self.output_folder, "model_final_checkpoint.model"))
+        if self.save_final_checkpoint: self.save_checkpoint(self.output_folder+'/'+"model_final_checkpoint.model")
         # now we can delete latest as it will be identical with final
-        if isfile(join(self.output_folder, "model_latest.model")):
-            os.remove(join(self.output_folder, "model_latest.model"))
-        if isfile(join(self.output_folder, "model_latest.model.pkl")):
-            os.remove(join(self.output_folder, "model_latest.model.pkl"))
+        if isfile(self.output_folder+'/'+ "model_latest.model"):
+            os.remove(self.output_folder+'/'+ "model_latest.model")
+        if isfile(self.output_folder+'/'+"model_latest.model.pkl"):
+            os.remove(self.output_folder+'/'+ "model_latest.model.pkl")
 
     def maybe_update_lr(self):
         # maybe update learning rate
@@ -520,8 +521,8 @@ class NetworkTrainer(object):
         if self.save_intermediate_checkpoints and (self.epoch % self.save_every == (self.save_every - 1)):
             self.print_to_log_file("saving scheduled checkpoint file...")
             if not self.save_latest_only:
-                self.save_checkpoint(join(self.output_folder, "model_ep_%03.0d.model" % (self.epoch + 1)))
-            self.save_checkpoint(join(self.output_folder, "model_latest.model"))
+                self.save_checkpoint(self.output_folder+"/"+ "model_ep_%03.0d.model" % (self.epoch + 1))
+            self.save_checkpoint(self.output_folder+"/"+ "model_latest.model")
             self.print_to_log_file("done")
 
     def update_eval_criterion_MA(self):
@@ -573,7 +574,7 @@ class NetworkTrainer(object):
             if self.val_eval_criterion_MA > self.best_val_eval_criterion_MA:
                 self.best_val_eval_criterion_MA = self.val_eval_criterion_MA
                 #self.print_to_log_file("saving best epoch checkpoint...")
-                if self.save_best_checkpoint: self.save_checkpoint(join(self.output_folder, "model_best.model"))
+                if self.save_best_checkpoint: self.save_checkpoint(self.output_folder+"/"+ "model_best.model")
 
             # Now see if the moving average of the train loss has improved. If yes then reset patience, else
             # increase patience
@@ -731,6 +732,6 @@ class NetworkTrainer(object):
         fig = plt.figure()
         plt.xscale('log')
         plt.plot(lrs[10:-5], losses[10:-5])
-        plt.savefig(join(self.output_folder, "lr_finder.png"))
+        plt.savefig(self.output_folder+"/"+ "lr_finder.png")
         plt.close()
         return log_lrs, losses
